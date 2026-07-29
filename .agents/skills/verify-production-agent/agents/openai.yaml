@@ -1,0 +1,4 @@
+interface:
+  display_name: "Verify Production Agent"
+  short_description: "Run the complete agent verification loop"
+  default_prompt: "Use $verify-production-agent to verify this agent change before declaring it complete."
