@@ -2,6 +2,8 @@
 
 Build an actual Agency Lead Operations Agent with Codex, Pi, and Coolify.
 
+![Production Agent Sprint cover](./docs/production-agent-sprint-cover.png)
+
 This public workshop repository contains:
 
 - a completed, runnable reference agent;
