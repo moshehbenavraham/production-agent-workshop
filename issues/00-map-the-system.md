@@ -1,6 +1,8 @@
 # 00 — Map the system
 
 Mode: HITL
+Sprint week: 1
+Support tag: `[W1][#00]`
 
 ## Goal
 

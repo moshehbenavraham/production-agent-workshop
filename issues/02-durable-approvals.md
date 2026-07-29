@@ -1,6 +1,8 @@
 # 02 — Make approvals durable
 
 Mode: AFK
+Sprint week: 2
+Support tag: `[W2][#02]`
 
 ## Goal
 

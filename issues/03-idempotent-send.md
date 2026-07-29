@@ -1,6 +1,8 @@
 # 03 — Add an idempotent send adapter
 
 Mode: HITL
+Sprint week: 2
+Support tag: `[W2][#03]`
 
 ## Goal
 

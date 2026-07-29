@@ -1,6 +1,8 @@
 # 05 — Add production eval gates
 
 Mode: AFK
+Sprint week: 3
+Support tag: `[W3][#05]`
 
 ## Goal
 

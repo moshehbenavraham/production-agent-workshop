@@ -1,6 +1,8 @@
 # 06 — Release through Coolify
 
 Mode: HITL
+Sprint week: 4
+Support tag: `[W4][#06]`
 
 ## Goal
 

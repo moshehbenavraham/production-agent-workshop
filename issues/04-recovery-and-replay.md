@@ -1,6 +1,8 @@
 # 04 — Recover and replay
 
 Mode: AFK
+Sprint week: 3
+Support tag: `[W3][#04]`
 
 ## Goal
 

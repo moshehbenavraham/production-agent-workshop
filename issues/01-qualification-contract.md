@@ -1,6 +1,8 @@
 # 01 — Make qualification explicit
 
 Mode: AFK
+Sprint week: 1
+Support tag: `[W1][#01]`
 
 ## Goal
 
