@@ -8,6 +8,8 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-08-04
+
 ### Added
 
 - Added a repository-wide Semantic Versioning policy defining the compatibility surface, pre-1.0 rules, pre-release conventions, and release checklist.
@@ -16,6 +18,7 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 ### Changed
 
 - Moved workshop issues from `issues/` to `docs/issues/` and workshop guidance from `workshop/` to `docs/workshop/`, updating affected repository links and instructions.
+- Expanded `.gitignore` with categorized rules for Node.js dependencies, TypeScript build output, test artifacts, runtime data, local secrets, Pi state, caches, editors, and operating-system files while keeping safe examples and reproducibility files trackable.
 - Upgraded the production baseline from Node.js 22 to Node.js 24 LTS, requiring Node.js 24.15 or newer.
 - Standardized local and container installs on npm 12.0.2 and updated the Docker image to `node:24-alpine`.
 - Updated `@earendil-works/pi-coding-agent` from 0.82.1 to 0.83.0 and TypeBox from 1.3.8 to 1.3.10.
@@ -25,6 +28,9 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Security
 
+- Enabled all GitHub repository security and analysis settings available from the repository's Security configuration page.
+- Replaced the placeholder security policy with project-specific supported-version, private-reporting, response, research, and incident-handling guidance.
+- Configured weekly Dependabot updates for npm, the Docker base image, and GitHub Actions, with bounded pull-request counts, reviewable minor/patch groups, isolated Pi updates, and Node LTS major-version guards.
 - Overrode Pi's vulnerable transitive dependencies with `brace-expansion` 5.0.9, `minimatch` 10.2.6, and `undici` 8.10.0.
 - Added version-pinned install-script approvals for the reviewed `@google/genai` 1.52.0, `protobufjs` 7.6.5, and `esbuild` 0.28.1 packages.
 - Confirmed the resulting dependency tree reports zero vulnerabilities with `npm audit`.

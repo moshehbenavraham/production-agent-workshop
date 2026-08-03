@@ -1,5 +1,89 @@
+# Production Agent Workshop
+# Ignore generated, machine-local, and sensitive files while keeping source and
+# reproducibility artifacts such as package-lock.json tracked.
+
+## Dependencies and package-manager artifacts
 node_modules/
+.npm/
+*.tgz
+
+## Build and TypeScript output
 dist/
-.env
-data/*.jsonl
+build/
+out/
+*.tsbuildinfo
+
+## Tests and coverage
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+junit.xml
+
+## Runtime data, databases, and process state
+data/*
 !data/.gitkeep
+logs/
+*.log
+*.pid
+*.pid.lock
+*.seed
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+## Environment files and local secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+.envrc
+.direnv/
+*.key
+*.p12
+*.pfx
+*.pem
+
+## Pi local state and credentials
+.pi/agent/auth.json
+.pi/auth.json
+.pi/cache/
+.pi/git/
+.pi/npm/
+.pi/sessions/
+
+## Tool caches and temporary files
+.cache/
+.tmp/
+temp/
+tmp/
+.eslintcache
+.node_repl_history
+
+## Package-manager logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+## Editors and IDEs
+.idea/
+.vscode/
+*.iml
+*.suo
+*.swp
+*.swo
+*~
+
+## Operating-system files
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/

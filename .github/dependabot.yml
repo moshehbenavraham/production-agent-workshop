@@ -1,12 +1,80 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
-
+# Keep dependency updates reviewable. Dependabot opens pull requests only;
+# maintainers must run the full verification suite before merging.
 version: 2
+
 updates:
-  - package-ecosystem: "" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  # Application and development dependencies in package.json/package-lock.json.
+  - package-ecosystem: "npm"
+    directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Jerusalem"
+    open-pull-requests-limit: 5
+    versioning-strategy: "increase-if-necessary"
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+    groups:
+      production-minor-and-patch:
+        applies-to: "version-updates"
+        dependency-type: "production"
+        patterns:
+          - "*"
+        exclude-patterns:
+          # Pi updates remain isolated because they affect the agent runtime.
+          - "@earendil-works/pi-*"
+        update-types:
+          - "minor"
+          - "patch"
+      development-minor-and-patch:
+        applies-to: "version-updates"
+        dependency-type: "development"
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    ignore:
+      # Keep declarations aligned with the Node 24 LTS production runtime.
+      - dependency-name: "@types/node"
+        update-types:
+          - "version-update:semver-major"
 
+  # The production base image in Dockerfile.
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "09:00"
+      timezone: "Asia/Jerusalem"
+    open-pull-requests-limit: 2
+    commit-message:
+      prefix: "chore(docker)"
+    ignore:
+      # Adopt a new Node major deliberately when it reaches the chosen LTS line.
+      - dependency-name: "node"
+        update-types:
+          - "version-update:semver-major"
+
+  # Existing and future workflows under .github/workflows.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "09:00"
+      timezone: "Asia/Jerusalem"
+    open-pull-requests-limit: 2
+    commit-message:
+      prefix: "chore(actions)"
+    groups:
+      actions-minor-and-patch:
+        applies-to: "version-updates"
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
