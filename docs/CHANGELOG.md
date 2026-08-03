@@ -8,6 +8,10 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ## [Unreleased]
 
+### Changed
+
+- Renamed the ordered workshop task directory from `docs/issues/` to `docs/todo/` and updated live references.
+
 ## [0.1.2] - 2026-08-04
 
 ### Added

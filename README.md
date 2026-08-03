@@ -9,7 +9,7 @@ This public repository contains:
 - a completed, runnable reference agent;
 - a believable [client brief](./client-brief.md);
 - an explicit [AGENTS.md](./AGENTS.md) for Codex and Pi;
-- ordered [workshop issues](./docs/issues);
+- ordered [workshop issues](./docs/todo);
 - a reusable `$verify-production-agent` skill;
 - tests, evals, events, approval boundaries, Docker, and CI.
 

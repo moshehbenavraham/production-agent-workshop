@@ -61,7 +61,7 @@
 
 For a non-trivial change:
 
-1. Read the active file in `docs/issues/`.
+1. Read the active file in `docs/todo/`.
 2. Inspect the relevant code and tests.
 3. State the goal, constraints, and completion checks.
 4. Make the smallest coherent change.
