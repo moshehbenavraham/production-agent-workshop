@@ -2,33 +2,7 @@
 
 ## Mission
 
-Build a small production agent that qualifies a known lead, drafts a follow-up, and stops at a human approval gate. This repository is a teaching reference: clarity, observability, and safe recovery matter more than autonomy.
-
-## Repository map
-
-- `src/server.ts` — HTTP boundary and health endpoint
-- `src/pi-agent.ts` — Pi session and bounded agent loop
-- `src/tools.ts` — typed tools plus deterministic domain functions
-- `src/event-store.ts` — append-only JSONL audit log
-- `src/evals.ts` — golden-set evaluation runner
-- `src/demo.ts` — one-command local demonstration
-- `tests/` — deterministic unit tests
-- `data/` — runtime event data; never commit customer data
-- `client-brief.md` — the business problem and non-negotiable boundaries
-- `issues/` — ordered workshop challenges; work on one at a time
-- `workshop/` — workshop usage and prompting guidance
-
-## Commands
-
-Run these from the repository root:
-
-- Install: `npm install`
-- Development server: `npm run dev`
-- Type-check: `npm run check`
-- Tests: `npm test`
-- Evals: `npm run eval`
-- Complete verification: `npm run verify`
-- Demo with a configured model: `npm run demo -- lead_ada`
+Build a small production agent that qualifies a known lead, drafts a follow-up, and stops at a human approval gate. Clarity, observability, and safe recovery matter more than autonomy.
 
 ## Architecture rules
 
@@ -54,7 +28,7 @@ Run these from the repository root:
 
 For a non-trivial change:
 
-1. Read the active file in `issues/`.
+1. Read the active file in `docs/issues/`.
 2. Inspect the relevant code and tests.
 3. State the goal, constraints, and completion checks.
 4. Make the smallest coherent change.

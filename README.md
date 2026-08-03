@@ -1,15 +1,15 @@
 # Production Agent Workshop
 
-Build an actual Agency Lead Operations Agent with Codex, Pi, and Coolify.
+Build an Agency Lead Operations Agent with Codex, Pi, and Coolify.
 
 ![Production Agent Sprint cover](./docs/production-agent-sprint-cover.png)
 
-This public workshop repository contains:
+This public repository contains:
 
 - a completed, runnable reference agent;
 - a believable [client brief](./client-brief.md);
 - an explicit [AGENTS.md](./AGENTS.md) for Codex and Pi;
-- ordered [workshop issues](./issues);
+- ordered [workshop issues](./docs/issues);
 - a reusable `$verify-production-agent` skill;
 - tests, evals, events, approval boundaries, Docker, and CI.
 
@@ -25,9 +25,7 @@ HTTP request
   → response with a visible stop reason
 ```
 
-The project deliberately stops before sending anything. That boundary lets students see the difference between a useful agent and an unsafe automation.
-
-Start with [the workshop path](./workshop/README.md).
+The project deliberately stops before sending anything. That boundary illustrates the difference between a useful agent and an unsafe automation.
 
 ## Why this architecture
 
@@ -42,7 +40,8 @@ The implementation follows the official Pi SDK patterns for `createAgentSession(
 
 Requirements:
 
-- Node.js 22+
+- Node.js 24.15+ (Node 24 LTS)
+- npm 12+
 - A provider configured for Pi in `~/.pi/agent/auth.json`, or a supported provider key in the environment
 
 ```bash
@@ -96,6 +95,12 @@ Complete these in order:
 6. Add a real send tool with idempotency—but keep it behind approval.
 7. Compare the single-agent flow with one typed specialist handoff.
 
+## Versioning
+
+Releases follow [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html) and the repository's
+[versioning policy](./docs/VERSIONING.md). User-visible changes are recorded in the
+[changelog](./docs/CHANGELOG.md).
+
 ## Official references
 
 - Pi repository: https://github.com/earendil-works/pi
@@ -106,4 +111,4 @@ Pi does not provide a general permission sandbox by default. The production boun
 
 ### Dependency note
 
-At the time this classroom reference was verified, `@earendil-works/pi-coding-agent@0.82.1` pulled `brace-expansion@5.0.7` through its internal `minimatch` dependency. npm reports the published denial-of-service advisory for that transitive package. Re-run `npm audit` before deployment and upgrade Pi as soon as its dependency tree includes the patched release. The vulnerable glob expansion is not exposed to request input in this starter.
+At the time this classroom reference was verified, `@earendil-works/pi-coding-agent@0.83.0` pinned vulnerable versions of `brace-expansion` and `undici` in its published shrinkwrap. This project requires npm 12, which honors the root overrides to install `brace-expansion@5.0.9`, `minimatch@10.2.6`, and `undici@8.10.0`; `npm audit` then reports zero vulnerabilities. Keep npm on the declared version, re-run `npm audit` before deployment, and remove the overrides once Pi publishes the patched dependency tree directly.

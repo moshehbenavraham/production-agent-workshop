@@ -7,7 +7,7 @@ description: Verify a change to this production-agent workshop repository. Use a
 
 Run the checks from the repository root.
 
-1. Read `AGENTS.md` and the active file in `issues/`.
+1. Read `AGENTS.md` and the active file in `docs/issues/`.
 2. Run `npm run check`.
 3. Run `npm test`.
 4. Run `npm run eval`.
