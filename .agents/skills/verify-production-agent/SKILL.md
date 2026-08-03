@@ -1,6 +1,6 @@
 ---
 name: verify-production-agent
-description: Verify a change to this production-agent workshop repository. Use after editing agent behavior, tools, permissions, events, HTTP boundaries, deployment files, or evals, and before claiming an issue is complete.
+description: Verify a change to this production-agent workshop repository. Use after editing agent behavior, tools, permissions, events, HTTP boundaries, deployment files, or evals, and before claiming a task is complete.
 ---
 
 # Verify Production Agent

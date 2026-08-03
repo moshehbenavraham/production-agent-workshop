@@ -4,7 +4,7 @@
   "description": "Build an Agency Lead Operations Agent with Codex, Pi, and Coolify.",
   "current_phase": 0,
   "current_session": null,
-  "monorepo": null,
+  "monorepo": false,
   "phases": {
     "0": {
       "name": "Foundation",

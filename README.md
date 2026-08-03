@@ -9,20 +9,20 @@ This public repository contains:
 - a completed, runnable reference agent;
 - a believable [client brief](./client-brief.md);
 - an explicit [AGENTS.md](./AGENTS.md) for Codex and Pi;
-- ordered [workshop issues](./docs/todo);
+- ordered [workshop tasks](./docs/todo/README_todo.md);
 - a reusable `$verify-production-agent` skill;
-- tests, evals, events, approval boundaries, Docker, and CI.
+- tests, evals, events, approval boundaries, Docker, and release guidance.
 
 The completed reference performs one bounded job:
 
 ```text
 HTTP request
-  → Pi agent session
-    → inspect_lead
-    → draft_follow_up
-    → request_send_approval
-  → JSONL event log
-  → response with a visible stop reason
+  -> Pi agent session
+    -> inspect_lead
+    -> draft_follow_up
+    -> request_send_approval
+  -> JSONL event log
+  -> response with a visible stop reason
 ```
 
 The project deliberately stops before sending anything. That boundary illustrates the difference between a useful agent and an unsafe automation.
@@ -64,9 +64,9 @@ curl -X POST http://localhost:3000/runs \
 
 Available classroom leads:
 
-- `lead_ada` — strong technical fit
-- `lead_grace` — strong business fit
-- `lead_unknown` — intentional not-found eval
+- `lead_ada` - strong technical fit
+- `lead_grace` - strong business fit
+- `lead_unknown` - intentional not-found eval
 
 ## Coolify deployment
 
@@ -92,7 +92,7 @@ Complete these in order:
 3. Add authentication and tenant boundaries.
 4. Add a Postgres event store without changing the event interface.
 5. Add one model-based eval after the deterministic suite.
-6. Add a real send tool with idempotency—but keep it behind approval.
+6. Add a real send tool with idempotency, but keep it behind approval.
 7. Compare the single-agent flow with one typed specialist handoff.
 
 ## Versioning

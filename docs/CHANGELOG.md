@@ -8,6 +8,27 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-08-04
+
+### Added
+
+- Replaced the Apex Spec placeholder with an evidence-backed master PRD covering the bounded baseline, production-hardening path, deferred integrations, measurable safety requirements, risks, and open decisions.
+- Added an indexed workshop task path, dedicated observability and incident-response work, a hardened Coolify release task, and an optional evidence-gated typed-handoff experiment.
+- Added a documentation audit recording complete scratch-topic coverage, repository evidence, link and encoding checks, security review, and exact source recovery details.
+
+### Changed
+
+- Customized the spec-system engineering conventions for the repository's strict TypeScript, Pi agent, HTTP, JSONL event, deterministic verification, and Coolify boundaries.
+- Consolidated all 17 scratch curriculum sections into the ordered tasks covering architecture, tools, state, recovery, evals, observability, deployment, and measured orchestration.
+- Expanded tasks `00` through `05`, split observability from the Coolify release task, and updated workshop navigation, support tags, and task terminology.
+- Renamed and refreshed the workshop guide as `docs/workshop/README_workshop.md`, linked the todo index from the root README, and synchronized the support-thread navigation.
+
+### Removed
+
+- Removed `docs/scratch.md` after verifying comprehensive coverage and recoverability from commit `3d84e25`.
+
+## [0.1.3] - 2026-08-04
+
 ### Changed
 
 - Renamed the ordered workshop task directory from `docs/issues/` to `docs/todo/` and updated live references.
