@@ -8,6 +8,17 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-08-04
+
+### Added
+
+- Initialized the Apex Spec System with project state, starter PRD scaffolding, conventions, security and compliance records, archives, and local workflow scripts.
+- Added `GEMINI.md` and `CLAUDE.md` symlinks to `AGENTS.md` so supported assistants share the repository instructions.
+
+### Changed
+
+- Moved project mission, architecture, workflow, completion, and security guidance from `AGENTS.md` into the corresponding `.spec_system` governance files; `AGENTS.md` now serves only as their shared entry point.
+
 ## [0.1.1] - 2026-08-04
 
 ### Added
