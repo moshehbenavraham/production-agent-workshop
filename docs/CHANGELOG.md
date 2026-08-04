@@ -54,6 +54,9 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Changed
 
+- Reconciled the master PRD, Phase 01 plans/specifications, onboarding,
+  incident guidance, workshop index, and documentation audit with the verified
+  six-session Phase 01 state while leaving Phase 02 unbuilt and unplanned.
 - Re-synthesized cumulative considerations and security/compliance posture from
   all six Phase 01 sessions, closing durable-approval risk while preserving
   controlled-exposure, real-data, recovery, and single-process effect gates.

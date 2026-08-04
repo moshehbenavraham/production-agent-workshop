@@ -26,8 +26,8 @@ auth state or exported environment variables, never in repository files.
    npm run verify
    ```
 
-4. Confirm the expected result: formatting and strict TypeScript pass, 40/40
-   tests pass, and 5/5 evals pass.
+4. Confirm the expected result: formatting, linting, and strict TypeScript pass,
+   156/156 tests pass, and 5/5 evals pass.
 
 ## Optional Pi Authentication
 

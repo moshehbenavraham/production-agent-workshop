@@ -63,7 +63,7 @@ Maintainers aim to:
 - provide a status update at least every fourteen days until resolution.
 
 Accepted reports are prioritized by impact and exploitability. A fix must
-satisfy the internal record's [change security checks](./.spec_system/SECURITY-COMPLIANCE.md#change-security-checks)
+satisfy the internal record's [change constraints](./.spec_system/SECURITY-COMPLIANCE.md#change-constraints)
 and be released according to the versioning policy. Public disclosure should
 be coordinated until a fix or mitigation is available. If a report is
 declined, the maintainer will explain why. This project does not currently

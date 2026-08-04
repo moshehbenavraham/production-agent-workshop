@@ -1,9 +1,9 @@
 # Session 04: Fake Send Contract and Authorization
 
 **Session ID**: `phase01-session04-fake-send-contract-and-authorization`
-**Status**: Not Started
+**Status**: Complete
 **Source Task**: `03`
-**Estimated Tasks**: ~18-22
+**Estimated Tasks**: 17
 **Estimated Duration**: 2-4 hours
 
 ---
@@ -38,8 +38,8 @@ Define and implement the fake-send contract and pre-effect authorization resolve
 
 ## Prerequisites
 
-- [ ] Session 03 completes Task `02` and provides durable approved-state lookup with exact immutable linkage.
-- [ ] The production Pi allowlist still contains only the three Phase 00 bounded tools.
+- [x] Session 03 completes Task `02` and provides durable approved-state lookup with exact immutable linkage.
+- [x] The production Pi allowlist still contains only the three Phase 00 bounded tools.
 
 ---
 
@@ -53,8 +53,8 @@ Define and implement the fake-send contract and pre-effect authorization resolve
 
 ## Success Criteria
 
-- [ ] Only an exact existing approved action can reach the future execution boundary.
-- [ ] Action, target, and draft content are resolved from immutable application state rather than model-provided free text.
-- [ ] Validation and authorization order is explicit and tested before any effect.
-- [ ] Error results are actionable, typed, and cannot be mistaken for completion.
-- [ ] No provider credential, network write, Pi permission, or full draft event is introduced.
+- [x] Only an exact existing approved action can reach the future execution boundary.
+- [x] Action, target, and draft content are resolved from immutable application state rather than model-provided free text.
+- [x] Validation and authorization order is explicit and tested before any effect.
+- [x] Error results are actionable, typed, and cannot be mistaken for completion.
+- [x] No provider credential, network write, Pi permission, or full draft event is introduced.

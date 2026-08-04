@@ -1,9 +1,9 @@
 # Session 02: Approval Store and Projection
 
 **Session ID**: `phase01-session02-approval-store-and-projection`
-**Status**: Not Started
+**Status**: Complete
 **Source Task**: `02`
-**Estimated Tasks**: ~20-24
+**Estimated Tasks**: 14
 **Estimated Duration**: 2-4 hours
 
 ---
@@ -38,8 +38,8 @@ Implement replaceable file-backed approval persistence and deterministic project
 
 ## Prerequisites
 
-- [ ] Session 01 contracts and transition tests are complete and green.
-- [ ] The persistent path strategy keeps runtime data out of Git and maps to `/app/data` in the deployment contract.
+- [x] Session 01 contracts and transition tests are complete and green.
+- [x] The persistent path strategy keeps runtime data out of Git and maps to `/app/data` in the deployment contract.
 
 ---
 
@@ -53,8 +53,8 @@ Implement replaceable file-backed approval persistence and deterministic project
 
 ## Success Criteria
 
-- [ ] A new store instance rebuilds the same approval projection from durable records.
-- [ ] Pending and terminal approval state survives restart with exact identity and ordering preserved.
-- [ ] Missing, malformed, truncated, corrupt, duplicate, or out-of-order records never grant permission or imply success.
-- [ ] Storage failures are actionable and do not create an in-memory success that durable state cannot prove.
-- [ ] The file adapter can be replaced without changing the approval domain or application-facing contract.
+- [x] A new store instance rebuilds the same approval projection from durable records.
+- [x] Pending and terminal approval state survives restart with exact identity and ordering preserved.
+- [x] Missing, malformed, truncated, corrupt, duplicate, or out-of-order records never grant permission or imply success.
+- [x] Storage failures are actionable and do not create an in-memory success that durable state cannot prove.
+- [x] The file adapter can be replaced without changing the approval domain or application-facing contract.

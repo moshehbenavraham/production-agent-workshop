@@ -1,9 +1,9 @@
 # Session 01: Approval Contract and Transitions
 
 **Session ID**: `phase01-session01-approval-contract-and-transitions`
-**Status**: Not Started
+**Status**: Complete
 **Source Task**: `02`
-**Estimated Tasks**: ~18-22
+**Estimated Tasks**: 14
 **Estimated Duration**: 2-4 hours
 
 ---
@@ -38,8 +38,8 @@ Define and implement the closed approval contracts and deterministic transition 
 
 ## Prerequisites
 
-- [ ] Phase 00 is complete and `npm run verify` is green at the session base.
-- [ ] The current `approval.requested` shape and exact-lead qualification gate are mapped as untrusted legacy input to be replaced or adapted deliberately.
+- [x] Phase 00 is complete and `npm run verify` is green at the session base.
+- [x] The current `approval.requested` shape and exact-lead qualification gate are mapped as untrusted legacy input to be replaced or adapted deliberately.
 
 ---
 
@@ -53,8 +53,8 @@ Define and implement the closed approval contracts and deterministic transition 
 
 ## Success Criteria
 
-- [ ] Approval state carries the original `runId` and exact action, target, and draft linkage under one stable `approvalId`.
-- [ ] Only the two allowed pending transitions can produce terminal state.
-- [ ] Duplicate and conflicting decisions return the original terminal state without another transition or effect.
-- [ ] Unknown actors, malformed decisions, missing approvals, and invalid records produce typed actionable failures.
-- [ ] Domain contracts and behavior are independently testable without file I/O, Pi, HTTP, or credentials.
+- [x] Approval state carries the original `runId` and exact action, target, and draft linkage under one stable `approvalId`.
+- [x] Only the two allowed pending transitions can produce terminal state.
+- [x] Duplicate and conflicting decisions return the original terminal state without another transition or effect.
+- [x] Unknown actors, malformed decisions, missing approvals, and invalid records produce typed actionable failures.
+- [x] Domain contracts and behavior are independently testable without file I/O, Pi, HTTP, or credentials.

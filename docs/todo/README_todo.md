@@ -89,7 +89,7 @@ templates, not claims of completed behavior.
 | Week | Tasks | Build Log |
 |------|-------|-----------|
 | 1 | `00`, `01` | [Completed evidence](../build-log-week1.md) |
-| 2 | `02`, `03` | [Evidence template](../build-log-week2.md) |
+| 2 | `02`, `03` | [Completed evidence](../build-log-week2.md) |
 | 3 | `04`, `05` | [Evidence template](../build-log-week3.md) |
 | 4 | `06`, `07` | [Evidence template](../build-log-week4.md) |
 

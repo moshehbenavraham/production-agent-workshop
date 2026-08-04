@@ -1,7 +1,7 @@
 # PRD Phase 01: Durable Approval and Safe Write
 
 **Status**: Complete
-**Sessions**: 6 (initial estimate)
+**Sessions**: 6
 **Estimated Duration**: 4-6 workshop days
 
 **Progress**: 6/6 sessions (100%)
@@ -16,12 +16,12 @@ Week 2 turns the current event-only pending approval into an application-owned d
 
 ## Progress Tracker
 
-| Session | Name | Status | Est. Tasks | Validated |
+| Session | Name | Status | Tasks | Validated |
 |---------|------|--------|------------|-----------|
-| 01 | Approval Contract and Transitions | Complete | ~18-22 | 2026-08-04 |
-| 02 | Approval Store and Projection | Complete | ~20-24 | 2026-08-04 |
-| 03 | Durable Approval Integration | Complete | ~20-24 | 2026-08-04 |
-| 04 | Fake Send Contract and Authorization | Complete | ~18-22 | 2026-08-04 |
+| 01 | Approval Contract and Transitions | Complete | 14 | 2026-08-04 |
+| 02 | Approval Store and Projection | Complete | 14 | 2026-08-04 |
+| 03 | Durable Approval Integration | Complete | 16 | 2026-08-04 |
+| 04 | Fake Send Contract and Authorization | Complete | 17 | 2026-08-04 |
 | 05 | Idempotent Fake Send Execution | Complete | 19 | 2026-08-04 |
 | 06 | Safe Write Integration and Evidence | Complete | 21 | 2026-08-04 |
 

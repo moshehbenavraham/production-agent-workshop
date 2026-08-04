@@ -1,9 +1,9 @@
 # Session 03: Durable Approval Integration
 
 **Session ID**: `phase01-session03-durable-approval-integration`
-**Status**: Not Started
+**Status**: Complete
 **Source Task**: `02`
-**Estimated Tasks**: ~20-24
+**Estimated Tasks**: 16
 **Estimated Duration**: 2-4 hours
 
 ---
@@ -38,8 +38,8 @@ Integrate durable approval requests and application-owned decisions with minimiz
 
 ## Prerequisites
 
-- [ ] Session 02 store, projection, restart, and damaged-record tests are complete.
-- [ ] Phase 00 qualification and exact-lead downstream gates remain green.
+- [x] Session 02 store, projection, restart, and damaged-record tests are complete.
+- [x] Phase 00 qualification and exact-lead downstream gates remain green.
 
 ---
 
@@ -53,8 +53,8 @@ Integrate durable approval requests and application-owned decisions with minimiz
 
 ## Success Criteria
 
-- [ ] Pending, approved, and declined application views come from the durable projection and survive restart.
-- [ ] Pi can request approval but cannot approve, decline, or convert assistant prose into authorization.
-- [ ] Duplicate or conflicting decisions preserve the original terminal state and append no second transition or effect.
-- [ ] Every request, decision, refusal, and storage failure remains correlated to the original `runId` without credentials or unnecessary personal data.
-- [ ] Task `02` acceptance evidence is complete and `npm run verify` passes without broadening the production tool allowlist.
+- [x] Pending, approved, and declined application views come from the durable projection and survive restart.
+- [x] Pi can request approval but cannot approve, decline, or convert assistant prose into authorization.
+- [x] Duplicate or conflicting decisions preserve the original terminal state and append no second transition or effect.
+- [x] Every request, decision, refusal, and storage failure remains correlated to the original `runId` without credentials or unnecessary personal data.
+- [x] Task `02` acceptance evidence is complete and `npm run verify` passes without broadening the production tool allowlist.

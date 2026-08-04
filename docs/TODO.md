@@ -37,7 +37,7 @@ fake-only, synthetic-data, no-real-network boundary.
 - [x] Validate active CI and add exactly one missing pipeline bundle (Build & Test).
 - [x] Audit deployment readiness and add exactly one missing infrastructure bundle (Security rate gate).
 - [x] Carry Phase 01 lessons, risks, and controls into the cumulative records.
-- [ ] Reconcile all current documentation and record the documentation audit.
+- [x] Reconcile all current documentation and record the documentation audit.
 
 Phase 02 remains untouched. After these five closeout workflows pass, the next
 command is `phasebuild`; it is deliberately outside the Phase 01 cutoff.
