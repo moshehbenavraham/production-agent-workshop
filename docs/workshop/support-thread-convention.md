@@ -8,7 +8,7 @@ Students can ask inside the pinned weekly support thread or open a dedicated Sko
 - Week 2: `[W2][#02]` or `[W2][#03]`
 - Week 3: `[W3][#04]` or `[W3][#05]`
 - Week 4: `[W4][#06]` or `[W4][#07]`
-- Extension: `[EXT][#08]`
+- Week 5: `[W5][#08]`
 
 ## Question Template
 

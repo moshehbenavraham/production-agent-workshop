@@ -1,6 +1,6 @@
 # Workshop Todo
 
-This directory is the ordered implementation path for turning the bounded reference agent into an operable production system. Complete the numbered tasks in order. Task `08` is an optional extension and must not begin until the single-agent baseline is reliable.
+This directory is the required five-week implementation path for turning the bounded reference agent into an operable production system. Complete tasks `00` through `08` in order. Task `08` is required Week 5 work, but its measurement entry gate still requires a reliable single-agent baseline.
 
 ## Current Baseline
 
@@ -20,7 +20,7 @@ Treat every behavior described under a task's `Work` section as planned until it
 ## Working Method
 
 1. Read `AGENTS.md` and all three governance documents it links.
-2. Read `client-brief.md`, this index, and one active task file.
+2. Read `docs/todo/client-brief.md`, this index, and one active task file.
 3. Inspect the relevant source and tests before planning.
 4. State the goal, context, constraints, and measurable completion checks.
 5. Use Plan mode for non-trivial changes and keep one coherent objective per change.
@@ -59,7 +59,19 @@ Approval is application state, not prompt wording. Validation must happen before
 | [05](05-production-evals.md) | 3 | AFK | Gate deployment on representative safety and quality evals |
 | [06](06-observability-and-incidents.md) | 4 | AFK | Make failures, cost, latency, alerts, and recovery observable |
 | [07](07-coolify-release.md) | 4 | HITL | Harden, deploy, smoke-test, restart, and roll back through Coolify |
-| [08](08-typed-handoff-experiment.md) | Extension | HITL | Add one typed boundary only if measured evidence justifies it |
+| [08](08-typed-handoff-experiment.md) | 5 | HITL | Run the required typed-handoff experiment and keep added orchestration only if evidence justifies it |
+
+## Phase and Week Contract
+
+One Apex phase completes exactly one workshop week. `phasebuild` may split each weekly workstream into multiple 2-4 hour sessions, but it must not combine weeks or move a task across its phase boundary.
+
+| Phase | Week | Required tasks | Outcome |
+|-------|------|----------------|---------|
+| 00 | 1 | `00`, `01` | Map the bounded system and make qualification explicit |
+| 01 | 2 | `02`, `03` | Make approval durable and add the fake idempotent write boundary |
+| 02 | 3 | `04`, `05` | Make recovery safe and deployment gates representative |
+| 03 | 4 | `06`, `07` | Make operation observable and complete the Coolify release |
+| 04 | 5 | `08` | Complete the measured typed-handoff comparison and keep-or-remove decision |
 
 ## Evidence Standard
 
@@ -75,7 +87,7 @@ Use synthetic data. Redact credentials, private URLs, customer data, and complet
 
 ## Final Portfolio
 
-The completed core path should leave one reviewable portfolio containing:
+The completed five-week path should leave one reviewable portfolio containing:
 
 - the architecture, request-flow, and permission diagram from task `00`;
 - qualification and write-tool contracts from tasks `01` and `03`;
@@ -83,9 +95,8 @@ The completed core path should leave one reviewable portfolio containing:
 - the critical-gate eval scorecard from task `05`;
 - a redacted observability view and incident timeline from task `06`;
 - live or controlled deployment, restart, restore, rollback, operator-guide, and five-minute-demo evidence from task `07`;
+- the before-and-after diagrams, typed handoff contract, failure matrix, comparative scorecard, and keep-or-remove decision from task `08`;
 - a final Build Log summary of lessons, open risks, and the next justified improvement.
-
-Task `08` adds its comparative orchestration evidence only when the optional extension passes its entry gate.
 
 ## Retired Scratch Coverage
 
@@ -113,4 +124,4 @@ The source notes formerly kept in `docs/scratch.md` are consolidated as follows:
 
 ## Completion Rule
 
-A task is complete only when its acceptance criteria are demonstrated, `npm run verify` passes, the Build Log contains observable evidence, and the diff preserves the tool allowlist and human approval boundary.
+A task is complete only when its acceptance criteria are demonstrated, `npm run verify` passes, the Build Log contains observable evidence, and the diff preserves the tool allowlist and human approval boundary. The workshop path is complete only after all five phases and tasks `00` through `08` are complete.

@@ -1,12 +1,14 @@
 # 08 - Justify One Typed Handoff
 
 Mode: HITL
-Sprint stage: optional extension
-Support tag: `[EXT][#08]`
+Sprint week: 5
+Support tag: `[W5][#08]`
 
 ## Goal
 
 Compare the reliable single-agent baseline with one bounded specialist or deterministic stage and keep the added orchestration only when measured evidence shows a benefit.
+
+This experiment and its evidence-based decision are required for project completion. The added orchestration is not required to survive the experiment: remove it when the comparison does not justify the complexity.
 
 ## Entry Gate
 

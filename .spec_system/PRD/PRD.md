@@ -18,7 +18,7 @@ The baseline verified by [`docs/todo/README_todo.md`](../../docs/todo/README_tod
 - The Node 24 container exposes port 3000, provides `/health`, and declares `/app/data` for persistent event storage.
 - `/runs` has no authentication, authorization, tenant isolation, or rate limiting and must remain private or controlled; runs also have no explicit deadline or maximum step count, and no external-write adapter exists.
 
-The todo index and tasks `00` through `08` are the authoritative ordered delivery plan. Tasks `00` through `07` form the required core path. Task `08` is an optional extension that may start only after the core path is complete and the single-agent baseline has measured success, failure, latency, and cost data. Every behavior in a task's `Work` section remains planned until its acceptance evidence exists; this PRD must not imply otherwise.
+The todo index and tasks `00` through `08` are the authoritative ordered delivery plan. All nine tasks are required. Tasks `00` through `07` occupy Weeks 1 through 4, and task `08` occupies Week 5 after its measurement entry gate passes. Completing the task `08` experiment and its keep-or-remove decision is mandatory even when the evidence says to remove the added handoff. Every behavior in a task's `Work` section remains planned until its acceptance evidence exists; this PRD must not imply otherwise.
 
 ## Goals
 
@@ -35,7 +35,7 @@ The todo index and tasks `00` through `08` are the authoritative ordered deliver
 - Let the runtime use general shell, filesystem, deployment, or unrestricted CRM tools.
 - Treat prompt wording or model claims as authorization for an external write.
 - Invent leads, research facts, qualification evidence, approval decisions, or completed actions.
-- Send a real message through a network provider during Phase 00.
+- Send a real message through a network provider during the required five-week path.
 - Add multi-agent orchestration before the bounded single-agent baseline is reliable and measured.
 - Use raw conversation transcripts as the durable source of truth for run or approval state.
 - Process real customer data before retention, redaction, export, deletion, access, and backup rules are defined.
@@ -145,13 +145,13 @@ The todo index and tasks `00` through `08` are the authoritative ordered deliver
 
 #### Delivery Governance
 
-- Workshop participant can complete tasks `00` through `07` in order and can treat every unproven `Work` item as planned rather than implemented.
+- Workshop participant can complete tasks `00` through `08` in order and can treat every unproven `Work` item as planned rather than implemented.
 - Workshop participant can read `AGENTS.md`, its three linked governance files, the client brief, the todo index, the active task, and relevant source and tests, then use Plan mode for a non-trivial change with one coherent goal, context, constraints, and measurable completion checks.
 - Workshop participant can define schemas, permission boundaries, failure behavior, and event evidence before implementation, then run `npm run verify` and `$verify-production-agent` before declaring a task complete.
 - Workshop participant can record the task goal, commands and results, required artifact, one exercised failure, recovery or refusal evidence, final diff review, and remaining risk in the Build Log.
 - Workshop participant can update `docs/CHANGELOG.md` and confirm the final diff introduces no secret, unnecessary personal data, broader permission, unapproved side effect, or stale documentation.
 
-### Optional Extension Requirements (Task 08)
+### Week 5 Requirements (Task 08)
 
 - Product team can start a handoff experiment only after tasks `00` through `07` are complete and measured single-agent success, failure, latency, and cost baselines exist.
 - Product team can identify one observed bottleneck, state a hypothesis and success metric, and choose the smallest deterministic stage, router, pipeline, supervisor, parallel worker, or human checkpoint that could address it.
@@ -162,7 +162,7 @@ The todo index and tasks `00` through `08` are the authoritative ordered deliver
 
 ### Deferred Requirements
 
-- The following requirements are outside the ordered `docs/todo` core and optional extension; they have no scheduled phase or session in this PRD.
+- The following requirements are outside the ordered five-week `docs/todo` path; they have no scheduled phase or session in this PRD.
 - Operations operator can inspect lead data through a read-only production CRM adapter.
 - Agent can gather company research through a separate approved read-only source.
 - Authorized operator can send an approved follow-up through a real provider with the same approval, target-validation, evidence, and idempotency guarantees.
@@ -186,9 +186,9 @@ The todo index and tasks `00` through `08` are the authoritative ordered deliver
 - Pi provider authentication is supplied outside the repository through supported environment configuration or Pi auth state and must never enter logs, fixtures, docs, or events.
 - The Pi runtime may call only explicitly allowlisted custom tools; application code owns validation, permissions, approvals, idempotency, and durable state.
 - The HTTP layer is limited to request validation and response mapping; agent and domain behavior remains independently testable outside it.
-- Phase 00 uses one bounded agent and one repository package; a queue, Redis, database, or second agent is added only when measured evidence justifies it.
+- Phases 00 through 03 use one bounded agent and one repository package; a queue, Redis, database, or second agent is added only when measured evidence justifies it.
 - Task `03` uses a deterministic fake adapter, performs no real network write, and keeps any network-writing Pi tool outside the allowlist until explicit human review.
-- Task `08` cannot begin until tasks `00` through `07` and their success, failure, latency, and cost baselines are complete.
+- Phase 04 and task `08` are required but cannot begin until tasks `00` through `07` and their success, failure, latency, and cost baselines are complete.
 - Current durable evidence uses append-only JSONL storage and the Coolify deployment must persist `/app/data` across restarts.
 - The `/runs` endpoint must remain private or controlled until authentication, authorization, tenant, rate, retention, and redaction controls match its exposure.
 - Runtime and transitive dependency versions remain intentionally pinned or overridden until upstream security fixes are verified through `npm audit` and the repository verification suite.
@@ -196,59 +196,118 @@ The todo index and tasks `00` through `08` are the authoritative ordered deliver
 
 ## Phases
 
-This system delivers the product via phases. Each phase is implemented via multiple 2-4 hour sessions (12-25 tasks each).
+One phase corresponds to exactly one workshop week. Each phase is implemented through one or more 2-4 hour Apex sessions with one objective and 12-25 implementation tasks per session. The numbered documents in `docs/todo` are weekly workstreams, not pre-created Apex sessions; `phasebuild` owns each phase's session split.
 
-| Phase | Name | Sessions | Status |
-|-------|------|----------|--------|
-| 00 | Foundation | Derived from tasks 00-07 by `phasebuild` | Not Started |
-| 01 | Measured Handoff Experiment | Derived from optional task 08 only after its entry gate | Deferred |
+| Phase | Week | Name | Source tasks | Sessions | Status |
+|-------|------|------|--------------|----------|--------|
+| 00 | 1 | Foundation | `00`, `01` | 3 | Not Started |
+| 01 | 2 | Durable Approval and Safe Write | `02`, `03` | TBD after Phase 00 | Planned |
+| 02 | 3 | Recovery and Evaluation Gates | `04`, `05` | TBD after Phase 01 | Planned |
+| 03 | 4 | Operations and Coolify Release | `06`, `07` | TBD after Phase 02 | Planned |
+| 04 | 5 | Typed Handoff Decision | `08` | TBD after Phase 03 and the entry gate | Planned and Required |
+
+### Required Task Map
+
+| Phase | Task | Week | Mode | Support | Required outcome | Required completion evidence |
+|-------|------|------|------|---------|------------------|------------------------------|
+| 00 | [`00`](../../docs/todo/00-map-the-system.md) | 1 | HITL | `[W1][#00]` | Map the runtime, permissions, persistence, evidence, ownership, and current gaps | Architecture and request-flow diagram, Harness Decision Record, permission table, risk register, guidance map, baseline verification, and stop-boundary explanation |
+| 00 | [`01`](../../docs/todo/01-qualification-contract.md) | 1 | AFK | `[W1][#01]` | Add typed, validated, independently testable qualification without broadening permissions | Schema, tool contract, event sequence, failure matrix, red/fix/green example, verification output, and vertical-slice demo |
+| 01 | [`02`](../../docs/todo/02-durable-approvals.md) | 2 | AFK | `[W2][#02]` | Persist approval requests and terminal decisions across restart | State diagram, store contract, transition events, failure matrix, restart proof, data-lifecycle decision, and verification output |
+| 01 | [`03`](../../docs/todo/03-idempotent-send.md) | 2 | HITL | `[W2][#03]` | Add an approved, exact-target, idempotent fake write boundary | Typed contract, permission table, idempotency proof, eight-path test matrix, redacted events, human review, and verification output |
+| 02 | [`04`](../../docs/todo/04-recovery-and-replay.md) | 3 | AFK | `[W3][#04]` | Rebuild, replay, and resume runs safely from durable events | Event schema, projection rules, recovery table, three restart timelines, replay proof, retention decision, and verification output |
+| 02 | [`05`](../../docs/todo/05-production-evals.md) | 3 | AFK | `[W3][#05]` | Gate deployment on representative behavior and safety evals | Golden-set inventory, rubric, scorecard, critical red/fix/green traces, and final verification output |
+| 03 | [`06`](../../docs/todo/06-observability-and-incidents.md) | 4 | AFK | `[W4][#06]` | Make failure, cost, latency, alerts, and recovery observable and operable | Incident timeline, `runId` query, alert table, redacted observability view, runbook, recovery proof, and verification output |
+| 03 | [`07`](../../docs/todo/07-coolify-release.md) | 4 | HITL | `[W4][#07]` | Harden, deploy, smoke-test, restart, restore, roll back, and hand off through Coolify | Infrastructure decision record, service map, security checklist, image and health evidence, run timeline, restart and restore proof, rollback timeline, operator guide, and five-minute demo |
+| 04 | [`08`](../../docs/todo/08-typed-handoff-experiment.md) | 5 | HITL | `[W5][#08]` | Run the required typed-handoff experiment and make an evidence-based keep-or-remove decision | Before-and-after diagrams, handoff contract, permission table, failure matrix, comparative scorecard, decision, and verification output |
 
 ## Phase 00: Foundation
 
+**Workshop week:** 1
+**Required source tasks:** `00`, `01`
+
 ### Objectives
 
-1. Map and verify the bounded runtime, then make qualification typed, deterministic, and independently testable.
-2. Make approvals durable and establish an approved, idempotent fake external-write boundary.
-3. Make interrupted runs recoverable from durable events and gate releases on representative production evals.
-4. Make health, failures, model usage, tool effects, cost, latency, and recovery observable to an operator.
-5. Harden and deploy the verified service through Coolify with persistence, security gates, restore, rollback, and operator handoff evidence.
+1. Map and verify the bounded runtime, ownership, persistence, evidence, and permission boundaries.
+2. Add typed, deterministic, independently testable qualification without broadening the Pi tool boundary.
 
-### Ordered Workstream Map
+### Sessions
 
-This table maps the authoritative todo order into Phase 00 requirements. A workstream is not automatically one Apex session; `phasebuild` owns the 2-4 hour session split.
+| Session | Objective | Source task |
+|---------|-----------|-------------|
+| 01 | Map and verify the bounded system and record the complete evidence pack | `00` |
+| 02 | Define and implement the deterministic qualification contract and domain behavior | `01` |
+| 03 | Integrate the focused qualification tool, event evidence, and failure paths | `01` |
 
-| Task | Week | Mode | Support | Required outcome | Required completion evidence |
-|------|------|------|---------|------------------|------------------------------|
-| [`00`](../../docs/todo/00-map-the-system.md) | 1 | HITL | `[W1][#00]` | Map the runtime, permissions, persistence, evidence, ownership, and current gaps | Architecture and request-flow diagram, Harness Decision Record, permission table, risk register, guidance map, baseline verification, and stop-boundary explanation |
-| [`01`](../../docs/todo/01-qualification-contract.md) | 1 | AFK | `[W1][#01]` | Add typed, validated, independently testable qualification without broadening permissions | Schema, tool contract, event sequence, failure matrix, red/fix/green example, verification output, and vertical-slice demo |
-| [`02`](../../docs/todo/02-durable-approvals.md) | 2 | AFK | `[W2][#02]` | Persist approval requests and terminal decisions across restart | State diagram, store contract, transition events, failure matrix, restart proof, data-lifecycle decision, and verification output |
-| [`03`](../../docs/todo/03-idempotent-send.md) | 2 | HITL | `[W2][#03]` | Add an approved, exact-target, idempotent fake write boundary | Typed contract, permission table, idempotency proof, eight-path test matrix, redacted events, human review, and verification output |
-| [`04`](../../docs/todo/04-recovery-and-replay.md) | 3 | AFK | `[W3][#04]` | Rebuild, replay, and resume runs safely from durable events | Event schema, projection rules, recovery table, three restart timelines, replay proof, retention decision, and verification output |
-| [`05`](../../docs/todo/05-production-evals.md) | 3 | AFK | `[W3][#05]` | Gate deployment on representative behavior and safety evals | Golden-set inventory, rubric, scorecard, critical red/fix/green traces, and final verification output |
-| [`06`](../../docs/todo/06-observability-and-incidents.md) | 4 | AFK | `[W4][#06]` | Make failure, cost, latency, alerts, and recovery observable and operable | Incident timeline, `runId` query, alert table, redacted observability view, runbook, recovery proof, and verification output |
-| [`07`](../../docs/todo/07-coolify-release.md) | 4 | HITL | `[W4][#07]` | Harden, deploy, smoke-test, restart, restore, roll back, and hand off through Coolify | Infrastructure decision record, service map, security checklist, image and health evidence, run timeline, restart and restore proof, rollback timeline, operator guide, and five-minute demo |
+## Phase 01: Durable Approval and Safe Write
+
+**Workshop week:** 2
+**Required source tasks:** `02`, `03`
+
+### Prerequisite
+
+Phase 00 must be complete.
+
+### Objectives
+
+1. Persist approval requests and decisions so the human boundary survives restart.
+2. Add a deterministic fake write adapter with exact-target authorization and stable idempotency, while performing no real network write.
 
 ### Sessions (To Be Defined)
 
-Sessions are defined via `phasebuild` as `session_NN_name.md` stubs under `.spec_system/PRD/phase_00/`.
+After Phase 00 completion and transition work, `phasebuild` defines Phase 01 session stubs under `.spec_system/PRD/phase_01/`.
 
-**Note**: This command does not create phase directories or session stubs. Run `phasebuild` after creating the PRD.
+## Phase 02: Recovery and Evaluation Gates
 
-## Phase 01: Measured Handoff Experiment
+**Workshop week:** 3
+**Required source tasks:** `04`, `05`
+
+### Prerequisite
+
+Phase 01 must be complete.
+
+### Objectives
+
+1. Rebuild, replay, and resume interrupted runs from durable evidence without duplicate approvals or effects.
+2. Gate deployment with a representative 10-20 case production eval suite and critical non-zero failures.
+
+### Sessions (To Be Defined)
+
+After Phase 01 completion and transition work, `phasebuild` defines Phase 02 session stubs under `.spec_system/PRD/phase_02/`.
+
+## Phase 03: Operations and Coolify Release
+
+**Workshop week:** 4
+**Required source tasks:** `06`, `07`
+
+### Prerequisite
+
+Phase 02 must be complete.
+
+### Objectives
+
+1. Make service health, agent decisions, model usage, tool effects, failures, cost, latency, alerts, and recovery operable by `runId`.
+2. Harden and deploy the verified service through Coolify with security gates, persistence, restore, rollback, and operator handoff evidence.
+
+### Sessions (To Be Defined)
+
+After Phase 02 completion and transition work, `phasebuild` defines Phase 03 session stubs under `.spec_system/PRD/phase_03/`.
+
+## Phase 04: Typed Handoff Decision
+
+**Workshop week:** 5
+**Required source task:** `08`
 
 ### Entry Gate
 
-Tasks `00` through `07` must be complete, and the single-agent baseline must have measured success, failure, latency, cost, and operational evidence. Phase 01 must not be created merely to repair an unclear prompt or oversized tool.
-
-Source task: [`08 - Justify One Typed Handoff`](../../docs/todo/08-typed-handoff-experiment.md). Mode: HITL. Sprint stage: optional extension. Support tag: `[EXT][#08]`.
+Phases 00 through 03 and tasks `00` through `07` must be complete, and the single-agent baseline must have measured success, failure, latency, cost, and operational evidence. Phase 04 must not add orchestration merely to repair an unclear prompt or oversized tool.
 
 ### Objective
 
-Run optional task `08` as one bounded comparison. Keep a deterministic stage or typed specialist handoff only if its scorecard demonstrates a material improvement over the unchanged single-agent baseline; otherwise remove it.
+Run task `08` as a required bounded comparison. Completing the experiment, failure matrix, scorecard, and keep-or-remove decision is mandatory. Keeping a deterministic stage or typed specialist handoff is not mandatory: remove it when the evidence does not demonstrate a material improvement over the unchanged single-agent baseline.
 
-### Sessions (Deferred)
+### Sessions (To Be Defined)
 
-No Phase 01 session is planned until the entry gate passes. Any later session split must preserve one objective, least-privilege tools, typed state, deterministic failure handling, and the 2-4 hour Apex session limits.
+After Phase 03 completion, transition work, and the measurement entry gate, `phasebuild` defines Phase 04 session stubs under `.spec_system/PRD/phase_04/`. The session split must preserve one objective, least-privilege tools, typed state, deterministic failure handling, and the 2-4 hour Apex limits.
 
 ## Technical Stack
 
@@ -263,26 +322,23 @@ No Phase 01 session is planned until the entry gate passes. Any later session sp
 
 ## Success Criteria
 
-### Core Path (Tasks 00-07)
+### Required Path (Tasks 00-08)
 
 - [ ] Task `00`: The eight-boundary system map, three-path request trace, permission table, Harness Decision Record, and risk ownership are complete, and baseline type-checking, four tests, and five evals pass.
 - [ ] Task `01`: A known lead produces a schema-valid deterministic qualification; missing, malformed, unknown, and simulated-failure cases stop visibly; no tool permission is broadened.
 - [ ] Task `02`: Pending, approved, and declined approval state survives restart; projections rebuild identically; invalid, duplicate, conflicting, interrupted, and corrupted decisions never imply success.
-- [ ] Task `03`: The fake adapter rejects every unapproved or mismatched action, returns the original result on duplicate approved requests, passes all eight required paths, and remains non-networked throughout Phase 00.
+- [ ] Task `03`: The fake adapter rejects every unapproved or mismatched action, returns the original result on duplicate approved requests, passes all eight required paths, and remains non-networked throughout the required five-week path.
 - [ ] Task `04`: Three documented interruption points resume from durable events with zero duplicate approvals or effects; deadline, step-limit, replay, and corrupt-record paths fail visibly without manual state edits.
 - [ ] Task `05`: A 10-20 case golden set covers every client-brief boundary, critical assertions score behavior and evidence rather than prose alone, deliberate breaks are reverted, and every critical gate passes.
 - [ ] Task `06`: One safe query reconstructs a failed run across all implemented layers; every terminal path and failure is actionable; five incident drills recover through the documented runbook without credential or personal-data leakage.
 - [ ] Task `07`: The verified image passes pre-public security gates, HTTPS health, redacted smoke testing, persistent restart, backup restore, reversible-failure rollback, local/deployed parity, operator handoff, and the five-minute demo.
-- [ ] Every task has its required Build Log evidence, one exercised failure, a green `npm run verify`, a `$verify-production-agent` result, an updated changelog, and a final permissions, privacy, side-effect, and documentation diff review.
-
-### Optional Extension (Task 08)
-
-- [ ] Task `08` begins only after its entry gate passes and documents the measured bottleneck, hypothesis, typed handoff, least-privilege permissions, deterministic failure matrix, and unchanged single-agent comparison.
-- [ ] The comparative scorecard reports success, safety, latency, cost, explainability, and operational complexity, and the final keep-or-remove decision follows the evidence.
+- [ ] Task `08`: Phase 04 begins only after its entry gate passes and documents the measured bottleneck, hypothesis, typed handoff, least-privilege permissions, deterministic failure matrix, and unchanged single-agent comparison.
+- [ ] Task `08`: The required comparative scorecard reports success, safety, latency, cost, explainability, and operational complexity, and the final keep-or-remove decision follows the evidence.
+- [ ] Every task from `00` through `08` has its required Build Log evidence, one exercised failure, a green `npm run verify`, a `$verify-production-agent` result, an updated changelog, and a final permissions, privacy, side-effect, and documentation diff review.
 
 ## Required Evidence Portfolio
 
-The completed core path must leave one reviewable portfolio containing:
+The completed five-week path must leave one reviewable portfolio containing:
 
 - the architecture, request-flow, permission, Harness Decision Record, risk, and baseline evidence from task `00`;
 - the qualification schema, contract, failure, event, and vertical-slice evidence from task `01`;
@@ -292,9 +348,8 @@ The completed core path must leave one reviewable portfolio containing:
 - the golden set, rubric, critical-gate scorecard, red/fix/green traces, and final verification from task `05`;
 - the redacted observability view, `runId` query, alerts, incident timeline, runbook, and recovery proof from task `06`;
 - the infrastructure record, deployment map, security gates, image, health, restart, restore, rollback, operator guide, and demo evidence from task `07`;
+- the before-and-after diagrams, typed handoff contract, permission table, failure matrix, comparative scorecard, and evidence-based keep-or-remove decision from task `08`;
 - a final Build Log summary of lessons, open risks, and the next justified improvement.
-
-Task `08` adds its before-and-after diagrams, typed handoff contract, permission table, failure matrix, comparative scorecard, and keep-or-remove decision only after its entry gate passes.
 
 ## Risks
 
@@ -309,17 +364,18 @@ Task `08` adds its before-and-after diagrams, typed handoff contract, permission
 
 ## Assumptions
 
-- Phase 00 may use synthetic leads and a fake external-write adapter: the root README, client brief, and ordered tasks define these as the safe workshop baseline, so production-hardening work can proceed without real customer data or network effects.
+- The required five-week path uses synthetic leads and a fake external-write adapter: the root README, client brief, and ordered tasks define these as the safe workshop boundary, so hardening and comparison work can proceed without real customer data or network effects.
 - File-backed append-only storage is sufficient for the current single-process workshop: repository architecture guidance explicitly defers a database, Redis, or queue until durable concurrency requires it, and the storage interfaces remain replaceable.
 - The repository is a single package rather than a monorepo: deterministic analysis found no workspace indicators or packages, and the root contains one `package.json`, so package-scoped planning is unnecessary.
-- Phase 00 follows ordered tasks `00` through `07`, while Phase 01 is reserved for optional task `08` only after its entry gate: `docs/todo/README_todo.md` defines that direct order, so no unrelated integration phase may be inserted between them.
-- Project state currently registers only Phase 00: Phase 01 remains PRD-only deferred scope and must not gain session state until task `08` passes its entry gate.
+- Phases map one-to-one to workshop weeks: Phase 00 owns Week 1 tasks `00`-`01`, Phase 01 owns Week 2 tasks `02`-`03`, Phase 02 owns Week 3 tasks `04`-`05`, Phase 03 owns Week 4 tasks `06`-`07`, and Phase 04 owns required Week 5 task `08`; the user supplied this phase boundary directly, so no unrelated integration phase may be inserted.
+- Project state currently registers only not-started Phase 00, which remains named Foundation: Phases 01 through 04 are PRD-planned future phases and gain session state sequentially through `phasebuild`, never in advance.
 - Production CRM, company research, real send, and Postgres work remain unscheduled deferred requirements: they appear in future-looking repository material but not in the ordered todo path, so aligning the PRD does not authorize or schedule them.
 
 ### Conflict Resolutions
 
-- The root README calls the repository a completed reference while the task index labels hardening behavior as planned: treat the current code as the completed bounded baseline and tasks 00 through 07 as unfinished production-readiness scope because the task index explicitly defines that distinction.
-- The root README lists future student integrations in a different order than `docs/todo`: use the todo index as the delivery authority, keep those integrations unscheduled, and place optional task `08` directly after the core path.
+- The root README calls the repository a completed reference while the task index labels hardening behavior as planned: treat the current code as the completed bounded baseline and tasks `00` through `08` as unfinished required workshop scope because the task index explicitly defines that distinction.
+- Older assignment material labels task `08` as optional, while the project owner requires it: treat the experiment and decision as mandatory Week 5 work, preserve its evidence entry gate, and allow only the added orchestration component itself to be removed when the comparison does not justify it.
+- The former root README student-extension list mixed required workshop work with deferred integrations: use the todo index as the delivery authority, keep CRM, company research, a real send provider, Postgres, and model grading unscheduled, and place required task `08` in Phase 04 after the four foundational weeks.
 - Task `03` is named as a send boundary while the core path prohibits real sending: implement only the deterministic fake adapter and keep any real network provider and network-writing Pi tool deferred.
 - The root README describes release guidance rather than implemented CI because `.github` contains no workflow; CI quality and deployment gates remain planned until a workflow exists and passes.
 

@@ -8,6 +8,17 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ## [Unreleased]
 
+## [0.1.6] - 2026-08-04
+
+### Added
+
+- Created the Phase 00 Week 1 Apex plan with three bounded sessions covering the system evidence map, qualification contract and domain behavior, and focused tool integration.
+
+### Changed
+
+- Moved the client brief into `docs/todo/` and updated all repository path references.
+- Remapped the required workshop path into five one-week phases: tasks `00` through `07` fill Weeks 1-4, task `08` is required Week 5 work after its evidence gate, and only the handoff implementation itself may be removed by the final comparison.
+
 ## [0.1.5] - 2026-08-04
 
 ### Changed

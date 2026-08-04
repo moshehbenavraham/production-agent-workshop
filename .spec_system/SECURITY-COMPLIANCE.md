@@ -24,7 +24,7 @@ items below.
 
 | Area | Current status |
 |------|----------------|
-| Phase 00 task evidence | Not started; tasks `00` through `07` remain planned |
+| Required workshop evidence | Not started; tasks `00` through `08` remain planned across Phases 00-04 |
 | Public release readiness | Blocked |
 | Real customer data | Prohibited until its lifecycle and access controls are approved |
 | External send capability | Not implemented |
@@ -165,4 +165,4 @@ For every material change, verify that it:
 
 ## Resolved Findings
 
-*No findings have been resolved through Phase 00 task evidence yet.*
+*No findings have been resolved through required workshop task evidence yet.*

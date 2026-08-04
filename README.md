@@ -7,7 +7,7 @@ Build an Agency Lead Operations Agent with Codex, Pi, and Coolify.
 This public repository contains:
 
 - a completed, runnable reference agent;
-- a believable [client brief](./client-brief.md);
+- a believable [client brief](./docs/todo/client-brief.md);
 - an explicit [AGENTS.md](./AGENTS.md) for Codex and Pi;
 - ordered [workshop tasks](./docs/todo/README_todo.md);
 - a reusable `$verify-production-agent` skill;
@@ -81,19 +81,21 @@ Available classroom leads:
 9. Deploy.
 10. Trigger a run, inspect logs, restart, and confirm the event file remains.
 
-Do not expose the `/runs` endpoint publicly without authentication and rate limiting. Those controls are intentionally left as a classroom extension.
+Do not expose the `/runs` endpoint publicly without authentication and rate limiting. Those controls are required release gates in Week 4 task `07`.
 
-## Student extensions
+## Required workshop path
 
-Complete these in order:
+Complete the [ordered workshop tasks](./docs/todo/README_todo.md) across five phases, with exactly one phase per week. Week 5 task `08` is required: the comparison must be completed even when its evidence says to remove the added handoff.
+
+## Deferred integrations
+
+After the required workshop path, consider these separately authorized extensions:
 
 1. Replace the sample lead lookup with a read-only CRM adapter.
-2. Store approvals durably and add approve/decline endpoints.
-3. Add authentication and tenant boundaries.
-4. Add a Postgres event store without changing the event interface.
-5. Add one model-based eval after the deterministic suite.
-6. Add a real send tool with idempotency, but keep it behind approval.
-7. Compare the single-agent flow with one typed specialist handoff.
+2. Add company research as a separate approved read-only source.
+3. Add a real send provider with the established approval and idempotency guarantees.
+4. Replace file-backed persistence with Postgres without changing its contracts.
+5. Add model-based grading only for qualities that deterministic evals cannot measure.
 
 ## Versioning
 

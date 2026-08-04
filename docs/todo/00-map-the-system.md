@@ -14,7 +14,7 @@ The reference has one HTTP entry point, one bounded Pi session, three custom too
 
 ## Work
 
-- Read `client-brief.md`, `AGENTS.md` and its linked governance files, the root README, `src/`, and `tests/`.
+- Read `docs/todo/client-brief.md`, `AGENTS.md` and its linked governance files, the root README, `src/`, and `tests/`.
 - Explain how the minimal `AGENTS.md` entry point delegates mission, workflow, and security rules; identify the guardrail that prevents the most expensive production mistake and record any ambiguity.
 - Run the provider-independent baseline with `npm run verify`; record the type-check, test, and eval counts.
 - Draw eight labeled boundaries: interface, harness, tools, state, infrastructure, observability, human approval, and evals.

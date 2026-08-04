@@ -6,7 +6,7 @@ This repository is both a completed bounded reference and a set of progressive a
 
 1. Fork the repository.
 2. Run `npm install` and `npm run verify`.
-3. Read `client-brief.md`, `AGENTS.md`, and the governance files it links.
+3. Read `docs/todo/client-brief.md`, `AGENTS.md`, and the governance files it links.
 4. Read `docs/todo/README_todo.md` and complete the numbered files in order.
 5. Work on one task at a time and use Plan mode for non-trivial changes.
 6. Invoke `$verify-production-agent` before declaring a task complete.
@@ -16,7 +16,7 @@ This repository is both a completed bounded reference and a set of progressive a
 
 ```text
 Goal: Complete docs/todo/01-qualification-contract.md.
-Context: Read AGENTS.md, client-brief.md, docs/todo/README_todo.md, the active task, and relevant source and test files.
+Context: Read AGENTS.md, docs/todo/client-brief.md, docs/todo/README_todo.md, the active task, and relevant source and test files.
 Constraints: Work on this task only. Preserve the tool allowlist and approval boundary. Do not read secrets.
 Done when: The acceptance criteria are demonstrated and $verify-production-agent passes.
 ```
@@ -34,9 +34,9 @@ brief
   -> commit
 ```
 
-The tasks move from understanding to typed behavior, durable approval, controlled writes, recovery, evals, observability, deployment, and an optional evidence-based handoff experiment.
+The tasks move from understanding to typed behavior, durable approval, controlled writes, recovery, evals, observability, deployment, and a required evidence-based handoff experiment.
 
-## Four-Week Schedule
+## Five-Week Schedule
 
 | Week | Tasks | Outcome |
 |------|-------|---------|
@@ -44,7 +44,7 @@ The tasks move from understanding to typed behavior, durable approval, controlle
 | 2 | `#02` Durable approvals, `#03` Idempotent send | Build a real human gate and safe write boundary |
 | 3 | `#04` Recovery and replay, `#05` Production evals | Make runs resumable and critical behavior measurable |
 | 4 | `#06` Observability and incidents, `#07` Coolify release | Diagnose, recover, deploy, restart, and roll back |
-| Extension | `#08` Typed handoff experiment | Keep added orchestration only when evidence justifies it |
+| 5 | `#08` Typed handoff experiment | Complete the comparison and keep added orchestration only when evidence justifies it |
 
 ## Getting Support
 
