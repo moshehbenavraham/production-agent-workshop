@@ -10,6 +10,11 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Added
 
+- Added closed fake-send request, command, adapter, result, event, reservation,
+  and replaceable store contracts plus deterministic pre-effect authorization
+  from exact durable approved state.
+- Added a versioned stable idempotency key, explicit no-compensation and crash-
+  window semantics, and focused permission/identity/zero-effect coverage.
 - Added an application-owned durable approval service with authorized internal
   decisions, exact restart projection, minimized lifecycle events, event-outage
   recovery, and deterministic request/decision failure coverage.
@@ -30,6 +35,8 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Changed
 
+- Preserved the no-effect cutoff while classifying every Task `03` permission
+  and future execution outcome; Pi and HTTP remain unchanged.
 - Bound Pi approval requests to the latest exact application-produced draft,
   removed full draft content from operational events, and derived run approval
   status exclusively from validated durable projection state.
@@ -41,8 +48,8 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 - Validated the new Code Quality workflow and GitHub-managed CodeQL against the exact pushed transition commit with no open PR or review blocker.
 - Re-synthesized the living considerations and security/compliance records from every Phase 00 summary, archived plan, implementation discovery log, session security report, and known transition exception.
 - Updated the root README and master PRD from the pre-qualification four-test baseline to the completed Phase 00 tool, event, test, CI, container-health, and no-send boundary.
-- Synchronized current-version documentation with the `0.1.17` Session 03
-  closeout bump and the 93-test deterministic baseline.
+- Synchronized current-version documentation with the `0.1.18` Session 04
+  closeout bump and the 108-test deterministic baseline.
 
 ## [0.1.11] - 2026-08-04
 

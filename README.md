@@ -52,7 +52,7 @@ Requirements:
 - Git
 
 Install the locked dependencies, then run the one command that checks
-formatting, strict types, all 93 deterministic tests, and all five evals:
+formatting, strict types, all 108 deterministic tests, and all five evals:
 
 ```bash
 npm ci
@@ -177,7 +177,7 @@ These require separate authorization after the ordered workshop path:
 
 Releases follow [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 and the repository [versioning policy](./docs/VERSIONING.md). The project is
-currently version 0.1.17; user-visible changes are recorded in the
+currently version 0.1.18; user-visible changes are recorded in the
 [changelog](./docs/CHANGELOG.md).
 
 ## Official Pi References

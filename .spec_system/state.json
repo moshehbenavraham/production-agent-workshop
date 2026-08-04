@@ -24,7 +24,8 @@
     "phase00-session03-qualification-tool-integration",
     "phase01-session01-approval-contract-and-transitions",
     "phase01-session02-approval-store-and-projection",
-    "phase01-session03-durable-approval-integration"
+    "phase01-session03-durable-approval-integration",
+    "phase01-session04-fake-send-contract-and-authorization"
   ],
   "next_session_history": [
     {
@@ -120,6 +121,21 @@
     {
       "date": "2026-08-04",
       "session": "phase01-session03-durable-approval-integration",
+      "status": "completed"
+    },
+    {
+      "date": "2026-08-04",
+      "session": "phase01-session04-fake-send-contract-and-authorization",
+      "status": "planned"
+    },
+    {
+      "date": "2026-08-04",
+      "session": "phase01-session04-fake-send-contract-and-authorization",
+      "status": "validated"
+    },
+    {
+      "date": "2026-08-04",
+      "session": "phase01-session04-fake-send-contract-and-authorization",
       "status": "completed"
     }
   ]

@@ -18,7 +18,7 @@ The ordered scope and acceptance evidence remain authoritative in
   - [x] Session 01 - Approval Contract and Transitions
   - [x] Session 02 - Approval Store and Projection
   - [x] Session 03 - Durable Approval Integration
-  - [ ] Session 04 - Fake Send Contract and Authorization
+  - [x] Session 04 - Fake Send Contract and Authorization
   - [ ] Session 05 - Idempotent Fake Send Execution
   - [ ] Session 06 - Safe Write Integration and Evidence
 
