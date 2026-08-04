@@ -6,7 +6,7 @@ Track planned documentation and implementation work here.
 
 - [ ] Phase 00 - Foundation (Week 1)
   - [x] Session 01 - Bounded System Map
-  - [ ] Session 02 - Qualification Contract and Domain (implementation complete; review and validation pending)
+  - [x] Session 02 - Qualification Contract and Domain
   - [ ] Session 03 - Qualification Tool Integration
 
 The ordered scope and acceptance evidence remain authoritative in

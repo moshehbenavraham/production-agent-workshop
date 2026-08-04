@@ -47,7 +47,7 @@ test("same exact lead produces the same result", () => {
   );
 });
 
-test("result schema rejects confidence outside zero through one", () => {
+test("result schema rejects invalid bounds, codes, and properties", () => {
   const valid = {
     leadId: "lead_ada",
     fit: "strong",
@@ -58,6 +58,16 @@ test("result schema rejects confidence outside zero through one", () => {
 
   assert.equal(isQualificationResult({ ...valid, confidence: -0.01 }), false);
   assert.equal(isQualificationResult({ ...valid, confidence: 1.01 }), false);
+  assert.equal(isQualificationResult({ ...valid, confidence: Number.NaN }), false);
+  assert.equal(
+    isQualificationResult({ ...valid, confidence: Number.POSITIVE_INFINITY }),
+    false,
+  );
+  assert.equal(isQualificationResult({ ...valid, reasons: ["model_claim"] }), false);
+  assert.equal(
+    isQualificationResult({ ...valid, missingInformation: ["invented"] }),
+    false,
+  );
   assert.equal(isQualificationResult({ ...valid, extra: true }), false);
 });
 
@@ -84,7 +94,13 @@ test("weak synthetic lead still produces a bounded schema-valid result", () => {
 });
 
 test("missing leadId returns structured failure before lookup", () => {
-  for (const input of [undefined, {}, { leadId: "" }, { leadId: "   " }]) {
+  for (const input of [
+    undefined,
+    {},
+    Object.create({ leadId: "lead_ada" }),
+    { leadId: "" },
+    { leadId: "   " },
+  ]) {
     let lookupCalled = false;
     const outcome = qualifyLead(input, () => {
       lookupCalled = true;
@@ -113,6 +129,31 @@ test("unknown lead cannot receive qualification fields", () => {
   const outcome = qualifyLead({ leadId: "lead_unknown" });
 
   assertFailure(outcome, "lead_not_found");
+});
+
+test("lookup identity mismatch cannot qualify the requested lead", () => {
+  const mismatchedLead: Lead = {
+    id: "lead_grace",
+    name: "Grace",
+    company: "SignalWorks",
+    teamSize: 42,
+    stack: ["Postgres"],
+    problem: "Qualified leads wait too long for a tailored follow-up.",
+  };
+
+  assertFailure(
+    qualifyLead({ leadId: "lead_ada" }, () => mismatchedLead),
+    "lead_not_found",
+  );
+});
+
+test("malformed lookup records become redacted lookup failures", () => {
+  const outcome = qualifyLead({ leadId: "lead_ada" }, () => ({ id: "lead_ada" }));
+
+  assertFailure(outcome, "lead_lookup_failed");
+  if (outcome.ok) assert.fail("Expected malformed lookup failure");
+  assert.equal(outcome.error.message, "Lead lookup failed.");
+  assert.equal(outcome.error.retryable, true);
 });
 
 test("result-shaped model proposal is rejected before lookup", () => {

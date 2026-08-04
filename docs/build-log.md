@@ -334,18 +334,22 @@ contract; a hand-written parallel result type is not authoritative.
 |----------|-----------------|---------------------|-------|
 | Qualification input | `leadId` | Closed object; exact `lead_[a-z0-9_]+` identifier, 6-80 characters | Application validator before lookup |
 | Fit | one value | `strong`, `possible`, or `insufficient` | Deterministic application rules |
-| Qualification result | `leadId`, `fit`, `confidence`, `reasons`, `missingInformation` | Closed object; confidence 0-1; 1-4 unique reasons; 0-4 unique missing-information codes | Application computation plus compiled result validator |
+| Qualification result | `leadId`, `fit`, `confidence`, `reasons`, `missingInformation` | Closed object; finite fit, reason, and missing-information codes; finite confidence 0-1; unique bounded arrays | Application computation plus compiled result validator |
 | Failure | `code`, `message`, `retryable` | Closed object; finite code, bounded redacted message, boolean retryability | Application error mapper |
 | Outcome | `ok` plus `value` or `error` | Closed two-branch discriminated union; mixed or partial branches are invalid | Application return boundary |
 
-The raw entry point accepts `unknown`. It refuses missing, blank, non-string,
-malformed, and additional-property input before lookup. A result-shaped model
+The raw entry point accepts `unknown`. It requires an own `leadId` property and
+refuses missing, inherited-only, blank, non-string, malformed, and
+additional-property input before lookup. A result-shaped model
 proposal containing `fit`, `confidence`, `reasons`, or `missingInformation` is
 therefore `invalid_input`; none of those proposed fields can reach lookup or
 become validated truth. The application resolves one exact synthetic lead from
-`src/leads.ts`, requires the returned identity to match the requested identity,
-computes every result field, and validates the completed result schema before
-returning `ok: true`.
+`src/leads.ts`, validates the complete returned lead shape, requires its identity
+to match the requested identity, computes every result field, and validates the
+completed result schema before returning `ok: true`. The result validator also
+rejects arbitrary prose in `reasons` or `missingInformation`; schema validity is
+necessary shape evidence, while only `qualifyLead` produces application-owned
+qualification truth.
 
 ### Deterministic Qualification Rules
 
@@ -434,6 +438,7 @@ failure evidence omit invalid raw objects and caught exception text.
 | Non-string, bad pattern, or out-of-range `leadId` | No | `malformed_lead_id` | No | Do not normalize or guess an identifier |
 | Additional result-shaped or unsupported field | No | `invalid_input` | No | Model-proposed fields are not validated truth |
 | Exact identifier absent | Yes | `lead_not_found` | No | Do not fabricate result fields or continue as qualified |
+| Lookup returns a malformed record | Yes | `lead_lookup_failed` | Yes | Do not compute from structurally invalid dependency data |
 | Exact lookup throws | Yes | `lead_lookup_failed` | Yes | Do not expose the caught message or call it success |
 | Tool exceeds 1,000 ms in Session 03 | At most once | `qualification_timeout` | Yes | Do not continue from a late result or claim completion |
 | Generated result violates its schema | Yes | Throw invariant failure | No automatic retry | Session 03 must record tool/run failure; never downgrade a programmer defect to friendly prose |
@@ -472,17 +477,19 @@ GREEN result: PASS (exit 0) under Node.js 24.15.0 and npm 12.0.2.
 ```text
 PASS known lead produces an application-validated qualification
 PASS same exact lead produces the same result
-PASS result schema rejects confidence outside zero through one
+PASS result schema rejects invalid bounds, codes, and properties
 PASS weak synthetic lead still produces a bounded schema-valid result
 PASS missing leadId returns structured failure before lookup
 PASS malformed leadId returns structured failure before lookup
 PASS unknown lead cannot receive qualification fields
+PASS lookup identity mismatch cannot qualify the requested lead
+PASS malformed lookup records become redacted lookup failures
 PASS result-shaped model proposal is rejected before lookup
 PASS lookup failure is redacted and cannot become friendly success
 PASS future tool timeout has a structured retryable failure contract
 PASS outcome validator rejects partial or mixed success and failure
-INFO tests 11
-INFO pass 11
+INFO tests 13
+INFO pass 13
 INFO fail 0
 INFO skipped 0
 ```
@@ -516,17 +523,19 @@ npm --version
 npm run verify
 ```
 
-The first full command correctly found two strict-TypeScript errors in test
-failure-branch ordering after Node's assertion narrowed `outcome.ok` to true.
-Moving each failure guard before the success assertion repaired the test typing
-without changing production behavior. The exact command was rerun.
+The implementation-time first full command correctly found two
+strict-TypeScript errors in test failure-branch ordering after Node's assertion
+narrowed `outcome.ok` to true. Moving each failure guard before the success
+assertion repaired the test typing without changing production behavior. After
+the later code-review repairs and regression additions, the exact full command
+was rerun for the final result below.
 
 Final result: PASS (exit 0) with Node.js 24.15.0 and npm 12.0.2.
 
 ```text
 PASS tsc --noEmit
-PASS tests 15
-PASS passed 15
+PASS tests 17
+PASS passed 17
 PASS failed 0
 PASS skipped 0
 PASS cancelled 0
@@ -534,7 +543,7 @@ PASS todo 0
 PASS evals 5/5
 ```
 
-The 15 deterministic tests comprise the four preserved baseline cases and 11
+The 17 deterministic tests comprise the four preserved baseline cases and 13
 qualification cases. The five provider-independent evals also remain green;
 no Pi session, model request, credential, event write, or network effect was
 required.
@@ -549,28 +558,30 @@ required.
 | New capability scan | Source diff scan for process execution, shell, filesystem, HTTP, credentials, and network calls | PASS - no matching capability |
 | Credential-pattern scan | Reviewed Apex, source, tests, docs, README, and manifests | PASS - no private-key marker or common credential value pattern |
 | Dependency audit | `npm audit` under npm 12.0.2 | PASS - 0 vulnerabilities |
-| Encoding and line endings | Byte scan of all changed and untracked Session 02 files | PASS - 10/10 ASCII-only with LF endings |
+| Encoding and line endings | Byte scan of all changed and untracked Session 02 files | PASS - 15/15 ASCII-only with LF endings |
 | Relative documentation links | Repository Markdown target scan | PASS - 21 Markdown files, no missing relative target |
 | Whitespace | `git diff --check 675d76b4e8960b035edcdd3e21deb1ab86f576e7` | PASS - no whitespace errors |
 
-Behavioral spot-check: raw input is rejected before lookup, lookup identity must
-match, deterministic computation mutates only local arrays, thrown dependency
-details are redacted, result validation fails visibly, failure branches have no
-partial value, and the existing tool/runtime permission surface is unchanged.
-No high-severity trust-boundary, resource, mutation, failure-path, or contract
-alignment issue was found.
+Behavioral spot-check: raw input is rejected before lookup, lookup records are
+shape-validated, lookup identity must match, deterministic computation mutates
+only local arrays, thrown dependency details are redacted, result validation
+fails visibly, failure branches have no partial value, and the existing
+tool/runtime permission surface is unchanged. Code review repaired the
+trust-boundary and finite-code contract gaps before validation; no unresolved
+high-severity resource, mutation, failure-path, or contract-alignment issue
+remains.
 
 ### Session 02 Implementation Handoff
 
-Implementation is complete at 20/20 tasks. The base-commit diff adds
-`src/leads.ts`, `src/qualification.ts`, and
+Implementation and code review are complete at 20/20 tasks. The base-commit
+diff adds `src/leads.ts`, `src/qualification.ts`, and
 `tests/qualification.test.ts`; changes `src/tools.ts` only to import and
 re-export the extracted lead boundary; appends evidence here; and updates Apex,
-TODO, and changelog tracking. Final implementation verification passes strict
-TypeScript, 15/15 deterministic tests, 5/5 evals, the dependency audit,
+TODO, and changelog tracking. Final review verification passes strict
+TypeScript, 17/17 deterministic tests, 5/5 evals, the dependency audit,
 ASCII/LF, relative-link, credential-pattern, permission, and whitespace checks.
 
-The domain contract is ready for code review and validation. Task `01` and the
+The domain contract is ready for validation. Task `01` and the
 Phase 00 vertical slice are not complete yet: Session 03 must replace
 `inspect_lead` with the specified `qualify_lead` wrapper, enforce its 1,000 ms
 deadline, append the minimized correlated attempt/outcome evidence, preserve

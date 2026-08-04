@@ -8,6 +8,13 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ## [Unreleased]
 
+## [0.1.9] - 2026-08-04
+
+### Changed
+
+- Tightened Session 02 qualification review boundaries so result schemas accept only application-owned reason and missing-information codes, inherited `leadId` properties remain missing input, and malformed lookup records become redacted structured failures.
+- Added deterministic regression coverage for lookup-record validation and exact requested-versus-returned lead identity.
+
 ## [0.1.8] - 2026-08-04
 
 ### Added

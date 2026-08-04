@@ -21,17 +21,29 @@ export const QualificationFitSchema = Type.Union([
   Type.Literal("insufficient"),
 ]);
 
+export const QualificationReasonSchema = Type.Union([
+  Type.Literal("team_size_in_scope"),
+  Type.Literal("auditable_stack_present"),
+  Type.Literal("operational_problem_present"),
+  Type.Literal("limited_qualification_signals"),
+]);
+
+export const QualificationMissingInformationSchema = Type.Union([
+  Type.Literal("budget"),
+  Type.Literal("decision_timeline"),
+]);
+
 export const QualificationResultSchema = Type.Object(
   {
     leadId: LeadIdSchema,
     fit: QualificationFitSchema,
     confidence: Type.Number({ minimum: 0, maximum: 1 }),
-    reasons: Type.Array(Type.String({ minLength: 1, maxLength: 80 }), {
+    reasons: Type.Array(QualificationReasonSchema, {
       minItems: 1,
       maxItems: 4,
       uniqueItems: true,
     }),
-    missingInformation: Type.Array(Type.String({ minLength: 1, maxLength: 80 }), {
+    missingInformation: Type.Array(QualificationMissingInformationSchema, {
       maxItems: 4,
       uniqueItems: true,
     }),
@@ -76,6 +88,10 @@ export const QualificationOutcomeSchema = Type.Union([
 
 export type QualificationInput = Type.Static<typeof QualificationInputSchema>;
 export type QualificationFit = Type.Static<typeof QualificationFitSchema>;
+export type QualificationReason = Type.Static<typeof QualificationReasonSchema>;
+export type QualificationMissingInformation = Type.Static<
+  typeof QualificationMissingInformationSchema
+>;
 export type QualificationResult = Type.Static<typeof QualificationResultSchema>;
 export type QualificationFailureCode = Type.Static<
   typeof QualificationFailureCodeSchema
@@ -83,7 +99,7 @@ export type QualificationFailureCode = Type.Static<
 export type QualificationFailure = Type.Static<typeof QualificationFailureSchema>;
 export type QualificationOutcome = Type.Static<typeof QualificationOutcomeSchema>;
 
-export type LeadLookup = (leadId: string) => Lead | undefined;
+export type LeadLookup = (leadId: string) => unknown;
 
 const failureMessages: Record<QualificationFailureCode, string> = {
   missing_lead_id: "A non-empty leadId is required.",
@@ -95,7 +111,22 @@ const failureMessages: Record<QualificationFailureCode, string> = {
 };
 
 const auditableStack = new Set(["Coolify", "Postgres", "TypeScript"]);
-const missingInformation = ["budget", "decision_timeline"] as const;
+const defaultMissingInformation: QualificationMissingInformation[] = [
+  "budget",
+  "decision_timeline",
+];
+
+const QualificationLeadSchema = Type.Object(
+  {
+    id: LeadIdSchema,
+    name: Type.String(),
+    company: Type.String(),
+    teamSize: Type.Integer({ minimum: 0 }),
+    stack: Type.Array(Type.String()),
+    problem: Type.String(),
+  },
+  { additionalProperties: false },
+);
 
 function qualificationFailure(code: QualificationFailureCode): QualificationOutcome {
   return {
@@ -109,7 +140,7 @@ function qualificationFailure(code: QualificationFailureCode): QualificationOutc
 }
 
 function buildQualification(lead: Lead): QualificationResult {
-  const reasons: string[] = [];
+  const reasons: QualificationReason[] = [];
   let confidence = 0;
 
   if (lead.teamSize >= 15) {
@@ -133,7 +164,7 @@ function buildQualification(lead: Lead): QualificationResult {
     fit,
     confidence,
     reasons,
-    missingInformation: [...missingInformation],
+    missingInformation: [...defaultMissingInformation],
   };
 
   if (!isQualificationResult(result)) {
@@ -143,12 +174,17 @@ function buildQualification(lead: Lead): QualificationResult {
 }
 
 const qualificationInputValidator = Schema.Compile(QualificationInputSchema);
+const qualificationLeadValidator = Schema.Compile(QualificationLeadSchema);
 const qualificationResultValidator = Schema.Compile(QualificationResultSchema);
 const qualificationFailureValidator = Schema.Compile(QualificationFailureSchema);
 const qualificationOutcomeValidator = Schema.Compile(QualificationOutcomeSchema);
 
 export function isQualificationInput(value: unknown): value is QualificationInput {
   return qualificationInputValidator.Check(value);
+}
+
+function isLead(value: unknown): value is Lead {
+  return qualificationLeadValidator.Check(value);
 }
 
 export function isQualificationResult(value: unknown): value is QualificationResult {
@@ -169,7 +205,9 @@ function qualificationInputFailure(input: unknown): QualificationOutcome | undef
   }
 
   const candidate = input as Record<string, unknown>;
-  if (!("leadId" in candidate)) return qualificationFailure("missing_lead_id");
+  if (!Object.hasOwn(candidate, "leadId")) {
+    return qualificationFailure("missing_lead_id");
+  }
   if (typeof candidate.leadId !== "string") {
     return qualificationFailure("malformed_lead_id");
   }
@@ -191,14 +229,16 @@ export function qualifyLead(
   if (inputFailure) return inputFailure;
   if (!isQualificationInput(input)) return qualificationFailure("invalid_input");
 
-  let lead: Lead | undefined;
+  let lead: unknown;
   try {
     lead = lookup(input.leadId);
   } catch {
     return qualificationFailure("lead_lookup_failed");
   }
-  if (!lead || lead.id !== input.leadId) {
+  if (lead === undefined) {
     return qualificationFailure("lead_not_found");
   }
+  if (!isLead(lead)) return qualificationFailure("lead_lookup_failed");
+  if (lead.id !== input.leadId) return qualificationFailure("lead_not_found");
   return { ok: true, value: buildQualification(lead) };
 }
