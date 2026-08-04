@@ -16,6 +16,10 @@ qualification, permits a deterministic draft only after matching successful
 evidence, durably creates the exact pending approval record, derives stop state
 from its projection, and stops without sending.
 
+A Pi-independent internal library can authorize and execute one deterministic
+in-process fake action with durable idempotency. It is not composed into the
+HTTP/Pi runtime, has no public or tool entrypoint, and performs no network write.
+
 ```mermaid
 flowchart LR
     Caller[Controlled caller] -->|POST /runs| HTTP[Node HTTP boundary]
@@ -52,7 +56,7 @@ Requirements:
 - Git
 
 Install the locked dependencies, then run the one command that checks
-formatting, strict types, all 108 deterministic tests, and all five evals:
+formatting, strict types, all 140 deterministic tests, and all five evals:
 
 ```bash
 npm ci
@@ -134,13 +138,14 @@ map.
 
 ## Project Status And Safety
 
-Phase 00 is complete, and Phase 01 now has a durable approval request/decision
-application boundary under active review. Remaining ordered tasks are not
-implemented behavior. In particular:
+Phase 00 is complete, and five of six Phase 01 sessions are complete. Durable
+approval and internal idempotent fake execution are validated; final runtime
+composition and consolidated evidence remain open. In particular:
 
 - approval decisions are internal only; there is no public authenticated
   decision endpoint;
-- no fake or real external-write adapter exists;
+- an internal deterministic fake adapter/result store exists for tests and
+  later integration, but no Pi/HTTP entrypoint or real external-write adapter exists;
 - whole-run recovery, production eval gates, and incident operations remain open;
 - `/runs` has no caller authentication, authorization, tenant isolation, or
   rate limiting and must remain private or otherwise controlled;
@@ -177,7 +182,7 @@ These require separate authorization after the ordered workshop path:
 
 Releases follow [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 and the repository [versioning policy](./docs/VERSIONING.md). The project is
-currently version 0.1.18; user-visible changes are recorded in the
+currently version 0.1.19; user-visible changes are recorded in the
 [changelog](./docs/CHANGELOG.md).
 
 ## Official Pi References

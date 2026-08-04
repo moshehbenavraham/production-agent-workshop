@@ -19,7 +19,7 @@ The ordered scope and acceptance evidence remain authoritative in
   - [x] Session 02 - Approval Store and Projection
   - [x] Session 03 - Durable Approval Integration
   - [x] Session 04 - Fake Send Contract and Authorization
-  - [ ] Session 05 - Idempotent Fake Send Execution
+  - [x] Session 05 - Idempotent Fake Send Execution
   - [ ] Session 06 - Safe Write Integration and Evidence
 
 Phase 01 is sourced only from Tasks [`02`](todo/02-durable-approvals.md) and

@@ -1,7 +1,7 @@
 # Session 05: Idempotent Fake Send Execution
 
 **Session ID**: `phase01-session05-idempotent-fake-send-execution`
-**Status**: Not Started
+**Status**: Complete
 **Source Task**: `03`
 **Estimated Tasks**: ~20-24
 **Estimated Duration**: 2-4 hours
@@ -38,8 +38,8 @@ Implement durable idempotent fake-send execution so one exact approved action pr
 
 ## Prerequisites
 
-- [ ] Session 04 contracts, approved-action resolver, and denial-before-effect tests are complete.
-- [ ] Durable approval projections can supply the exact immutable approved action after restart.
+- [x] Session 04 contracts, approved-action resolver, and denial-before-effect tests are complete.
+- [x] Durable approval projections can supply the exact immutable approved action after restart.
 
 ---
 
@@ -53,8 +53,8 @@ Implement durable idempotent fake-send execution so one exact approved action pr
 
 ## Success Criteria
 
-- [ ] One approved action produces no more than one fake adapter effect.
-- [ ] A duplicate request returns the exact first persisted result, including after a new service instance is created.
-- [ ] Pending, declined, missing, malformed, mismatched, or unauthorized approvals never invoke the adapter.
-- [ ] Timeout, storage, permission, and downstream failures remain typed, visible, and free of false completion claims.
-- [ ] Event evidence correlates the original `runId` and `approvalId` without a provider secret, full draft, or unnecessary personal data.
+- [x] One approved action produces no more than one fake adapter effect.
+- [x] A duplicate request returns the exact first persisted result, including after a new service instance is created.
+- [x] Pending, declined, missing, malformed, mismatched, or unauthorized approvals never invoke the adapter.
+- [x] Timeout, storage, permission, and downstream failures remain typed, visible, and free of false completion claims.
+- [x] Event evidence correlates the original `runId` and `approvalId` without a provider secret, full draft, or unnecessary personal data.

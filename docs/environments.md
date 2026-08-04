@@ -34,6 +34,9 @@ images, documentation, or screenshots.
 - Use only the committed synthetic lead identifiers in every current environment.
 - Local event and approval evidence defaults to `./data/events.jsonl` and
   `./data/approvals.jsonl`.
+- The internal fake-result store has no runtime environment variable or server
+  composition yet. Tests inject temporary paths; a later integration must keep
+  any selected path under the same persistent synthetic-data boundary.
 - The image sets both paths under `/app/data` and declares that directory as a
   volume. Approval files are created with mode `0600`.
 - Synthetic approval files are retained for at most 30 days or until the

@@ -33,6 +33,10 @@ import {
   type FakeSendResult,
   type FakeSendResultStore,
 } from "../src/fake-send-result.js";
+import {
+  isFakeSendExecutionOutcome,
+  makeFakeSendExecutionResultOutcome,
+} from "../src/fake-send-execution.js";
 
 const RUN_ID = "run_fake_send_001";
 const APPROVAL_ID = "approval_fake_send_001";
@@ -385,6 +389,61 @@ test("replaceable result store outcomes are closed and semantically validated", 
     get: () => ({ ok: true, value: completed }),
   };
   assert.equal(contract.get(result.idempotencyKey).ok, true);
+});
+
+test("execution outcomes distinguish first, duplicate, terminal failure, and in-progress", () => {
+  const accepted = acceptedResult();
+  const rejected: FakeSendResult = {
+    ...accepted,
+    status: "rejected",
+    error: makeFakeSendFailure("rejected"),
+  } as FakeSendResult;
+  delete (rejected as Partial<{ receiptId: string }>).receiptId;
+
+  assert.deepEqual(makeFakeSendExecutionResultOutcome("executed", accepted), {
+    ok: true,
+    kind: "executed",
+    value: accepted,
+  });
+  assert.deepEqual(makeFakeSendExecutionResultOutcome("duplicate", rejected), {
+    ok: false,
+    kind: "duplicate",
+    value: rejected,
+    error: makeFakeSendFailure("rejected"),
+  });
+  assert.equal(
+    isFakeSendExecutionOutcome({
+      ok: false,
+      kind: "in_progress",
+      error: makeFakeSendFailure("execution_in_progress"),
+    }),
+    true,
+  );
+  assert.equal(isFakeSendExecutionOutcome({ ok: true, kind: "duplicate", value: rejected }), false);
+  assert.equal(
+    isFakeSendExecutionOutcome({
+      ok: false,
+      kind: "failure",
+      error: makeFakeSendFailure("permission_denied"),
+    }),
+    true,
+  );
+  assert.equal(
+    isFakeSendExecutionOutcome({
+      ok: false,
+      kind: "failure",
+      error: makeFakeSendFailure("timed_out"),
+    }),
+    false,
+  );
+  assert.equal(
+    isFakeSendExecutionOutcome({
+      ok: false,
+      kind: "failure",
+      error: makeFakeSendFailure("duplicate"),
+    }),
+    false,
+  );
 });
 
 test("idempotency key is stable, versioned, field-sensitive, and actor-independent", () => {

@@ -205,168 +205,194 @@ Task contract: [03 - Add an Idempotent Send Boundary](todo/03-idempotent-send.md
 
 ### Goal and Boundary
 
-`src/fake-send.ts` defines authorization and the future fake-adapter boundary;
-`src/fake-send-result.ts` owns execution evidence and persistence contracts.
-Only the deterministic `FakeSendAuthorizer` has application behavior. It has an
-approval-store reference and actor policy, but deliberately has no adapter,
-result store, event store, Pi, or HTTP dependency. Session 04 therefore cannot
-perform even a fake effect.
+Session 05 implements the internal fake-write service without exposing it to Pi
+or HTTP. The boundary is split by responsibility:
 
-A request contains bounded identity claims only: `approvalId`, `runId`, actor
-ID, the single `send_follow_up` action, exact lead target, and `draftId`. It
-contains no draft content, address, provider field, or arbitrary instruction.
-The authorizer resolves all executable content and target data from one exact
-schema-valid durable approved record.
+- `src/fake-send.ts` - exact approved-action authorization and stable key;
+- `src/fake-send-result.ts` - event, reservation, result, record, and store
+  contracts;
+- `src/fake-send-store.ts` - append-only JSONL projection and durable claim/
+  completion adapter;
+- `src/fake-send-service.ts` - state/event/effect ordering, deadline, duplicate
+  replay, and evidence recovery;
+- `src/fake-send-adapter.ts` - deterministic in-process fake adapter only;
+- `src/fake-send-execution.ts` - closed application outcome contract.
+
+The service receives a previously validated exact approved action. It invokes no
+provider and performs no socket, DNS, HTTP, subprocess, or real message write.
+The production Pi allowlist remains exactly three request/read tools.
 
 ```mermaid
-flowchart LR
-    R[Closed identity request] --> V{Schema valid?}
-    V -->|No| I[invalid_request]
-    V -->|Yes| P{Actor allowed?}
-    P -->|No| D[permission_denied]
-    P -->|Yes| S[Read durable approval]
-    S --> A{Exact approved state?}
-    A -->|No| F[Typed refusal; zero effects]
-    A -->|Yes| C[Derive immutable command and stable key]
-    C --> X[Future execution boundary - not called in Session 04]
+flowchart TD
+    A[Authorize exact durable approval] --> C{Durable claim}
+    C -->|Completed| D[Recover terminal event and return original duplicate]
+    C -->|Reserved| I[In progress / indeterminate; no effect]
+    C -->|New claim| E[Append minimized attempted event]
+    E -->|Event failure| I
+    E --> F[Invoke fake adapter once under 1000 ms deadline]
+    F --> R[Persist one terminal result]
+    R -->|Persistence failure| I
+    R --> T[Append minimized terminal event]
+    T -->|Event failure| X[Durable result; retry repairs evidence]
+    T --> S[Return exact executed result]
 ```
-
-No dependency, provider credential, Pi permission, public route, result write,
-send event, subprocess, or network access was added.
 
 ### Write Contract
 
-The closed future adapter accepts only a semantic `FakeSendCommand` and an
-`AbortSignal`. The command contains exact approval/run linkage, the initiating
-authorized actor, the one action, application-resolved lead target, exact
-approved draft ID/content/SHA-256, decision time, and stable idempotency key.
-Its runtime guard recomputes both the draft hash and key. The application owns a
-1,000 ms deadline; adapters may return only accepted, rejected, or downstream-
-failure outcomes. Timeout is an application result, never a late adapter claim.
+The identity-only request and immutable command rules from Session 04 remain
+unchanged. The application owns the full execution order:
 
-The future reservation/result contract is append-only and at-most-once:
+1. validate authorization and exact approval/run/action/target/draft identity;
+2. synchronously append and flush one durable reservation before asynchronous
+   work;
+3. append `fake_send.attempted` before calling the adapter;
+4. invoke the injected fake adapter once with an `AbortSignal` and 1,000 ms
+   deadline;
+5. append and flush one terminal accepted, rejected, timed-out, or downstream-
+   failure result and re-read its projection;
+6. append the matching minimized terminal event;
+7. on a completed duplicate, repair any missing terminal event and return the
+   exact original result without another adapter call.
 
-1. claim a durable reservation for the stable key;
-2. invoke the fake adapter only after the claim;
-3. persist exactly one terminal accepted, rejected, timed-out, or downstream-
-   failure result tied to the reservation;
-4. return the terminal original for later duplicates, or refuse an incomplete
-   reservation as `execution_in_progress` without a second effect.
+`FileFakeSendResultStore` writes one closed LF-terminated JSON value per line,
+opens new files with mode `0600`, calls `fsync`, closes in `finally`, and
+rebuilds from disk before success. It keeps no authoritative cache. Projection
+rejects invalid JSON/schema, missing final LF, blank lines, duplicate record IDs,
+decreasing time, duplicate reservations, result-before-reservation, duplicate
+terminal records, and reservation/result identity conflicts.
 
-Results explicitly declare `{ "supported": false,
-"code": "manual_review_required" }` compensation. Automatic rollback is not
-claimed; a human must inspect durable evidence before corrective action. The
-reservation/result store and evidence schemas are contracts only in Session 04;
-Session 05 implements persistence and execution.
+The fake adapter returns a deterministic receipt derived from the stable key.
+It has no external dependency. Results continue to declare automatic
+compensation unsupported and `manual_review_required`.
 
-### Permission Table
+### Permission And Outcome Table
 
-Authorization precedence is schema, actor permission, safe durable lookup,
-exact approval identity, approved status, then action/target/draft equality.
-
-| Case | Session 04 result | Effect allowed |
-|------|-------------------|----------------|
-| Exact approved action + authorized actor | Exact derived command and stable key | Future boundary only; no Session 04 effect |
-| Invalid or extra request field | `invalid_request` | No |
-| Unauthorized actor | `permission_denied`; approval store is not read | No |
-| Missing approval | `approval_not_found` | No |
-| Pending approval | `approval_pending` | No |
-| Declined approval | `approval_declined` | No |
-| Cross-run/action/target/draft | `approval_identity_mismatch` | No |
-| Malformed/corrupt approval evidence | `invalid_approval_record` | No |
-| Throwing, malformed, or sensitive store failure | canonical `storage_failure` | No |
-| Completed duplicate | Contract: original result + `duplicate` | No second effect; implemented in Session 05 |
-| Reservation without terminal result | Contract: `execution_in_progress` | No second effect; implemented in Session 05 |
-| Adapter timeout | Contract: `timed_out` | Deadline behavior implemented in Session 05 |
-| Adapter rejection | Contract: `rejected` | Implemented in Session 05 |
-| Adapter dependency failure | Contract: `downstream_failure` | Implemented in Session 05 |
+| Case | Implemented result | Adapter effects |
+|------|--------------------|-----------------|
+| Exact approved first request | Durable reservation, one fake invocation, exact terminal result | 1 |
+| Completed duplicate/restart | Exact original result with `duplicate` kind | 0 additional |
+| Existing reservation only | `execution_in_progress`; indeterminate/manual review | 0 additional |
+| Invalid/extra request | `invalid_request` | 0 |
+| Unauthorized actor | `permission_denied` before approval lookup + minimized event | 0 |
+| Missing approval | `approval_not_found` | 0 |
+| Pending approval | `approval_pending` | 0 |
+| Declined approval | `approval_declined` | 0 |
+| Run/action/target/draft mismatch | `approval_identity_mismatch` | 0 |
+| Corrupt/interrupted/out-of-order result file | Typed store refusal; no partial projection | 0 |
+| Attempt-event failure | Durable reservation, visible storage failure | 0 |
+| Adapter rejection | Durable `rejected` result and event | 1 |
+| Adapter throw/reject/malformed result | Durable redacted `downstream_failure` | 1 |
+| Adapter deadline | Abort signal + durable `timed_out`; late settlement ignored | 1 |
+| Completion-store failure after effect | Reservation remains indeterminate; storage failure | 1, never retried automatically |
+| Terminal-event failure | Durable result + storage-failure evidence; duplicate retry repairs terminal event | 1 |
 
 ### Idempotency Proof
 
-`deriveFakeSendIdempotencyKey` hashes a length-delimited canonical sequence:
-domain `fake-send`, version `v1`, approval ID, run ID, action, target kind/lead
-ID, draft ID, and approved draft SHA-256. Caller content and initiating actor are
-excluded. Tests lock the exact fixture key
-`7f9fd848a017555d3aec333d08ac074718d7e2c0ac0a2f3a03c77dd6d77618c0`,
-prove a second authorized actor derives the same key, and prove target changes
-produce a different key.
+The stable `v1` key remains the SHA-256 of length-delimited domain, approval,
+run, action, target, draft ID, and approved draft SHA-256 fields. Actor identity
+and caller content remain excluded.
 
-Durable first-result and duplicate-effect proof is intentionally pending
-Session 05. Session 04 defines and runtime-validates the reservation-first store
-contract needed for that proof and does not claim persistence.
+Observed deterministic proof:
+
+- a first accepted execution writes exactly two result-file lines: reservation
+  then terminal result;
+- a new store/service instance returns a deep-equal original result, leaves the
+  file at two lines, and calls a fresh adapter spy zero times;
+- two concurrent calls in one Node process synchronously serialize at the file
+  claim, producing one adapter call and one `execution_in_progress` response;
+- repeated exact completion is idempotent and adds no line; a different terminal
+  result is a typed conflict;
+- timeout, rejected, and downstream failures are terminal for the same key and
+  are returned exactly on later duplicates;
+- a reservation without a result never expires or retries automatically because
+  the effect may already have happened.
+
+This is an at-most-once guarantee only for the documented single process. No
+distributed or multi-process locking claim is made.
 
 ### Test Matrix
 
-`tests/fake-send.test.ts` contains 15 deterministic contract/authorization
-tests:
+| Suite | Tests | Covered behavior |
+|-------|------:|------------------|
+| `tests/fake-send.test.ts` | 16 | Closed authorization/adapter/result/execution contracts, semantic identity, stable key, permission order, zero-effect denials |
+| `tests/fake-send-store.test.ts` | 16 | Projection, restart, line counts, private mode, duplicate/in-progress, exact completion, corruption, interruption, I/O and metadata failures |
+| `tests/fake-send-service.test.ts` | 15 | First/duplicate/concurrent execution, all authorization denials, rejection/downstream/timeout/late paths, store/event outages, immutable replaceable boundaries, duplicate terminal evidence, and recovery |
 
-| Area | Covered behavior |
-|------|------------------|
-| Closed contracts | Request, command, canonical failures, adapter outcomes, events, reservation/result/store outcomes |
-| Semantic integrity | Draft hash, stable key, timestamps/duration, receipt shape, compensation, reservation/result identity |
-| Exact approved action | Application-derived command and one safe store lookup |
-| Permission order | Invalid and unauthorized requests perform zero approval reads |
-| Approval refusals | Missing, malformed, throwing, sensitive, pending, declined, cross-run, cross-target, and wrong-draft cases |
-| Zero-effect proof | Denial matrix produces zero calls to a future-adapter spy |
-
-Timeout, duplicate execution, and downstream-failure contracts are validated
-here; their application execution paths remain Session 05 work.
+The combined focused gate passes 47/47 tests. The complete repository passes
+140/140 deterministic tests plus five evals.
 
 ### Redacted Event Examples
 
-The closed future data schema accepts examples such as:
+The surrounding `AgentEvent` supplies the exact original `runId`. Implemented
+data examples are:
 
 ```json
 {"eventType":"fake_send.attempted","approvalId":"approval_test_001","idempotencyKey":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
 {"eventType":"fake_send.accepted","approvalId":"approval_test_001","idempotencyKey":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","durationMs":25,"outcome":"accepted"}
-{"eventType":"fake_send.permission_denied","approvalId":"approval_test_001","code":"permission_denied"}
+{"eventType":"fake_send.duplicate","approvalId":"approval_test_001","idempotencyKey":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","durationMs":1,"outcome":"duplicate","originalStatus":"accepted"}
+{"eventType":"fake_send.storage_failed","approvalId":"approval_test_001","idempotencyKey":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","code":"storage_failure"}
 ```
 
-The surrounding operational event supplies `runId`. Draft content, target
-address, raw dependency response/error, and provider data are rejected. These
-are contract examples, not emitted Session 04 events.
+Closed schemas reject draft content, target address, raw errors, provider
+response, credentials, and unrelated lead data. Tests inspect serialized events
+and prove neither the synthetic draft nor lead target appears.
 
 ### Human Review Result
 
-**Status: not triggered.** The production Pi allowlist remains exactly the three
-Phase 00 tools and no write-capable tool exists. The required future reviewer
-role is the repository maintainer responsible for production permissions. That
-review must cover the final application service, tool contract, permission
-diff, idempotency evidence, and failure behavior before any allowlist change.
-Session 06 records the decision; this entry does not claim a human review.
+**Status: not triggered and not claimed.** Session 05 adds internal application
+code only. The production allowlist remains exactly `qualify_lead`,
+`draft_follow_up`, and `request_send_approval`; there is no Pi send tool or
+HTTP write route. The repository maintainer must review the final permission
+contract, application service, tests, and diff before any future write-capable
+tool is allowlisted. Session 06 records the explicit final allowlist decision.
 
-### Exercised Failure and Recovery
+### Exercised Failure, Recovery, And Escalation
 
-Focused tests exercise every pre-effect denial. An unauthorized actor returns
-canonical `permission_denied` before the approval store is read. Pending and
-declined state return distinct actionable refusals. Malformed or throwing store
-adapters return redacted typed failures. All denied cases leave the future-
-adapter spy at zero calls.
+| Failure | Safe behavior | Retry / human action |
+|---------|---------------|----------------------|
+| Authorization denial | No claim, attempt, or effect | Correct approval/identity/permission; do not bypass |
+| Claim/read corruption or outage | No effect | Stop; inspect/repair exact result file offline |
+| Attempt-event outage | Reservation only, no effect | Do not retry automatically; inspect event/result evidence |
+| Timeout | Abort + durable timed-out result; late settlement ignored | Duplicate returns timeout; human decides any future new approved action |
+| Rejected/downstream | Durable terminal failure | Duplicate returns original; investigate before a new approval |
+| Completion failure after invocation | Reservation only; effect indeterminate | Mandatory human inspection; no automatic retry or compensation |
+| Terminal-event outage | Durable terminal result remains truth | Duplicate safely reconstructs missing terminal event, then returns original |
+| Existing reservation after restart | `execution_in_progress` | Treat as indeterminate; manual escalation only |
 
-No write recovery occurs yet. The defined safe behavior for a future incomplete
-reservation is visible `execution_in_progress`, stop, and human inspection -
-never an automatic second effect or claimed rollback.
+Automatic rollback, lease expiry, reservation deletion, and retry of an
+indeterminate key are intentionally absent.
 
 ### Verification Output
 
-- Contract-first RED: focused test failed because `src/fake-send.ts` did not
-  exist.
-- GREEN: `npx tsx --test tests/fake-send.test.ts` - 15/15 tests pass.
-- `npm run check` - strict TypeScript passes.
-- `npm run verify` - formatting and strict types pass, 108/108 deterministic
-  tests pass, and 5/5 evals pass.
-- `npm audit --audit-level=low` - 0 vulnerabilities.
-- Whitespace, ASCII/LF, credential, route, network/process, and exact production-
-  allowlist scans pass.
+- Contract/store RED: focused test failed with `ERR_MODULE_NOT_FOUND` for
+  `src/fake-send-store.js`.
+- Service RED: focused test failed with `ERR_MODULE_NOT_FOUND` for
+  `src/fake-send-service.js`.
+- Focused GREEN: 47/47 fake-send contract/store/service tests pass.
+- Code-review RED/GREEN: mutable reservation/result/event values, repeated exact
+  terminal evidence, and terminal-only generic failures were reproduced and
+  repaired with direct regressions.
+- `npm run verify`: formatting and strict types pass, 140/140 tests pass, and
+  5/5 evals pass.
+- `npm audit --audit-level=low`: 0 vulnerabilities.
+- Final review additionally checks persistence, events, permission order,
+  credentials, process/network capabilities, ASCII/LF, and the complete diff.
 
-### Final Diff Review and Remaining Risk
+### Final Diff Review And Remaining Risk
 
-Current inspection confirms that Session 04 adds Pi-independent application
-contracts and pure authorization only. There is no fake adapter implementation,
-result file, event emission, Pi/HTTP integration, provider credential, real
-network write, or real/personal data.
+Session 05 adds local JSONL filesystem capability and an in-process fake adapter
+behind the exact durable approval boundary. It adds no package, provider,
+credential, public route, Pi tool, allowlist entry, subprocess, network call,
+real message, real data, or automatic compensation.
 
-Remaining risk is deliberate and visible: reservation persistence, race/crash
-behavior, timeout/late-result handling, duplicate original-result return, event
-ordering, and adapter failure handling must be implemented and independently
-reviewed in Session 05 before any integration claim.
+Values generated by the service are frozen before replaceable result/event
+adapters receive them. Duplicate replay also requires exactly one matching
+terminal event; multiple matching terminal records are treated as corrupt
+evidence and fail closed.
+
+Known constraints remain explicit: the claim is single-process only; event and
+result files are not transactional; a crash or completion failure can leave an
+indeterminate reservation; repair and retention are manual; no lease expiry,
+distributed lock, backup/restore, tenant boundary, public actor authentication,
+or real-data lifecycle exists. Final internal composition and consolidated Task
+`03` evidence remain Session 06 work.

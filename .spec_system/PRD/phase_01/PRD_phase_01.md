@@ -4,7 +4,7 @@
 **Sessions**: 6 (initial estimate)
 **Estimated Duration**: 4-6 workshop days
 
-**Progress**: 4/6 sessions (67%)
+**Progress**: 5/6 sessions (83%)
 
 ---
 
@@ -22,7 +22,7 @@ Week 2 turns the current event-only pending approval into an application-owned d
 | 02 | Approval Store and Projection | Complete | ~20-24 | 2026-08-04 |
 | 03 | Durable Approval Integration | Complete | ~20-24 | 2026-08-04 |
 | 04 | Fake Send Contract and Authorization | Complete | ~18-22 | 2026-08-04 |
-| 05 | Idempotent Fake Send Execution | Not Started | ~20-24 | - |
+| 05 | Idempotent Fake Send Execution | Complete | 19 | 2026-08-04 |
 | 06 | Safe Write Integration and Evidence | Not Started | ~18-24 | - |
 
 ---
@@ -33,12 +33,13 @@ Week 2 turns the current event-only pending approval into an application-owned d
 - 2026-08-04: Session 02 - Approval Store and Projection
 - 2026-08-04: Session 03 - Durable Approval Integration
 - 2026-08-04: Session 04 - Fake Send Contract and Authorization
+- 2026-08-04: Session 05 - Idempotent Fake Send Execution
 
 ---
 
 ## Upcoming Sessions
 
-- Session 05: Idempotent Fake Send Execution
+- Session 06: Safe Write Integration and Evidence
 
 ---
 

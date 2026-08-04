@@ -206,7 +206,7 @@ export type FakeSendResult = Type.Static<typeof FakeSendResultSchema>;
 const fakeSendReservationValidator = Schema.Compile(FakeSendReservationSchema);
 const fakeSendResultValidator = Schema.Compile(FakeSendResultSchema);
 
-type FakeSendIdentity = Pick<
+export type FakeSendIdentity = Pick<
   FakeSendReservation,
   "idempotencyKey" | "approvalId" | "runId" | "action" | "target" | "draftId" | "draftSha256"
 >;
@@ -225,7 +225,7 @@ function hasValidFakeSendIdentity(value: FakeSendIdentity): boolean {
   );
 }
 
-function sameFakeSendIdentity(left: FakeSendIdentity, right: FakeSendIdentity): boolean {
+export function hasSameFakeSendIdentity(left: FakeSendIdentity, right: FakeSendIdentity): boolean {
   return (
     left.idempotencyKey === right.idempotencyKey &&
     left.approvalId === right.approvalId &&
@@ -285,7 +285,7 @@ export function isFakeSendStoreProjection(value: unknown): value is FakeSendStor
   if (value.state === "reserved") return true;
   return (
     isFakeSendResult(value.result) &&
-    sameFakeSendIdentity(value.reservation, value.result) &&
+    hasSameFakeSendIdentity(value.reservation, value.result) &&
     value.result.startedAt === value.reservation.reservedAt
   );
 }
@@ -424,7 +424,13 @@ export function isFakeSendResultStoreClaimOutcome(
   if (value.ok) return isFakeSendReservation(value.value);
   if (!isFakeSendFailure(value.error)) return false;
   if (value.kind === "failure") {
-    return value.error.code === "storage_failure" || value.error.code === "result_conflict";
+    return [
+      "storage_failure",
+      "corrupt_record",
+      "interrupted_write",
+      "out_of_order_record",
+      "result_conflict",
+    ].includes(value.error.code);
   }
   if (!isFakeSendStoreProjection(value.value)) return false;
   return value.value.state === "completed"
@@ -439,7 +445,13 @@ export function isFakeSendResultStoreCompleteOutcome(
   return value.ok
     ? isFakeSendStoreProjection(value.value)
     : isFakeSendFailure(value.error) &&
-        (value.error.code === "storage_failure" || value.error.code === "result_conflict");
+        [
+          "storage_failure",
+          "corrupt_record",
+          "interrupted_write",
+          "out_of_order_record",
+          "result_conflict",
+        ].includes(value.error.code);
 }
 
 export function isFakeSendResultStoreReadOutcome(
@@ -448,5 +460,8 @@ export function isFakeSendResultStoreReadOutcome(
   if (!fakeSendResultStoreReadOutcomeValidator.Check(value)) return false;
   return value.ok
     ? value.value === null || isFakeSendStoreProjection(value.value)
-    : isFakeSendFailure(value.error) && value.error.code === "storage_failure";
+    : isFakeSendFailure(value.error) &&
+        ["storage_failure", "corrupt_record", "interrupted_write", "out_of_order_record"].includes(
+          value.error.code,
+        );
 }

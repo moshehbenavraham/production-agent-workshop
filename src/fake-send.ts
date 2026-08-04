@@ -131,6 +131,9 @@ export const FakeSendFailureCodeSchema = Type.Union([
   Type.Literal("approval_identity_mismatch"),
   Type.Literal("invalid_approval_record"),
   Type.Literal("storage_failure"),
+  Type.Literal("corrupt_record"),
+  Type.Literal("interrupted_write"),
+  Type.Literal("out_of_order_record"),
   Type.Literal("duplicate"),
   Type.Literal("execution_in_progress"),
   Type.Literal("timed_out"),
@@ -160,6 +163,9 @@ const failureMessages: Record<FakeSendFailureCode, string> = {
   approval_identity_mismatch: "Request identity does not match the approved action.",
   invalid_approval_record: "Approval evidence is invalid and cannot authorize execution.",
   storage_failure: "Fake-send storage operation failed.",
+  corrupt_record: "Fake-send storage contains a corrupt record.",
+  interrupted_write: "Fake-send storage contains an interrupted write.",
+  out_of_order_record: "Fake-send storage records are out of order.",
   duplicate: "The approved action already has a persisted fake-send result.",
   execution_in_progress: "The approved action has a durable reservation without a result.",
   timed_out: "Fake-send execution exceeded its application deadline.",
@@ -170,6 +176,7 @@ const failureMessages: Record<FakeSendFailureCode, string> = {
 
 const retryableFailureCodes = new Set<FakeSendFailureCode>([
   "storage_failure",
+  "interrupted_write",
   "execution_in_progress",
   "timed_out",
   "downstream_failure",

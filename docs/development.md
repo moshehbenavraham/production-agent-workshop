@@ -35,6 +35,10 @@ are not needed for it.
 - Keep custom tool execution and event gates in `src/tools.ts`.
 - Keep approval policy in `src/approval-service.ts`, approval domain rules in
   `src/approval.ts`, and file projection in `src/approval-store.ts`.
+- Keep fake authorization in `src/fake-send.ts`, result/store contracts in
+  `src/fake-send-result.ts`, file projection in `src/fake-send-store.ts`, and
+  orchestration in `src/fake-send-service.ts`. Do not connect this internal
+  boundary to Pi or HTTP without the separate permission-review gate.
 - Keep deterministic qualification independent of Pi and HTTP in
   `src/qualification.ts`.
 - Keep operational append-only evidence behind `src/event-store.ts`.
@@ -66,6 +70,8 @@ Run `npm run format` after a formatting failure, then rerun `npm run verify`.
 to `./data/approvals.jsonl`. Runtime event/approval files, provider state,
 secrets, and build output are ignored and must not be committed. Approval
 records contain exact full synthetic drafts, while operational events do not.
+Internal fake-result tests use explicitly injected temporary JSONL paths; the
+server does not currently configure or open a fake-result file.
 Use only synthetic fixtures and follow the manual 30-day-or-teardown whole-file
 retention/deletion rule in [Environments](./environments.md).
 

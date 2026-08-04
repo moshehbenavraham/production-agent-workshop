@@ -10,6 +10,12 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Added
 
+- Added a flush-before-success file-backed fake-send reservation/result store
+  with restart projection, exact duplicate replay, visible indeterminate state,
+  corruption refusal, and injected I/O failure coverage.
+- Added a reservation-first fake-send application service and deterministic in-
+  process adapter with one-effect same-process concurrency, bounded timeout/
+  abort, late-result suppression, minimized events, and terminal-event recovery.
 - Added closed fake-send request, command, adapter, result, event, reservation,
   and replaceable store contracts plus deterministic pre-effect authorization
   from exact durable approved state.
@@ -35,6 +41,12 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Changed
 
+- Classified accepted, duplicate, in-progress, rejected, timed-out, downstream,
+  permission, identity, and storage outcomes without exposing fake execution to
+  Pi or HTTP or adding real network capability.
+- Froze service-generated reservations, results, nested metadata, and minimized
+  events before replaceable adapters; repeated terminal evidence and terminal-
+  only generic failure shapes now fail closed.
 - Preserved the no-effect cutoff while classifying every Task `03` permission
   and future execution outcome; Pi and HTTP remain unchanged.
 - Bound Pi approval requests to the latest exact application-produced draft,
@@ -48,8 +60,8 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 - Validated the new Code Quality workflow and GitHub-managed CodeQL against the exact pushed transition commit with no open PR or review blocker.
 - Re-synthesized the living considerations and security/compliance records from every Phase 00 summary, archived plan, implementation discovery log, session security report, and known transition exception.
 - Updated the root README and master PRD from the pre-qualification four-test baseline to the completed Phase 00 tool, event, test, CI, container-health, and no-send boundary.
-- Synchronized current-version documentation with the `0.1.18` Session 04
-  closeout bump and the 108-test deterministic baseline.
+- Synchronized current-version documentation with the `0.1.19` Session 05
+  closeout bump and the 140-test deterministic baseline.
 
 ## [0.1.11] - 2026-08-04
 
