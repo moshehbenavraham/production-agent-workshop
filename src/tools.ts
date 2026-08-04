@@ -17,9 +17,7 @@ export { findLead, type Lead } from "./leads.js";
 
 export const QUALIFICATION_TIMEOUT_MS = 1_000;
 
-export type QualificationExecutor = (
-  input: unknown,
-) => unknown | Promise<unknown>;
+export type QualificationExecutor = (input: unknown) => unknown | Promise<unknown>;
 
 export type QualificationExecutionOptions = {
   qualificationExecutor?: QualificationExecutor;
@@ -52,16 +50,11 @@ async function boundedQualification(
       if (!isQualificationOutcome(candidate)) {
         return makeQualificationFailure("lead_lookup_failed");
       }
-      return candidate.ok
-        ? candidate
-        : makeQualificationFailure(candidate.error.code);
+      return candidate.ok ? candidate : makeQualificationFailure(candidate.error.code);
     })
     .catch(() => makeQualificationFailure("lead_lookup_failed"));
   const timeout = new Promise<QualificationOutcome>((resolve) => {
-    timer = setTimeout(
-      () => resolve(makeQualificationFailure("qualification_timeout")),
-      timeoutMs,
-    );
+    timer = setTimeout(() => resolve(makeQualificationFailure("qualification_timeout")), timeoutMs);
   });
 
   try {
@@ -127,13 +120,7 @@ export function createQualificationTool(
     parameters: QualificationInputSchema,
     executionMode: "sequential",
     execute: async (_toolCallId, params) => {
-      const outcome = await executeQualification(
-        runId,
-        requestedLeadId,
-        store,
-        params,
-        options,
-      );
+      const outcome = await executeQualification(runId, requestedLeadId, store, params, options);
       return {
         content: [{ type: "text", text: JSON.stringify(outcome) }],
         details: outcome,
@@ -148,8 +135,7 @@ export function qualificationOutcomeFromEvents(
 ): QualificationOutcome | undefined {
   for (const event of [...events].reverse()) {
     if (event.type === "qualification.completed") {
-      return isQualificationResult(event.data) &&
-        event.data.leadId === requestedLeadId
+      return isQualificationResult(event.data) && event.data.leadId === requestedLeadId
         ? { ok: true, value: event.data }
         : undefined;
     }
@@ -169,13 +155,8 @@ function hasValidatedQualification(
   store: JsonlEventStore,
 ): boolean {
   if (leadId !== requestedLeadId) return false;
-  const outcome = qualificationOutcomeFromEvents(
-    store.readRun(runId),
-    requestedLeadId,
-  );
-  return Boolean(
-    outcome?.ok && outcome.value.leadId === requestedLeadId,
-  );
+  const outcome = qualificationOutcomeFromEvents(store.readRun(runId), requestedLeadId);
+  return Boolean(outcome?.ok && outcome.value.leadId === requestedLeadId);
 }
 
 export function makeDraft(lead: Lead, angle: string): string {
@@ -208,12 +189,7 @@ export function buildTools(
   store: JsonlEventStore,
   options: QualificationExecutionOptions = {},
 ) {
-  const qualificationTool = createQualificationTool(
-    runId,
-    requestedLeadId,
-    store,
-    options,
-  );
+  const qualificationTool = createQualificationTool(runId, requestedLeadId, store, options);
 
   const draftParameters = Type.Object(
     {
@@ -276,14 +252,10 @@ export function buildTools(
     },
     { additionalProperties: false },
   );
-  const requestSendApproval = defineTool<
-    typeof approvalParameters,
-    ApprovalToolDetails
-  >({
+  const requestSendApproval = defineTool<typeof approvalParameters, ApprovalToolDetails>({
     name: "request_send_approval",
     label: "Request send approval",
-    description:
-      "Create a pending human approval record. This tool never sends the message.",
+    description: "Create a pending human approval record. This tool never sends the message.",
     parameters: approvalParameters,
     executionMode: "sequential",
     execute: async (_toolCallId, params) => {

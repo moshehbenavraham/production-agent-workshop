@@ -9,10 +9,7 @@ import {
 } from "../src/qualification.js";
 import type { Lead } from "../src/leads.js";
 
-function assertFailure(
-  outcome: QualificationOutcome,
-  code: QualificationFailureCode,
-): void {
+function assertFailure(outcome: QualificationOutcome, code: QualificationFailureCode): void {
   assert.equal(outcome.ok, false);
   if (outcome.ok) assert.fail(`Expected ${code} failure`);
   assert.equal(outcome.error.code, code);
@@ -29,11 +26,7 @@ test("known lead produces an application-validated qualification", () => {
     leadId: "lead_ada",
     fit: "strong",
     confidence: 0.85,
-    reasons: [
-      "team_size_in_scope",
-      "auditable_stack_present",
-      "operational_problem_present",
-    ],
+    reasons: ["team_size_in_scope", "auditable_stack_present", "operational_problem_present"],
     missingInformation: ["budget", "decision_timeline"],
   });
   assert.equal(isQualificationResult(outcome.value), true);
@@ -41,10 +34,7 @@ test("known lead produces an application-validated qualification", () => {
 });
 
 test("same exact lead produces the same result", () => {
-  assert.deepEqual(
-    qualifyLead({ leadId: "lead_grace" }),
-    qualifyLead({ leadId: "lead_grace" }),
-  );
+  assert.deepEqual(qualifyLead({ leadId: "lead_grace" }), qualifyLead({ leadId: "lead_grace" }));
 });
 
 test("result schema rejects invalid bounds, codes, and properties", () => {
@@ -59,15 +49,9 @@ test("result schema rejects invalid bounds, codes, and properties", () => {
   assert.equal(isQualificationResult({ ...valid, confidence: -0.01 }), false);
   assert.equal(isQualificationResult({ ...valid, confidence: 1.01 }), false);
   assert.equal(isQualificationResult({ ...valid, confidence: Number.NaN }), false);
-  assert.equal(
-    isQualificationResult({ ...valid, confidence: Number.POSITIVE_INFINITY }),
-    false,
-  );
+  assert.equal(isQualificationResult({ ...valid, confidence: Number.POSITIVE_INFINITY }), false);
   assert.equal(isQualificationResult({ ...valid, reasons: ["model_claim"] }), false);
-  assert.equal(
-    isQualificationResult({ ...valid, missingInformation: ["invented"] }),
-    false,
-  );
+  assert.equal(isQualificationResult({ ...valid, missingInformation: ["invented"] }), false);
   assert.equal(isQualificationResult({ ...valid, extra: true }), false);
 });
 
@@ -80,9 +64,8 @@ test("weak synthetic lead still produces a bounded schema-valid result", () => {
     stack: [],
     problem: "Short",
   };
-  const outcome = qualifyLead(
-    { leadId: weakLead.id },
-    (leadId) => (leadId === weakLead.id ? weakLead : undefined),
+  const outcome = qualifyLead({ leadId: weakLead.id }, (leadId) =>
+    leadId === weakLead.id ? weakLead : undefined,
   );
 
   if (!outcome.ok) assert.fail(outcome.error.message);

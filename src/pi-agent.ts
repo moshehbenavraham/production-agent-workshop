@@ -36,17 +36,8 @@ Rules:
 - Keep the final response short and factual.`;
 
 function eventData(event: Record<string, unknown>): Record<string, unknown> {
-  const allowed = [
-    "type",
-    "toolName",
-    "toolCallId",
-    "isError",
-    "messageId",
-    "stopReason",
-  ];
-  return Object.fromEntries(
-    allowed.filter((key) => key in event).map((key) => [key, event[key]]),
-  );
+  const allowed = ["type", "toolName", "toolCallId", "isError", "messageId", "stopReason"];
+  return Object.fromEntries(allowed.filter((key) => key in event).map((key) => [key, event[key]]));
 }
 
 function finalAssistantText(messages: unknown[]): string {
@@ -73,11 +64,7 @@ export type RunResult = {
   qualification: QualificationOutcome;
 };
 
-export type RunStopReason =
-  | "approval_pending"
-  | "not_found"
-  | "qualification_failed"
-  | "completed";
+export type RunStopReason = "approval_pending" | "not_found" | "qualification_failed" | "completed";
 
 export function deriveRunStopReason(
   events: readonly AgentEvent[],
@@ -86,9 +73,7 @@ export function deriveRunStopReason(
   const qualification = qualificationOutcomeFromEvents(events, requestedLeadId);
   if (!qualification) return "qualification_failed";
   if (!qualification.ok) {
-    return qualification.error.code === "lead_not_found"
-      ? "not_found"
-      : "qualification_failed";
+    return qualification.error.code === "lead_not_found" ? "not_found" : "qualification_failed";
   }
 
   let qualificationTerminalIndex = -1;
@@ -99,12 +84,14 @@ export function deriveRunStopReason(
       break;
     }
   }
-  const approvalPending = events.slice(qualificationTerminalIndex + 1).some(
-    (event) =>
-      event.type === "approval.requested" &&
-      event.data.status === "pending" &&
-      event.data.leadId === qualification.value.leadId,
-  );
+  const approvalPending = events
+    .slice(qualificationTerminalIndex + 1)
+    .some(
+      (event) =>
+        event.type === "approval.requested" &&
+        event.data.status === "pending" &&
+        event.data.leadId === qualification.value.leadId,
+    );
   return approvalPending ? "approval_pending" : "completed";
 }
 

@@ -45,10 +45,7 @@ test("known success with pending approval derives approval_pending", () => {
 
 test("known success without approval derives completed", () => {
   assert.equal(
-    deriveRunStopReason(
-      [event("qualification.completed", known.value)],
-      "lead_ada",
-    ),
+    deriveRunStopReason([event("qualification.completed", known.value)], "lead_ada"),
     "completed",
   );
 });
@@ -105,10 +102,7 @@ test("missing or corrupt qualification evidence fails closed", () => {
 
 test("schema-valid cross-lead completion fails closed for the requested run", () => {
   assert.equal(
-    deriveRunStopReason(
-      [event("qualification.completed", known.value)],
-      "lead_grace",
-    ),
+    deriveRunStopReason([event("qualification.completed", known.value)], "lead_grace"),
     "qualification_failed",
   );
 });
@@ -134,8 +128,5 @@ test("structured failure output overrides friendly assistant prose", () => {
     qualificationRunOutput(failure, "Everything succeeded and was sent."),
     "No lead exists for the requested leadId.",
   );
-  assert.equal(
-    qualificationRunOutput(known, "Approval is pending."),
-    "Approval is pending.",
-  );
+  assert.equal(qualificationRunOutput(known, "Approval is pending."), "Approval is pending.");
 });

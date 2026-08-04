@@ -144,16 +144,27 @@ For a non-trivial change:
 | Category | Tool | Command or Config |
 |----------|------|-------------------|
 | Runtime | Node.js 24 + TSX | `npm start`, `npm run dev` |
+| Dev Server | TSX HTTP server | `npm start`, `http://127.0.0.1:3000/health` |
 | Package Manager | npm 12.0.2 | `packageManager`, `package-lock.json` |
 | Type Safety | TypeScript strict | `npm run check`, `tsconfig.json` |
 | Testing | Node.js test runner | `npm test` |
 | Evals | Deterministic TypeScript runner | `npm run eval` |
 | Full Verification | npm scripts | `npm run verify` |
-| Formatter | Not configured | - |
+| Formatter | Biome 2.5.6 | `npm run format`, `npm run format:check`, `biome.json` |
 | Linter | Not configured | - |
 | Observability | Append-only JSONL events | `EVENT_LOG_PATH` |
 | Deployment | Docker + Coolify | `Dockerfile`, `/health`, `/app/data` |
 | Database | Not configured | File-backed interfaces only |
+
+## CI/CD
+
+| Bundle | Status | Workflow |
+|--------|--------|----------|
+| Code Quality | configured | `.github/workflows/quality.yml` |
+| Build & Test | not configured | - |
+| Security | not configured | - |
+| Integration | not configured | - |
+| Operations | not configured | - |
 
 ## When In Doubt
 

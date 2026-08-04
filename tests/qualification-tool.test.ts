@@ -51,11 +51,7 @@ async function executeTool<TParams>(
 
 test("production qualification tool has the exact closed schema and deadline", () => {
   const { runId, store } = createStore();
-  const [qualificationTool, draftTool, approvalTool] = buildTools(
-    runId,
-    "lead_ada",
-    store,
-  );
+  const [qualificationTool, draftTool, approvalTool] = buildTools(runId, "lead_ada", store);
   const inputValidator = Schema.Compile(qualificationTool.parameters);
 
   assert.equal(QUALIFICATION_TIMEOUT_MS, 1_000);
@@ -106,10 +102,10 @@ test("raw wrapper records missing and malformed failures without raw input", asy
     if (outcome.ok) assert.fail(`Expected ${code}`);
     assert.equal(outcome.error.code, code);
     const events = store.readRun(runId);
-    assert.deepEqual(events.map((event) => event.type), [
-      "qualification.attempted",
-      "qualification.failed",
-    ]);
+    assert.deepEqual(
+      events.map((event) => event.type),
+      ["qualification.attempted", "qualification.failed"],
+    );
     assert.deepEqual(events[0]?.data, {});
     assert.deepEqual(events[1]?.data, outcome.error);
   }
@@ -147,14 +143,11 @@ test("unknown lead records structured not-found failure", async () => {
   assert.equal(outcome.ok, false);
   if (outcome.ok) assert.fail("Expected not found");
   assert.equal(outcome.error.code, "lead_not_found");
-  assert.deepEqual(store.readRun(runId).map((event) => event.type), [
-    "qualification.attempted",
-    "qualification.failed",
-  ]);
   assert.deepEqual(
-    qualificationOutcomeFromEvents(store.readRun(runId), "lead_unknown"),
-    outcome,
+    store.readRun(runId).map((event) => event.type),
+    ["qualification.attempted", "qualification.failed"],
   );
+  assert.deepEqual(qualificationOutcomeFromEvents(store.readRun(runId), "lead_unknown"), outcome);
 });
 
 test("throwing, rejecting, invalid, and cross-lead executors become redacted failures", async () => {
@@ -240,23 +233,17 @@ test("timeout wins once and a late result cannot append another event", async ()
 
   resolveExecutor?.(qualifyLead({ leadId: "lead_ada" }));
   await new Promise((resolve) => setTimeout(resolve, 20));
-  assert.deepEqual(store.readRun(runId).map((event) => event.type), [
-    "qualification.attempted",
-    "qualification.failed",
-  ]);
+  assert.deepEqual(
+    store.readRun(runId).map((event) => event.type),
+    ["qualification.attempted", "qualification.failed"],
+  );
 });
 
 test("invalid timeout configuration fails before an event lifecycle starts", async () => {
   const { runId, store } = createStore();
 
   await assert.rejects(
-    executeQualification(
-      runId,
-      "lead_ada",
-      store,
-      { leadId: "lead_ada" },
-      { timeoutMs: 0 },
-    ),
+    executeQualification(runId, "lead_ada", store, { leadId: "lead_ada" }, { timeoutMs: 0 }),
     /positive finite number/,
   );
   assert.deepEqual(store.readRun(runId), []);
@@ -272,21 +259,20 @@ test("repeated qualification is deterministic and records one pair per call", as
   });
 
   assert.deepEqual(first, second);
-  assert.deepEqual(store.readRun(runId).map((event) => event.type), [
-    "qualification.attempted",
-    "qualification.completed",
-    "qualification.attempted",
-    "qualification.completed",
-  ]);
+  assert.deepEqual(
+    store.readRun(runId).map((event) => event.type),
+    [
+      "qualification.attempted",
+      "qualification.completed",
+      "qualification.attempted",
+      "qualification.completed",
+    ],
+  );
 });
 
 test("draft and approval deny missing, failed, and cross-lead qualification", async () => {
   const { runId, store } = createStore();
-  const [qualificationTool, draftTool, approvalTool] = buildTools(
-    runId,
-    "lead_ada",
-    store,
-  );
+  const [qualificationTool, draftTool, approvalTool] = buildTools(runId, "lead_ada", store);
 
   const draftBefore = await executeTool(draftTool, {
     leadId: "lead_ada",
@@ -318,10 +304,7 @@ test("draft and approval deny missing, failed, and cross-lead qualification", as
     draft: "This is a sufficiently long cross-lead draft.",
   });
   assert.equal((draftAfterMismatch.details as { created: boolean }).created, false);
-  assert.equal(
-    (approvalAfterMismatch.details as { created: boolean }).created,
-    false,
-  );
+  assert.equal((approvalAfterMismatch.details as { created: boolean }).created, false);
   assert.equal(
     store.readRun(runId).some((event) => event.type === "domain.follow_up_drafted"),
     false,
@@ -334,19 +317,12 @@ test("draft and approval deny missing, failed, and cross-lead qualification", as
 
 test("draft and approval deny an exact-lead qualification failure", async () => {
   const { runId, store } = createStore();
-  const [qualificationTool, draftTool, approvalTool] = buildTools(
-    runId,
-    "lead_unknown",
-    store,
-  );
+  const [qualificationTool, draftTool, approvalTool] = buildTools(runId, "lead_unknown", store);
 
   const qualificationResult = await executeTool(qualificationTool, {
     leadId: "lead_unknown",
   });
-  assert.equal(
-    (qualificationResult.details as QualificationOutcome).ok,
-    false,
-  );
+  assert.equal((qualificationResult.details as QualificationOutcome).ok, false);
   assert.deepEqual(
     JSON.parse(qualificationResult.content[0]?.text ?? "null"),
     qualificationResult.details,
@@ -363,29 +339,22 @@ test("draft and approval deny an exact-lead qualification failure", async () => 
 
   assert.equal((draftResult.details as { created: boolean }).created, false);
   assert.equal((approvalResult.details as { created: boolean }).created, false);
-  assert.deepEqual(store.readRun(runId).map((event) => event.type), [
-    "qualification.attempted",
-    "qualification.failed",
-  ]);
+  assert.deepEqual(
+    store.readRun(runId).map((event) => event.type),
+    ["qualification.attempted", "qualification.failed"],
+  );
 });
 
 test("known lead completes deterministic qualification-to-approval vertical slice", async () => {
   const { runId, store } = createStore();
-  const [qualificationTool, draftTool, approvalTool] = buildTools(
-    runId,
-    "lead_ada",
-    store,
-  );
+  const [qualificationTool, draftTool, approvalTool] = buildTools(runId, "lead_ada", store);
 
   const qualificationResult = await executeTool(qualificationTool, {
     leadId: "lead_ada",
   });
   const qualification = qualificationResult.details as QualificationOutcome;
   assert.equal(qualification.ok, true);
-  assert.deepEqual(
-    JSON.parse(qualificationResult.content[0]?.text ?? "null"),
-    qualification,
-  );
+  assert.deepEqual(JSON.parse(qualificationResult.content[0]?.text ?? "null"), qualification);
 
   const draftResult = await executeTool(draftTool, {
     leadId: "lead_ada",
@@ -404,18 +373,24 @@ test("known lead completes deterministic qualification-to-approval vertical slic
   );
 
   const events = store.readRun(runId);
-  assert.deepEqual(events.map((event) => event.type), [
-    "qualification.attempted",
-    "qualification.completed",
-    "domain.follow_up_drafted",
-    "approval.requested",
-  ]);
-  assert.equal(events.every((event) => event.runId === runId), true);
   assert.deepEqual(
-    qualificationOutcomeFromEvents(events, "lead_ada"),
-    qualification,
+    events.map((event) => event.type),
+    [
+      "qualification.attempted",
+      "qualification.completed",
+      "domain.follow_up_drafted",
+      "approval.requested",
+    ],
   );
-  assert.equal(events.some((event) => /sent/i.test(event.type)), false);
+  assert.equal(
+    events.every((event) => event.runId === runId),
+    true,
+  );
+  assert.deepEqual(qualificationOutcomeFromEvents(events, "lead_ada"), qualification);
+  assert.equal(
+    events.some((event) => /sent/i.test(event.type)),
+    false,
+  );
 });
 
 test("corrupt terminal event data cannot become qualification truth", () => {

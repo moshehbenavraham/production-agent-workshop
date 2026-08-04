@@ -47,7 +47,8 @@ const cases: EvalCase[] = [
   },
   {
     name: "approval remains pending",
-    run: () => makeApproval("run_eval", "lead_ada", "A sufficiently long draft.").status === "pending",
+    run: () =>
+      makeApproval("run_eval", "lead_ada", "A sufficiently long draft.").status === "pending",
   },
 ];
 

@@ -8,6 +8,15 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ## [Unreleased]
 
+### Added
+
+- Added Biome 2.5.6 as the Phase Transition formatting bundle with repository-scoped TypeScript and JSON configuration.
+- Added a least-privilege GitHub Actions code-quality workflow with immutable action pins, locked dependency installation, formatting enforcement, and strict type checking.
+
+### Changed
+
+- Added formatting commands and made the full verification command enforce a clean formatting check before strict types, tests, and evals.
+
 ## [0.1.11] - 2026-08-04
 
 ### Added

@@ -93,9 +93,7 @@ export type QualificationMissingInformation = Type.Static<
   typeof QualificationMissingInformationSchema
 >;
 export type QualificationResult = Type.Static<typeof QualificationResultSchema>;
-export type QualificationFailureCode = Type.Static<
-  typeof QualificationFailureCodeSchema
->;
+export type QualificationFailureCode = Type.Static<typeof QualificationFailureCodeSchema>;
 export type QualificationFailure = Type.Static<typeof QualificationFailureSchema>;
 export type QualificationOutcome = Type.Static<typeof QualificationOutcomeSchema>;
 
@@ -128,9 +126,7 @@ const QualificationLeadSchema = Type.Object(
   { additionalProperties: false },
 );
 
-export function makeQualificationFailure(
-  code: QualificationFailureCode,
-): QualificationOutcome {
+export function makeQualificationFailure(code: QualificationFailureCode): QualificationOutcome {
   return {
     ok: false,
     error: {
@@ -225,10 +221,7 @@ function qualificationInputFailure(input: unknown): QualificationOutcome | undef
   return undefined;
 }
 
-export function qualifyLead(
-  input: unknown,
-  lookup: LeadLookup = findLead,
-): QualificationOutcome {
+export function qualifyLead(input: unknown, lookup: LeadLookup = findLead): QualificationOutcome {
   const inputFailure = qualificationInputFailure(input);
   if (inputFailure) return inputFailure;
   if (!isQualificationInput(input)) {
