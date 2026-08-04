@@ -10,8 +10,9 @@ The repository currently provides:
 - one Pi session with the frozen `qualify_lead`, `draft_follow_up`, and `request_send_approval` allowlist in `src/pi-agent.ts`
 - deterministic typed qualification, exact-lead draft and pending-approval gates in `src/tools.ts`; no send tool exists
 - an append-only JSONL event store keyed by `runId`, including minimized qualification evidence, in `src/event-store.ts`
-- an in-memory Pi session and file-backed events; approvals are not yet durable
-- 40 deterministic tests and five deterministic eval cases
+- an in-memory Pi session, file-backed events, and a validated file-backed
+  approval adapter; runtime approval integration remains Session 03 work
+- 70 deterministic tests and five deterministic eval cases
 - a Node 24 container, `/health`, a Docker health probe, and a persistent `/app/data` volume contract
 - a passing Code Quality workflow and GitHub-managed CodeQL; broader CI/CD bundles remain incomplete
 - no authentication, tenant isolation, or rate limiting on `/runs`

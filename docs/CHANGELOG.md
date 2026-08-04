@@ -10,6 +10,9 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Added
 
+- Added a replaceable append-only approval store with flush-before-success
+  writes, deterministic restart projection, duplicate protection, and visible
+  corruption, truncation, ordering, and injected I/O failure behavior.
 - Added closed, Pi-independent approval record, decision, transition, storage,
   and minimized event contracts with deterministic valid, duplicate, conflict,
   malformed, missing, unknown-actor, identity, and corruption refusal tests.
@@ -28,7 +31,8 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 - Validated the new Code Quality workflow and GitHub-managed CodeQL against the exact pushed transition commit with no open PR or review blocker.
 - Re-synthesized the living considerations and security/compliance records from every Phase 00 summary, archived plan, implementation discovery log, session security report, and known transition exception.
 - Updated the root README and master PRD from the pre-qualification four-test baseline to the completed Phase 00 tool, event, test, CI, container-health, and no-send boundary.
-- Synchronized current-version documentation with the `0.1.15` Session 01 closeout bump.
+- Synchronized current-version documentation with the `0.1.16` Session 02
+  closeout bump and the 70-test deterministic baseline.
 
 ## [0.1.11] - 2026-08-04
 

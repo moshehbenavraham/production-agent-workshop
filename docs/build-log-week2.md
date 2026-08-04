@@ -61,8 +61,16 @@ record crossing.
 The replaceable `ApprovalStore` contract exposes `appendRequest`,
 `appendDecision`, `get`, and `listRun`, each returning a discriminated typed
 outcome. `ApprovalStorageRecordSchema` permits only one pending request record
-or one matching approved/declined decision record. The Phase 01 Session 01
-boundary deliberately defines no file adapter and makes no restart claim.
+or one matching approved/declined decision record.
+
+`FileApprovalStore` in `src/approval-store.ts` stores one closed record per LF-
+terminated JSONL line at its injected path. A request line retains the exact
+pending record; a decision line retains only record identity, recording time,
+approval/run identity, and minimized decision metadata. The adapter opens in
+append mode, writes one complete line, calls `fsync`, closes in `finally`, and
+rebuilds from disk before returning success. It holds no authoritative current-
+state cache. Session 03 selects the configured runtime approval path when it
+integrates the store.
 
 ### Transition Event Examples
 
@@ -82,9 +90,17 @@ event properties. Event emission is not integrated in this session.
 
 ### Restart Proof
 
-Not implemented in the contract-only slice. Session 02 must provide the
-file-backed adapter and exact process-restart projection proof before this
-section can claim durability.
+Command:
+
+```bash
+node --import tsx --test tests/approval-store.test.ts
+```
+
+Observed result: 11/11 tests pass. A first store appends pending then terminal
+records; separately constructed instances read the same file and rebuild exact
+pending, approved, and declined objects. The tests also inspect durable line
+counts: one request plus one terminal decision remains exactly two lines after
+an identical retry. No raw conversation or in-memory cache participates.
 
 ### Data-Lifecycle Decision
 
@@ -107,30 +123,41 @@ data-lifecycle decision. Real personal data remains prohibited.
 | Invalid current record | `invalid_approval_record` | None |
 | Storage failure | Closed `storage_failure` contract for Session 02 | No success may be inferred |
 
-The pure transition tests exercise refusals without editing state. Durable
-failure and recovery evidence is added only after the file store exists.
+The pure transition tests exercise domain refusals without editing state. The
+file-store suite additionally writes invalid JSON, malformed schema data, and a
+truncated non-LF record. Reads return `corrupt_record` or `interrupted_write`
+with no projection. Injected writer failure returns redacted `storage_failure`;
+a new store lookup proves no in-memory approval was created. Recovery is to
+repair the storage source through a later operator workflow, never to skip or
+silently truncate damaged evidence.
 
 ### Verification Output
 
-Session 01 contract verification under Node.js 24.15.0 and npm 12.0.2:
+Session 01 contract and Session 02 storage verification under Node.js 24.15.0
+and npm 12.0.2:
 
 - `node --import tsx --test tests/approval.test.ts` - 17/17 focused tests pass.
 - `npm run verify` - formatting and strict types pass, 57/57 deterministic
   tests pass, and 5/5 deterministic evals pass.
 - `npm audit --audit-level=low` - 0 vulnerabilities.
 - Targeted permission, credential, ASCII/LF, and `git diff --check` scans pass.
+- `npx tsx --test tests/approval-store.test.ts` - 13/13 focused adapter and
+  restart tests pass.
+- Session 02 `npm run verify` - formatting and strict types pass, 70/70
+  deterministic tests pass, and 5/5 deterministic evals pass.
 
 ### Final Diff Review and Remaining Risk
 
-Session 01 adds no Pi tool, allowlist change, HTTP route, filesystem adapter,
-provider credential, or external effect. The new domain module is independent
-from Pi and I/O. It permits synthetic full draft content only inside the
-approval record contract and rejects it from operational event data.
+Session 01 adds no Pi tool, allowlist change, HTTP route, provider credential,
+or external effect. Session 02 adds one replaceable file adapter but no runtime
+path selection, Pi integration, application service, network access, or public
+operation. Synthetic full draft content is confined to the approval record;
+operational event contracts remain minimized.
 
-Remaining Task `02` risk is explicit: the store interface has no file-backed
-implementation, projection, restart proof, interruption handling, or integrated
-event lifecycle yet. Sessions 02 and 03 must close those items before durable
-approval is claimed complete.
+Remaining Task `02` risk is explicit: this is a single-process append-only
+workshop adapter without inter-process locking or operator repair automation.
+Session 03 must select its configured persistent path and integrate requests,
+decisions, and minimized event evidence before durable approval is complete.
 
 ## Task 03 - Add an Idempotent Send Boundary
 

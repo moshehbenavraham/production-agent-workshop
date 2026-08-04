@@ -4,7 +4,7 @@
 **Sessions**: 6 (initial estimate)
 **Estimated Duration**: 4-6 workshop days
 
-**Progress**: 1/6 sessions (17%)
+**Progress**: 2/6 sessions (33%)
 
 ---
 
@@ -19,7 +19,7 @@ Week 2 turns the current event-only pending approval into an application-owned d
 | Session | Name | Status | Est. Tasks | Validated |
 |---------|------|--------|------------|-----------|
 | 01 | Approval Contract and Transitions | Complete | ~18-22 | 2026-08-04 |
-| 02 | Approval Store and Projection | Not Started | ~20-24 | - |
+| 02 | Approval Store and Projection | Complete | ~20-24 | 2026-08-04 |
 | 03 | Durable Approval Integration | Not Started | ~20-24 | - |
 | 04 | Fake Send Contract and Authorization | Not Started | ~18-22 | - |
 | 05 | Idempotent Fake Send Execution | Not Started | ~20-24 | - |
@@ -30,12 +30,13 @@ Week 2 turns the current event-only pending approval into an application-owned d
 ## Completed Sessions
 
 - 2026-08-04: Session 01 - Approval Contract and Transitions
+- 2026-08-04: Session 02 - Approval Store and Projection
 
 ---
 
 ## Upcoming Sessions
 
-- Session 02: Approval Store and Projection
+- Session 03: Durable Approval Integration
 
 ---
 

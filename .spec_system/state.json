@@ -22,7 +22,8 @@
     "phase00-session01-bounded-system-map",
     "phase00-session02-qualification-contract-and-domain",
     "phase00-session03-qualification-tool-integration",
-    "phase01-session01-approval-contract-and-transitions"
+    "phase01-session01-approval-contract-and-transitions",
+    "phase01-session02-approval-store-and-projection"
   ],
   "next_session_history": [
     {
@@ -88,6 +89,21 @@
     {
       "date": "2026-08-04",
       "session": "phase01-session01-approval-contract-and-transitions",
+      "status": "completed"
+    },
+    {
+      "date": "2026-08-04",
+      "session": "phase01-session02-approval-store-and-projection",
+      "status": "planned"
+    },
+    {
+      "date": "2026-08-04",
+      "session": "phase01-session02-approval-store-and-projection",
+      "status": "validated"
+    },
+    {
+      "date": "2026-08-04",
+      "session": "phase01-session02-approval-store-and-projection",
       "status": "completed"
     }
   ]
