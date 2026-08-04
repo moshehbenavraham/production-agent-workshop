@@ -32,6 +32,7 @@ Format files when needed:
 
 ```bash
 npm run format
+npm run lint:fix
 ```
 
 Run the complete local gate before review:
@@ -41,9 +42,9 @@ npm run verify
 npm audit --audit-level=low
 ```
 
-`npm run verify` checks formatting, strict TypeScript, all deterministic tests,
-and all deterministic evals. Add a regression test or eval for every material
-failure behavior or bug.
+`npm run verify` checks formatting, Biome recommended lint rules, strict
+TypeScript, all deterministic tests, and all deterministic evals. Add a
+regression test or eval for every material failure behavior or bug.
 
 ## Pull Request Expectations
 

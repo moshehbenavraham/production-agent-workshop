@@ -49,11 +49,12 @@ function service(
     "2026-08-04T10:01:00.000Z",
     "2026-08-04T10:02:00.000Z",
   ];
+  const firstTime = times[0] ?? "2026-08-04T10:00:00.000Z";
   let timeIndex = 0;
   return new ApprovalService(new FileApprovalStore(approvalPath), events, {
     authorizedActorIds: options.actors ?? new Set(["actor_workshop_reviewer"]),
     makeApprovalId: options.makeApprovalId ?? (() => options.approvalId ?? "approval_service_001"),
-    now: () => times[Math.min(timeIndex++, times.length - 1)] ?? times[0]!,
+    now: () => times[Math.min(timeIndex++, times.length - 1)] ?? firstTime,
   });
 }
 

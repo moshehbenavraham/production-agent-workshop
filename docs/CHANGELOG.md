@@ -10,6 +10,8 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Added
 
+- Enabled the Biome 2.5.6 recommended-rule linting bundle with fix/check
+  commands and enforcement in the complete local verification gate.
 - Added one internal safe-write application that composes shared durable
   approval/event truth, exact fake authorization, result persistence, and the
   deterministic adapter while snapshotting synthetic actor permissions.

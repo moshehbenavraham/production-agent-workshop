@@ -5,7 +5,6 @@ import { join } from "node:path";
 import test, { after } from "node:test";
 import {
   createPendingApproval,
-  makeApprovalFailure,
   transitionApproval,
   type ApprovalRecord,
   type ApprovalStore,
@@ -18,12 +17,7 @@ import {
   type FakeSendAdapter,
   type FakeSendRequest,
 } from "../src/fake-send.js";
-import type {
-  FakeSendReservation,
-  FakeSendResult,
-  FakeSendResultStore,
-  FakeSendResultStoreCompleteOutcome,
-} from "../src/fake-send-result.js";
+import type { FakeSendReservation, FakeSendResultStore } from "../src/fake-send-result.js";
 import {
   FakeSendService,
   type FakeSendAuthorizationBoundary,

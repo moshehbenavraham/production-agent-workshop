@@ -140,7 +140,7 @@ export function projectApprovalRecords(input: unknown): ApprovalStoreListOutcome
     }
 
     const current = approvals.get(candidate.approvalId);
-    if (!current || current.status !== "pending" || current.runId !== candidate.runId) {
+    if (current?.status !== "pending" || current.runId !== candidate.runId) {
       return { ok: false, error: makeApprovalFailure("out_of_order_record") };
     }
     const transition = transitionApproval(

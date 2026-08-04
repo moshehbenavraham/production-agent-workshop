@@ -57,7 +57,8 @@ Requirements:
 - Git
 
 Install the locked dependencies, then run the one command that checks
-formatting, strict types, all 149 deterministic tests, and all five evals:
+formatting, linting, strict types, all 149 deterministic tests, and all five
+evals:
 
 ```bash
 npm ci

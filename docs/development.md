@@ -19,11 +19,13 @@
 | `npm run demo -- lead_ada` | Run a Pi-backed synthetic lead through the agent |
 | `npm run format` | Apply Biome formatting to scoped TypeScript and root JSON |
 | `npm run format:check` | Verify formatting without writing |
+| `npm run lint` | Check scoped TypeScript and root JSON with Biome recommended rules |
+| `npm run lint:fix` | Apply Biome safe lint fixes |
 | `npm run check` | Run strict TypeScript with no emit |
 | `npm test` | Run all deterministic `node:test` cases through TSX |
 | `npx tsx --test tests/safe-write-application.test.ts` | Run the internal file-backed Task `03` vertical-slice matrix |
 | `npm run eval` | Run the five deterministic eval cases |
-| `npm run verify` | Run formatting, types, tests, and evals in one gate |
+| `npm run verify` | Run formatting, linting, types, tests, and evals in one gate |
 | `npm audit --audit-level=low` | Check the effective npm 12 dependency tree |
 
 `npm run verify` is the required one-command local gate. Provider credentials
@@ -51,13 +53,14 @@ Local imports use `.js` specifiers for NodeNext ESM. Treat all external input,
 model output, tool arguments, dependency records, and persisted events as
 `unknown` until validated.
 
-## Formatting And Types
+## Formatting, Linting, And Types
 
 Biome 2.5.6 formats `src/**/*.ts`, `tests/**/*.ts`, and root JSON according to
-`biome.json`. It does not configure the repository linting bundle. TypeScript
-remains strict with `noUncheckedIndexedAccess`.
+`biome.json` and checks the same scope with its recommended lint rules.
+TypeScript remains strict with `noUncheckedIndexedAccess`.
 
-Run `npm run format` after a formatting failure, then rerun `npm run verify`.
+Run `npm run format` after a formatting failure or `npm run lint:fix` after a
+lint failure, then rerun `npm run verify`.
 
 ## Tests And Evals
 

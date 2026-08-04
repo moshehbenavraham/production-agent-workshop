@@ -4,10 +4,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test, { after } from "node:test";
 import { deriveFakeSendIdempotencyKey, makeFakeSendFailure } from "../src/fake-send.js";
-import {
-  type FakeSendReservation,
-  type FakeSendResult,
-  type FakeSendStorageRecord,
+import type {
+  FakeSendReservation,
+  FakeSendResult,
+  FakeSendStorageRecord,
 } from "../src/fake-send-result.js";
 import {
   FileFakeSendResultStore,
@@ -92,12 +92,13 @@ function records(
 }
 
 function deterministicStore(path: string): FileFakeSendResultStore {
-  const times = ["2026-08-04T10:00:00.000Z", "2026-08-04T10:00:00.025Z"];
+  const firstTime = "2026-08-04T10:00:00.000Z";
+  const times = [firstTime, "2026-08-04T10:00:00.025Z"];
   let timeIndex = 0;
   let recordIndex = 0;
   return new FileFakeSendResultStore(path, {
     makeRecordId: () => `record_generated_fake_${++recordIndex}`,
-    now: () => times[Math.min(timeIndex++, times.length - 1)]!,
+    now: () => times[Math.min(timeIndex++, times.length - 1)] ?? firstTime,
   });
 }
 

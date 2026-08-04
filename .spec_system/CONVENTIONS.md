@@ -151,7 +151,7 @@ For a non-trivial change:
 | Evals | Deterministic TypeScript runner | `npm run eval` |
 | Full Verification | npm scripts | `npm run verify` |
 | Formatter | Biome 2.5.6 | `npm run format`, `npm run format:check`, `biome.json` |
-| Linter | Not configured | - |
+| Linter | Biome 2.5.6 recommended rules | `npm run lint`, `npm run lint:fix`, `biome.json` |
 | Observability | Append-only JSONL events | `EVENT_LOG_PATH` |
 | Deployment | Docker + Coolify | `Dockerfile`, `/health`, `/app/data` |
 | Database | Not configured | File-backed interfaces only |

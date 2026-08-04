@@ -40,7 +40,8 @@ The repository-wide verification command is:
 npm run verify
 ```
 
-It checks Biome formatting, strict TypeScript, deterministic tests, and the eval suite.
+It checks Biome formatting and linting, strict TypeScript, deterministic tests,
+and the eval suite.
 
 ## Permission Vocabulary
 
