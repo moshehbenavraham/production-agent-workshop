@@ -12,9 +12,9 @@ The repository currently provides:
 - an append-only JSONL event store keyed by `runId`, including minimized qualification evidence, in `src/event-store.ts`
 - an in-memory Pi session plus file-backed event and approval adapters composed
   into the runtime approval path
-- a validated internal file-backed fake-result service with no Pi/HTTP
-  execution entrypoint or network effect
-- 140 deterministic tests and five deterministic eval cases
+- a validated internal file-backed approval-to-fake-write application with no
+  Pi/HTTP execution entrypoint or network effect
+- 149 deterministic tests and five deterministic eval cases
 - a Node 24 container, `/health`, a Docker health probe, and a persistent `/app/data` volume contract
 - a passing Code Quality workflow and GitHub-managed CodeQL; broader CI/CD bundles remain incomplete
 - no authentication, tenant isolation, or rate limiting on `/runs`

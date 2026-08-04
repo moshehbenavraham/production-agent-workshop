@@ -1,9 +1,9 @@
 # Session 06: Safe Write Integration and Evidence
 
 **Session ID**: `phase01-session06-safe-write-integration-and-evidence`
-**Status**: Not Started
+**Status**: Complete
 **Source Task**: `03`
-**Estimated Tasks**: ~18-24
+**Estimated Tasks**: 21
 **Estimated Duration**: 2-4 hours
 
 ---
@@ -38,8 +38,8 @@ Complete and review the fake-write vertical slice, prove every Task `03` path en
 
 ## Prerequisites
 
-- [ ] Session 05 idempotency, timeout, restart, and downstream-failure tests are complete.
-- [ ] A human reviewer is identified for the Task `03` permission and diff evidence.
+- [x] Session 05 idempotency, timeout, restart, and downstream-failure tests are complete.
+- [x] The repository maintainer is identified as the required future human reviewer before any fake/write registration or allowlist change.
 
 ---
 
@@ -53,8 +53,8 @@ Complete and review the fake-write vertical slice, prove every Task `03` path en
 
 ## Success Criteria
 
-- [ ] Every required success and refusal path is deterministic, typed, correlated, and backed by persisted evidence.
-- [ ] Duplicate approved requests return the original result and the fake adapter effect count remains one.
-- [ ] No unapproved, mismatched, malformed, timed-out, or denied request is reported as completed.
-- [ ] Human review is recorded before any write-capable allowlist change, and no real network tool or provider credential enters the phase.
-- [ ] Week 2 evidence is complete and `npm run verify` plus the production-agent verification workflow pass.
+- [x] Every required success and refusal path is deterministic, typed, correlated, and backed by persisted evidence.
+- [x] Duplicate approved requests return the original result and the fake adapter effect count remains one.
+- [x] No unapproved, mismatched, malformed, timed-out, or denied request is reported as completed.
+- [x] Human review remains an explicit prerequisite before any write-capable allowlist change; no such change, real network tool, or provider credential entered the phase.
+- [x] Week 2 evidence is complete and `npm run verify` plus the production-agent verification workflow pass.

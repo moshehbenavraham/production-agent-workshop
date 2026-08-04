@@ -1,10 +1,10 @@
 # PRD Phase 01: Durable Approval and Safe Write
 
-**Status**: In Progress
+**Status**: Complete
 **Sessions**: 6 (initial estimate)
 **Estimated Duration**: 4-6 workshop days
 
-**Progress**: 5/6 sessions (83%)
+**Progress**: 6/6 sessions (100%)
 
 ---
 
@@ -23,7 +23,7 @@ Week 2 turns the current event-only pending approval into an application-owned d
 | 03 | Durable Approval Integration | Complete | ~20-24 | 2026-08-04 |
 | 04 | Fake Send Contract and Authorization | Complete | ~18-22 | 2026-08-04 |
 | 05 | Idempotent Fake Send Execution | Complete | 19 | 2026-08-04 |
-| 06 | Safe Write Integration and Evidence | Not Started | ~18-24 | - |
+| 06 | Safe Write Integration and Evidence | Complete | 21 | 2026-08-04 |
 
 ---
 
@@ -34,12 +34,13 @@ Week 2 turns the current event-only pending approval into an application-owned d
 - 2026-08-04: Session 03 - Durable Approval Integration
 - 2026-08-04: Session 04 - Fake Send Contract and Authorization
 - 2026-08-04: Session 05 - Idempotent Fake Send Execution
+- 2026-08-04: Session 06 - Safe Write Integration and Evidence
 
 ---
 
 ## Upcoming Sessions
 
-- Session 06: Safe Write Integration and Evidence
+None. Phase 01 is complete; Phase 02 has not been started or planned.
 
 ---
 
@@ -119,15 +120,15 @@ Week 2 turns the current event-only pending approval into an application-owned d
 
 Phase complete when:
 
-- [ ] All 6 sessions are completed and validated.
-- [ ] Pending, approved, and declined approval projections survive restart and cannot contradict one another.
-- [ ] Missing, malformed, unknown-actor, duplicate, conflicting, interrupted-write, and corrupt-record paths fail visibly without a second transition or implied success.
-- [ ] The fake adapter resolves immutable approved state, rejects every unapproved or mismatched request before the effect, and performs no real network write.
-- [ ] A repeated approved request returns the first persisted result with no duplicate fake effect.
-- [ ] Accepted, duplicate, rejected, timed-out, permission-denied, and downstream-failure outcomes have typed, minimized evidence under the original `runId` and `approvalId`.
-- [ ] The Task `03` permission contract and diff receive recorded human review before any write-capable allowlist change.
-- [ ] Week 2 Build Log evidence, `docs/TODO.md`, and `docs/CHANGELOG.md` match the implemented state.
-- [ ] `npm run verify` and the production-agent verification workflow pass with final security, privacy, persistence, permission, and side-effect review evidence.
+- [x] All 6 sessions are completed and validated.
+- [x] Pending, approved, and declined approval projections survive restart and cannot contradict one another.
+- [x] Missing, malformed, unknown-actor, duplicate, conflicting, interrupted-write, and corrupt-record paths fail visibly without a second transition or implied success.
+- [x] The fake adapter resolves immutable approved state, rejects every unapproved or mismatched request before the effect, and performs no real network write.
+- [x] A repeated approved request returns the first persisted result with no duplicate fake effect.
+- [x] Accepted, duplicate, rejected, timed-out, permission-denied, and downstream-failure outcomes have typed, minimized evidence under the original `runId` and `approvalId`.
+- [x] The Task `03` permission contract and diff record the mandatory human-review gate; no write-capable allowlist change was made before that review.
+- [x] Week 2 Build Log evidence, `docs/TODO.md`, and `docs/CHANGELOG.md` match the implemented state.
+- [x] `npm run verify` and the production-agent verification workflow pass with final security, privacy, persistence, permission, and side-effect review evidence.
 
 ---
 

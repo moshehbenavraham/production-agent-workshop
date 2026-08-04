@@ -7,8 +7,9 @@ starts one bounded Pi session for a validated synthetic `leadId`. Pi can invoke
 only three custom tools; application code validates qualification, downstream
 evidence, event ordering, and visible stop reasons. The run stops at a pending
 human approval and has no exposed external-write capability. A separate
-Pi-independent library implements an in-process fake action with durable
-idempotency, but it is not composed into the server or agent runtime.
+Pi-independent `SafeWriteApplication` composes durable approval and an in-
+process fake action with durable idempotency, but it is not composed into the
+server or agent runtime.
 
 ```mermaid
 flowchart LR
@@ -22,7 +23,8 @@ flowchart LR
     Tools --> Events
     Events --> EventLog[(JSONL at EVENT_LOG_PATH)]
     Tools --> ApprovalService[src/approval-service.ts]
-    Internal[Internal application decision] --> ApprovalService
+    Internal[Internal synthetic operator] --> SafeWrite[src/safe-write-application.ts]
+    SafeWrite --> ApprovalService
     ApprovalService --> ApprovalStore[src/approval-store.ts]
     ApprovalService --> Events
     ApprovalStore --> ApprovalLog[(JSONL at APPROVAL_LOG_PATH)]
@@ -35,7 +37,8 @@ flowchart LR
     Server --> Caller
     Tools -->|request only| Human[Human approval boundary]
     Human -. no public decision or send endpoint .-> Stop[Stop]
-    ApprovalStore -. internal library input only .-> FakeAuth[src/fake-send.ts]
+    SafeWrite --> FakeAuth[src/fake-send.ts]
+    FakeAuth --> ApprovalStore
     FakeAuth --> FakeService[src/fake-send-service.ts]
     FakeService --> FakeStore[(Injected fake-result JSONL path)]
     FakeService --> FakeAdapter[Deterministic in-process fake adapter]
@@ -54,6 +57,7 @@ flowchart LR
 | Custom tools | `src/tools.ts` | Pi tool definitions | Bounded qualification, deterministic draft, exact durable approval request |
 | Approval domain/service | `src/approval.ts`, `src/approval-service.ts` | TypeBox + TypeScript | Closed state, actor policy, durable request/decision operations, minimized events |
 | Approval store | `src/approval-store.ts` | Append-only JSONL projection | Authoritative pending/terminal records at configured path |
+| Safe-write composition | `src/safe-write-application.ts` | Internal TypeScript application boundary | Shares approval/event truth, snapshots actor permissions, and delegates fake execution without a transport |
 | Fake authorization/execution | `src/fake-send.ts`, `src/fake-send-service.ts`, `src/fake-send-adapter.ts` | TypeBox + TypeScript | Internal exact-action authorization, reservation-first orchestration, timeout, and deterministic fake outcome |
 | Fake result store | `src/fake-send-result.ts`, `src/fake-send-store.ts`, `src/fake-send-execution.ts` | Append-only JSONL projection | Internal reservation/result contracts, restart projection, and duplicate original-result replay |
 | Synthetic lead source | `src/leads.ts` | In-memory TypeScript data | Exact lookup for classroom fixtures only |
@@ -91,7 +95,8 @@ flowchart LR
 | Draft creation | Require latest matching qualification success |
 | Approval request | Exact current draft delegates to durable application state; Pi never decides or sends |
 | Approval decision | Internal application service validates exact identity and synthetic actor policy |
-| External write | Runtime-forbidden: internal fake adapter has no network effect and no Pi/HTTP entrypoint; no real adapter exists |
+| Internal fake write | `SafeWriteApplication` snapshots synthetic actor sets, then delegates exact durable authorization and reservation-first execution |
+| External write | Runtime-forbidden: permission decision keeps fake execution unregistered/unallowlisted; no Pi/HTTP entrypoint or real adapter exists |
 
 The production tool names are frozen at runtime. Pi has no shell, filesystem,
 credential, deployment, approval-decision, or network-writing tool.
@@ -104,9 +109,9 @@ credential, deployment, approval-decision, or network-writing tool.
   set to `/app/data/events.jsonl` in the image.
 - Authoritative approval records append to `APPROVAL_LOG_PATH`, defaulting to
   `./data/approvals.jsonl` and set under `/app/data` in the image.
-- The internal fake result store accepts an explicitly injected JSONL path. It
-  is exercised only by tests/library callers and has no server runtime path or
-  environment-variable composition yet.
+- The internal safe-write application accepts explicitly injected approval,
+  event, and fake-result JSONL paths. It is exercised only by tests/library
+  callers and has no server runtime path or environment-variable composition.
 - Qualification events exclude lead profile text and caught dependency detail.
 - Draft and approval events exclude full content; approval records retain exact
   synthetic draft content/hash under the documented manual lifecycle rule.
@@ -125,6 +130,9 @@ or rollback has been validated.
 - Keep one bounded Pi session until measured evidence justifies another stage.
 - Keep deterministic schemas, permissions, durable truth, and effect controls
   in application code rather than prompts.
+- Keep the internal fake-write composition disconnected from Pi and HTTP until
+  a repository maintainer performs the separately required human review; the
+  current decision is to leave it unregistered and unallowlisted.
 - Use append-only events as evidence and rebuild typed projections from them.
 - Keep the required workshop path synthetic and no-send.
 

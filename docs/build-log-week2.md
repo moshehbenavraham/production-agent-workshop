@@ -205,8 +205,9 @@ Task contract: [03 - Add an Idempotent Send Boundary](todo/03-idempotent-send.md
 
 ### Goal and Boundary
 
-Session 05 implements the internal fake-write service without exposing it to Pi
-or HTTP. The boundary is split by responsibility:
+Sessions 04 and 05 define and implement the internal fake-write service.
+Session 06 composes it with durable approval behind one internal application
+boundary without exposing it to Pi or HTTP. Responsibilities are split as:
 
 - `src/fake-send.ts` - exact approved-action authorization and stable key;
 - `src/fake-send-result.ts` - event, reservation, result, record, and store
@@ -217,6 +218,8 @@ or HTTP. The boundary is split by responsibility:
   replay, and evidence recovery;
 - `src/fake-send-adapter.ts` - deterministic in-process fake adapter only;
 - `src/fake-send-execution.ts` - closed application outcome contract.
+- `src/safe-write-application.ts` - shared approval/event/result composition,
+  snapshotted actor permissions, and the explicit production exclusion decision.
 
 The service receives a previously validated exact approved action. It invokes no
 provider and performs no socket, DNS, HTTP, subprocess, or real message write.
@@ -224,7 +227,10 @@ The production Pi allowlist remains exactly three request/read tools.
 
 ```mermaid
 flowchart TD
-    A[Authorize exact durable approval] --> C{Durable claim}
+    O[Internal synthetic operator] --> W[SafeWriteApplication]
+    W --> P[Durable approval request and decision]
+    W --> A[Authorize exact durable approval]
+    A --> C{Durable claim}
     C -->|Completed| D[Recover terminal event and return original duplicate]
     C -->|Reserved| I[In progress / indeterminate; no effect]
     C -->|New claim| E[Append minimized attempted event]
@@ -235,6 +241,8 @@ flowchart TD
     R --> T[Append minimized terminal event]
     T -->|Event failure| X[Durable result; retry repairs evidence]
     T --> S[Return exact executed result]
+    Pi[Production Pi] -. no registered tool .-> W
+    HTTP[HTTP runtime] -. no route .-> W
 ```
 
 ### Write Contract
@@ -317,9 +325,32 @@ distributed or multi-process locking claim is made.
 | `tests/fake-send.test.ts` | 16 | Closed authorization/adapter/result/execution contracts, semantic identity, stable key, permission order, zero-effect denials |
 | `tests/fake-send-store.test.ts` | 16 | Projection, restart, line counts, private mode, duplicate/in-progress, exact completion, corruption, interruption, I/O and metadata failures |
 | `tests/fake-send-service.test.ts` | 15 | First/duplicate/concurrent execution, all authorization denials, rejection/downstream/timeout/late paths, store/event outages, immutable replaceable boundaries, duplicate terminal evidence, and recovery |
+| `tests/safe-write-application.test.ts` | 9 | File-backed valid/missing/mismatch/pending/declined/timeout/duplicate/permission/rejected/downstream paths, actor snapshots, shared event domains, and production exclusion |
 
-The combined focused gate passes 47/47 tests. The complete repository passes
-140/140 deterministic tests plus five evals.
+The combined Task `03` gate passes 56/56 tests. The complete repository passes
+149/149 deterministic tests plus five evals.
+
+### File-Backed Vertical Slice Proof
+
+The internal application constructs one event store and one approval store, then
+shares them between the approval service and exact fake-send authorizer. It
+constructs the result store and fake-send service once per application instance.
+Approval and execution actor sets are copied at construction, so later caller
+mutation cannot grant permission.
+
+Observed proof through actual temporary JSONL files:
+
+- request plus authorized approval decision produces exactly two approval lines;
+- exact execution produces exactly two result lines and one adapter effect;
+- the same shared run log contains approval and fake-send domains, and duplicate
+  recovery ignores valid other-domain events while rejecting any malformed
+  event that claims `fake_send.*`;
+- a new application instance on the same three paths returns the deep-equal
+  original with zero calls to its injected adapter and no third result line;
+- missing input, target mismatch, pending/declined state, and permission denial
+  create no result file and invoke no adapter;
+- timeout, rejection, throws, and malformed adapter output create one exact
+  canonical terminal result and matching minimized fake-send event.
 
 ### Redacted Event Examples
 
@@ -339,12 +370,18 @@ and prove neither the synthetic draft nor lead target appears.
 
 ### Human Review Result
 
-**Status: not triggered and not claimed.** Session 05 adds internal application
-code only. The production allowlist remains exactly `qualify_lead`,
-`draft_follow_up`, and `request_send_approval`; there is no Pi send tool or
-HTTP write route. The repository maintainer must review the final permission
-contract, application service, tests, and diff before any future write-capable
-tool is allowlisted. Session 06 records the explicit final allowlist decision.
+**Human review status: not performed and not claimed. Production decision: keep
+fake/write capability unregistered and unallowlisted.** The frozen decision in
+`src/safe-write-application.ts` records both false values, names the repository
+maintainer as the required reviewer, and requires that review before either may
+change. The production allowlist remains exactly `qualify_lead`,
+`draft_follow_up`, and `request_send_approval`; there is no Pi fake-send tool or
+HTTP write route.
+
+This satisfies the safety condition by making no write-capable allowlist change.
+AI implementation/review evidence is not represented as human approval. A future
+proposal must provide the exact tool contract and diff to a repository
+maintainer, record approval, and separately authorize any scope expansion.
 
 ### Exercised Failure, Recovery, And Escalation
 
@@ -368,11 +405,16 @@ indeterminate key are intentionally absent.
   `src/fake-send-store.js`.
 - Service RED: focused test failed with `ERR_MODULE_NOT_FOUND` for
   `src/fake-send-service.js`.
-- Focused GREEN: 47/47 fake-send contract/store/service tests pass.
+- Composition RED: the nine-path integration suite failed with
+  `ERR_MODULE_NOT_FOUND` for `src/safe-write-application.js`.
+- Initial composition GREEN exposed shared-log duplicate recovery rejecting
+  valid approval events; the corrected domain-aware reader passes the direct
+  regression and fails closed on malformed fake-send namespace claims.
+- Focused GREEN: 56/56 Task `03` contract/store/service/application tests pass.
 - Code-review RED/GREEN: mutable reservation/result/event values, repeated exact
   terminal evidence, and terminal-only generic failures were reproduced and
   repaired with direct regressions.
-- `npm run verify`: formatting and strict types pass, 140/140 tests pass, and
+- `npm run verify`: formatting and strict types pass, 149/149 tests pass, and
   5/5 evals pass.
 - `npm audit --audit-level=low`: 0 vulnerabilities.
 - Final review additionally checks persistence, events, permission order,
@@ -380,19 +422,21 @@ indeterminate key are intentionally absent.
 
 ### Final Diff Review And Remaining Risk
 
-Session 05 adds local JSONL filesystem capability and an in-process fake adapter
-behind the exact durable approval boundary. It adds no package, provider,
-credential, public route, Pi tool, allowlist entry, subprocess, network call,
-real message, real data, or automatic compensation.
+Sessions 05-06 add local JSONL result capability, an in-process fake adapter,
+and an internal application composition behind the exact durable approval
+boundary. They add no package, provider, credential, public route, Pi tool,
+allowlist entry, subprocess, network call, real message, real data, or automatic
+compensation. Source scans confirm neither `src/pi-agent.ts` nor `src/server.ts`
+imports the internal application.
 
 Values generated by the service are frozen before replaceable result/event
 adapters receive them. Duplicate replay also requires exactly one matching
 terminal event; multiple matching terminal records are treated as corrupt
 evidence and fail closed.
 
-Known constraints remain explicit: the claim is single-process only; event and
-result files are not transactional; a crash or completion failure can leave an
-indeterminate reservation; repair and retention are manual; no lease expiry,
-distributed lock, backup/restore, tenant boundary, public actor authentication,
-or real-data lifecycle exists. Final internal composition and consolidated Task
-`03` evidence remain Session 06 work.
+Known constraints remain explicit: the claim is single-process only; approval,
+event, and result files are not one transaction; a crash or completion failure
+can leave an indeterminate reservation; repair and retention are manual; no
+lease expiry, distributed lock, backup/restore, tenant boundary, public actor
+authentication, or real-data lifecycle exists. Whole-run recovery and
+production eval gates remain later-phase work and are not started here.

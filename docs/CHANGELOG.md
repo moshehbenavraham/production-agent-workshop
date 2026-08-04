@@ -10,6 +10,12 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Added
 
+- Added one internal safe-write application that composes shared durable
+  approval/event truth, exact fake authorization, result persistence, and the
+  deterministic adapter while snapshotting synthetic actor permissions.
+- Added a nine-test file-backed Task `03` vertical-slice matrix covering the
+  required valid/refusal/timeout/duplicate/permission/downstream paths plus
+  rejected evidence and shared-log namespace validation.
 - Added a flush-before-success file-backed fake-send reservation/result store
   with restart projection, exact duplicate replay, visible indeterminate state,
   corruption refusal, and injected I/O failure coverage.
@@ -41,6 +47,11 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Changed
 
+- Allowed fake-send duplicate recovery to coexist with valid approval and other
+  domain events in the shared run log while failing closed on malformed events
+  that claim the `fake_send.*` namespace.
+- Recorded the fake/write production decision as unregistered and unallowlisted,
+  with human review by the repository maintainer required before any change.
 - Classified accepted, duplicate, in-progress, rejected, timed-out, downstream,
   permission, identity, and storage outcomes without exposing fake execution to
   Pi or HTTP or adding real network capability.
@@ -60,8 +71,9 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 - Validated the new Code Quality workflow and GitHub-managed CodeQL against the exact pushed transition commit with no open PR or review blocker.
 - Re-synthesized the living considerations and security/compliance records from every Phase 00 summary, archived plan, implementation discovery log, session security report, and known transition exception.
 - Updated the root README and master PRD from the pre-qualification four-test baseline to the completed Phase 00 tool, event, test, CI, container-health, and no-send boundary.
-- Synchronized current-version documentation with the `0.1.19` Session 05
-  closeout bump and the 140-test deterministic baseline.
+- Closed all six Phase 01 sessions at version `0.1.20` with the internal safe-
+  write composition, complete Task `03` evidence, 149 deterministic tests,
+  five evals, and an unchanged production capability boundary.
 
 ## [0.1.11] - 2026-08-04
 

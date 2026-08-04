@@ -34,15 +34,17 @@ images, documentation, or screenshots.
 - Use only the committed synthetic lead identifiers in every current environment.
 - Local event and approval evidence defaults to `./data/events.jsonl` and
   `./data/approvals.jsonl`.
-- The internal fake-result store has no runtime environment variable or server
-  composition yet. Tests inject temporary paths; a later integration must keep
-  any selected path under the same persistent synthetic-data boundary.
+- The internal safe-write application takes explicit approval, event, and fake-
+  result paths from a library caller. Tests inject temporary paths; no runtime
+  environment variable, Pi tool, HTTP route, or server composition selects a
+  fake-result path.
 - The image sets both paths under `/app/data` and declares that directory as a
   volume. Approval files are created with mode `0600`.
 - Synthetic approval files are retained for at most 30 days or until the
   environment is torn down, whichever occurs first. This is a manual operator
   rule; no automated expiry exists.
-- Operational events exclude full drafts. Approval request records retain the
+- Operational fake-send events exclude full drafts and target lead IDs.
+  Approval request records retain the
   exact synthetic target, draft ID/hash/content, and request time; decision
   records retain actor, decision, and time.
 - Export is a controlled offline copy of the exact configured files while the

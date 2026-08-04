@@ -14,7 +14,7 @@
     "1": {
       "name": "Durable Approval and Safe Write",
       "description": "Persist exact approval decisions and add a fake exact-target idempotent write boundary without a real network effect.",
-      "status": "in_progress",
+      "status": "complete",
       "session_count": 6
     }
   },
@@ -26,7 +26,8 @@
     "phase01-session02-approval-store-and-projection",
     "phase01-session03-durable-approval-integration",
     "phase01-session04-fake-send-contract-and-authorization",
-    "phase01-session05-idempotent-fake-send-execution"
+    "phase01-session05-idempotent-fake-send-execution",
+    "phase01-session06-safe-write-integration-and-evidence"
   ],
   "next_session_history": [
     {
@@ -152,6 +153,21 @@
     {
       "date": "2026-08-04",
       "session": "phase01-session05-idempotent-fake-send-execution",
+      "status": "completed"
+    },
+    {
+      "date": "2026-08-04",
+      "session": "phase01-session06-safe-write-integration-and-evidence",
+      "status": "planned"
+    },
+    {
+      "date": "2026-08-04",
+      "session": "phase01-session06-safe-write-integration-and-evidence",
+      "status": "validated"
+    },
+    {
+      "date": "2026-08-04",
+      "session": "phase01-session06-safe-write-integration-and-evidence",
       "status": "completed"
     }
   ]

@@ -16,9 +16,10 @@ qualification, permits a deterministic draft only after matching successful
 evidence, durably creates the exact pending approval record, derives stop state
 from its projection, and stops without sending.
 
-A Pi-independent internal library can authorize and execute one deterministic
-in-process fake action with durable idempotency. It is not composed into the
-HTTP/Pi runtime, has no public or tool entrypoint, and performs no network write.
+A Pi-independent internal application composes durable approval and one
+deterministic in-process fake action with durable idempotency. It is not
+composed into the HTTP/Pi runtime, has no public or tool entrypoint, and
+performs no network write.
 
 ```mermaid
 flowchart LR
@@ -56,7 +57,7 @@ Requirements:
 - Git
 
 Install the locked dependencies, then run the one command that checks
-formatting, strict types, all 140 deterministic tests, and all five evals:
+formatting, strict types, all 149 deterministic tests, and all five evals:
 
 ```bash
 npm ci
@@ -138,9 +139,9 @@ map.
 
 ## Project Status And Safety
 
-Phase 00 is complete, and five of six Phase 01 sessions are complete. Durable
-approval and internal idempotent fake execution are validated; final runtime
-composition and consolidated evidence remain open. In particular:
+Phase 00 and all six Phase 01 sessions are complete. Durable approval and the
+internal idempotent fake-write composition are validated with consolidated
+Task `03` evidence. In particular:
 
 - approval decisions are internal only; there is no public authenticated
   decision endpoint;
@@ -182,7 +183,7 @@ These require separate authorization after the ordered workshop path:
 
 Releases follow [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 and the repository [versioning policy](./docs/VERSIONING.md). The project is
-currently version 0.1.19; user-visible changes are recorded in the
+currently version 0.1.20; user-visible changes are recorded in the
 [changelog](./docs/CHANGELOG.md).
 
 ## Official Pi References

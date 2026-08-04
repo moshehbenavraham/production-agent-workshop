@@ -58,7 +58,7 @@ function storageFailureOutcome(): FakeSendExecutionOutcome {
   return { ok: false, kind: "failure", error: makeFakeSendFailure("storage_failure") };
 }
 
-function isAgentEvent(value: unknown, runId: string): value is AgentEvent {
+function isAgentEventEnvelope(value: unknown, runId: string): value is AgentEvent {
   try {
     if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
     const candidate = value as Record<string, unknown>;
@@ -71,11 +71,25 @@ function isAgentEvent(value: unknown, runId: string): value is AgentEvent {
       !Number.isFinite(Date.parse(candidate.at)) ||
       new Date(Date.parse(candidate.at)).toISOString() !== candidate.at ||
       typeof candidate.type !== "string" ||
-      !isFakeSendEventData(candidate.data)
+      typeof candidate.data !== "object" ||
+      candidate.data === null ||
+      Array.isArray(candidate.data)
     ) {
       return false;
     }
-    return candidate.type === candidate.data.eventType;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function isFakeSendAgentEvent(value: unknown, runId: string): value is AgentEvent {
+  try {
+    return (
+      isAgentEventEnvelope(value, runId) &&
+      isFakeSendEventData(value.data) &&
+      value.type === value.data.eventType
+    );
   } catch {
     return false;
   }
@@ -141,7 +155,7 @@ export class FakeSendService {
         type: immutableData.eventType,
         data: immutableData,
       });
-      return isAgentEvent(event, runId) && isDeepStrictEqual(event.data, immutableData);
+      return isFakeSendAgentEvent(event, runId) && isDeepStrictEqual(event.data, immutableData);
     } catch {
       return false;
     }
@@ -150,9 +164,20 @@ export class FakeSendService {
   private readEvents(runId: string): AgentEvent[] | undefined {
     try {
       const events = this.events.readRun(runId);
-      return Array.isArray(events) && events.every((event) => isAgentEvent(event, runId))
-        ? events
-        : undefined;
+      if (!Array.isArray(events) || !events.every((event) => isAgentEventEnvelope(event, runId))) {
+        return undefined;
+      }
+      const fakeSendEvents: AgentEvent[] = [];
+      for (const event of events) {
+        const dataEventType = "eventType" in event.data ? event.data.eventType : undefined;
+        const claimsFakeSendNamespace =
+          event.type.startsWith("fake_send.") ||
+          (typeof dataEventType === "string" && dataEventType.startsWith("fake_send."));
+        if (!claimsFakeSendNamespace) continue;
+        if (!isFakeSendAgentEvent(event, runId)) return undefined;
+        fakeSendEvents.push(event);
+      }
+      return fakeSendEvents;
     } catch {
       return undefined;
     }
