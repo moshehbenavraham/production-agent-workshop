@@ -202,7 +202,7 @@ One phase corresponds to exactly one workshop week. Each phase is implemented th
 | Phase | Week | Name | Source tasks | Sessions | Status |
 |-------|------|------|--------------|----------|--------|
 | 00 | 1 | Foundation | `00`, `01` | 3 | Complete |
-| 01 | 2 | Durable Approval and Safe Write | `02`, `03` | TBD after Phase 00 | Planned |
+| 01 | 2 | Durable Approval and Safe Write | `02`, `03` | 6 | Not Started |
 | 02 | 3 | Recovery and Evaluation Gates | `04`, `05` | TBD after Phase 01 | Planned |
 | 03 | 4 | Operations and Coolify Release | `06`, `07` | TBD after Phase 02 | Planned |
 | 04 | 5 | Typed Handoff Decision | `08` | TBD after Phase 03 and the entry gate | Planned and Required |
@@ -253,9 +253,16 @@ Phase 00 must be complete.
 1. Persist approval requests and decisions so the human boundary survives restart.
 2. Add a deterministic fake write adapter with exact-target authorization and stable idempotency, while performing no real network write.
 
-### Sessions (To Be Defined)
+### Sessions
 
-After Phase 00 completion and transition work, `phasebuild` defines Phase 01 session stubs under `.spec_system/PRD/phase_01/`.
+| Session | Objective | Source task |
+|---------|-----------|-------------|
+| 01 | Define and implement the closed approval contracts and deterministic transition policy | `02` |
+| 02 | Implement file-backed approval persistence and deterministic restart-safe projection rebuilds | `02` |
+| 03 | Integrate durable requests and decisions with minimized events and complete Task `02` evidence | `02` |
+| 04 | Define and implement the fake-send contract and pre-effect authorization resolver | `03` |
+| 05 | Implement durable idempotent fake execution with typed outcomes and minimized evidence | `03` |
+| 06 | Prove and review the complete fake-write vertical slice and close Phase 01 evidence | `03` |
 
 ## Phase 02: Recovery and Evaluation Gates
 

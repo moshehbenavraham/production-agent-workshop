@@ -12,6 +12,20 @@ Track planned documentation and implementation work here.
 The ordered scope and acceptance evidence remain authoritative in
 [`docs/todo/README_todo.md`](todo/README_todo.md) and tasks `00` and `01`.
 
+## Active Phase
+
+- [ ] Phase 01 - Durable Approval and Safe Write (Week 2)
+  - [ ] Session 01 - Approval Contract and Transitions
+  - [ ] Session 02 - Approval Store and Projection
+  - [ ] Session 03 - Durable Approval Integration
+  - [ ] Session 04 - Fake Send Contract and Authorization
+  - [ ] Session 05 - Idempotent Fake Send Execution
+  - [ ] Session 06 - Safe Write Integration and Evidence
+
+Phase 01 is sourced only from Tasks [`02`](todo/02-durable-approvals.md) and
+[`03`](todo/03-idempotent-send.md). Session planning and implementation must
+preserve the fake-only, synthetic-data, no-real-network boundary.
+
 ## Phase Transition
 
 - [x] Audit and validate the first local-tooling bundle (Biome formatting).

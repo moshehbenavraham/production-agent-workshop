@@ -2,7 +2,7 @@
   "version": "2.0",
   "project_name": "production-agent-workshop",
   "description": "Build an Agency Lead Operations Agent with Codex, Pi, and Coolify.",
-  "current_phase": 0,
+  "current_phase": 1,
   "current_session": null,
   "monorepo": false,
   "phases": {
@@ -10,6 +10,12 @@
       "name": "Foundation",
       "status": "complete",
       "session_count": 3
+    },
+    "1": {
+      "name": "Durable Approval and Safe Write",
+      "description": "Persist exact approval decisions and add a fake exact-target idempotent write boundary without a real network effect.",
+      "status": "not_started",
+      "session_count": 6
     }
   },
   "completed_sessions": [
