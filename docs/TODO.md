@@ -34,7 +34,7 @@ fake-only, synthetic-data, no-real-network boundary.
 ## Phase 01 Closeout Transition
 
 - [x] Run the repository audit and add exactly one missing local-tooling bundle (Biome linting).
-- [ ] Validate active CI and add exactly one missing pipeline bundle.
+- [x] Validate active CI and add exactly one missing pipeline bundle (Build & Test).
 - [ ] Audit deployment readiness and add exactly one missing infrastructure bundle.
 - [ ] Carry Phase 01 lessons, risks, and controls into the cumulative records.
 - [ ] Reconcile all current documentation and record the documentation audit.
