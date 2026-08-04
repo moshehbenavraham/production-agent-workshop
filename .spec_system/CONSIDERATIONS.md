@@ -1,7 +1,7 @@
 # Considerations
 
 > Institutional memory for AI assistants. Updated between phases via carryforward.
-> **Line budget**: 600 max | **Last updated**: Phase 00 (2026-08-04)
+> **Line budget**: 600 max | **Last updated**: Phase 01 (2026-08-04)
 
 ---
 
@@ -15,40 +15,49 @@ recovery matter more than autonomy.
 
 ## Active Concerns
 
-Items requiring attention in upcoming phases. Review before each session.
+Items requiring attention in upcoming work. Review before each session.
 
 ### Technical Debt
 
-- [P00] **Durable approval state**: Pending approval is event evidence only;
-  decisions, exact draft linkage, transition rules, and restart behavior do not exist.
-- [P00] **Run recovery projection**: Qualification projection exists, but the
-  complete run still lacks replay, resume, corruption handling, and bounded retry rules.
+- [P01] **Whole-run recovery**: Approval and fake-result projections survive
+  restart, but the complete Pi run still lacks replay, resume, and bounded retry rules.
+- [P01] **Single-process persistence**: Approval, event, and result JSONL files
+  are separate logs with no OS/distributed lock or transaction; reservation-only
+  fake state requires manual inspection and must never retry automatically.
 
 ### External Dependencies
 
-- [P00] **Provider execution**: Deterministic gates need no model credential;
-  provider-backed behavior remains operator-configured and must stay separate evidence.
-- [P00] **Production target**: Docker health passes locally, but no reachable
-  Coolify deployment exists; production health, persistence, restore, and rollback are unproved.
+- [P01] **Provider execution**: Deterministic gates need no model credential;
+  provider-backed behavior remains operator-configured and needs separate evidence.
+- [P01] **Production target**: Local image, health, and rate-gate checks pass,
+  but no reachable Coolify URL, edge WAF, persistent restart, restore, or rollback exists.
 
 ### Performance / Security
 
-- [P00] **Controlled exposure only**: `/runs` has no caller authentication,
-  authorization, tenant isolation, or rate limiting and must not be public.
-- [P00] **Synthetic-data restriction**: Retention, redaction, export, erasure,
-  backup, restore, subprocessors, and data-location decisions are still open.
-- [P00] **Whole-run bounds**: Qualification has a 1,000 ms deadline, but the
-  Pi run has no explicit overall deadline or maximum step count.
+- [P01] **Controlled exposure only**: `/runs` has a process-wide capacity gate
+  but no authentication, authorization, tenant isolation, trusted proxy identity,
+  distributed quota, or deployed WAF; it must not be public.
+- [P01] **Synthetic-data restriction**: A manual 30-day-or-teardown whole-file
+  rule exists, but automated retention, scoped erasure/export, backup/restore,
+  subprocessors, lawful basis, and data-location controls do not.
+- [P01] **Whole-run bounds**: Qualification and fake execution have application
+  deadlines, but the complete Pi run has no overall deadline or maximum step count.
+- [P01] **Human write gate**: Fake execution is deliberately unregistered and
+  unallowlisted. A repository maintainer must review the exact contract and diff
+  before any future write-capable registration or allowlist change.
 
 ### Architecture
 
-- [P00] **Event truth over prose**: Derive permissions and visible outcomes
-  from schema-validated, ordered, exact-identity events, never assistant text.
-- [P00] **Frozen least privilege**: Production exposes exactly
-  `qualify_lead`, `draft_follow_up`, and `request_send_approval`; any write
-  requires exact approval, target validation, and idempotency before allowlisting.
-- [P00] **Single-agent baseline**: Keep one bounded Pi session until measured
+- [P01] **Durable truth over prose or audit events**: Approval records and fake
+  results authorize state; operational events support evidence and repair only.
+- [P01] **Frozen least privilege**: Production exposes exactly
+  `qualify_lead`, `draft_follow_up`, and `request_send_approval`; internal fake
+  execution has no Pi or HTTP edge and performs no network write.
+- [P01] **Single-agent baseline**: Keep one bounded Pi session until measured
   success, safety, latency, or cost evidence justifies a typed handoff.
+- [P01] **Recovery scope boundary**: Preserve exact ordered evidence for future
+  recovery without inferring success, expiring indeterminate effects, or silently
+  repairing corrupt logs.
 
 ---
 
@@ -58,48 +67,62 @@ Proven patterns and anti-patterns. Reference during implementation.
 
 ### What Worked
 
-- [P00] **Schema-first boundaries**: Infer static types from closed TypeBox
-  schemas and compile runtime validators for every untrusted crossing.
-- [P00] **Contract-first RED/GREEN**: Missing exports and bypass cases made the
-  intended boundary observable before implementation and prevented silent scope drift.
-- [P00] **Exact identity checks**: Validate requested, returned, persisted, and
-  projected `leadId` values independently even when an earlier layer checked them.
-- [P00] **One bounded lifecycle**: Validate configuration before an attempt,
-  append exactly one terminal, clear timers, and ignore late completion.
-- [P00] **Failure precedence**: Canonical application failures must override
-  friendly prose and invalid downstream evidence.
-- [P00] **Runtime permission evidence**: Test both exact tool names and
-  `Object.isFrozen` so readonly declarations are enforced at runtime.
-- [P00] **Output-channel parity**: Assert Pi tool JSON content and typed details
-  agree on both success and failure paths.
-- [P00] **Provider-independent vertical slices**: Invoke actual Pi tool
-  definitions directly to prove event order, one `runId`, pending approval, and no send.
+- [P01] **Closed variants plus semantic guards**: Shape validation must be
+  followed by time, identity, hash, ordering, and discriminant checks.
+- [P01] **Contract-first RED/GREEN**: Missing exports and bypass cases expose
+  intended boundaries before implementation and prevent silent scope drift.
+- [P01] **Flush, re-read, then succeed**: File writes use private mode, final
+  LF, `fsync`, close, and exact projection rebuild before reporting durable state.
+- [P01] **State before evidence**: Persist authoritative approval/result truth
+  first; a duplicate retry may repair missing minimized events without another
+  transition or effect.
+- [P01] **Exact identity at every layer**: Independently match requested,
+  returned, persisted, projected, approved, and executed identifiers.
+- [P01] **Identity-only write requests**: Caller/model input supplies bounded
+  claims; executable target and content come only from immutable approved state.
+- [P01] **Reservation before effect**: A synchronous durable claim precedes the
+  fake adapter; an incomplete claim remains visibly indeterminate.
+- [P01] **Application-owned deadlines**: Abort once, persist one terminal
+  timeout, and suppress late settlement rather than accepting a second outcome.
+- [P01] **Untrusted replaceable boundaries**: Runtime-validate adapter/store/
+  event returns, canonicalize thrown values, and freeze service-owned inputs.
+- [P01] **Domain-aware shared logs**: Ignore valid unrelated event domains but
+  fail closed when either discriminant claims a malformed owned namespace.
+- [P01] **Pre-construction validation**: Validate paths, actors, timeouts, and
+  bounded environment values before creating files, directories, or listeners.
+- [P01] **Provider-independent vertical slices**: Directly exercise actual
+  tools and internal composition to prove event order, permission, restart,
+  duplicate, timeout, and zero-network behavior.
 
 ### What to Avoid
 
-- [P00] **Prompt order as authorization**: Model instructions guide behavior
-  but cannot grant approval, validate identity, or prove prior state.
-- [P00] **Type signatures as runtime trust**: Dependency records and model/tool
-  results remain `unknown` until schema and identity validation pass.
-- [P00] **Shape-only event projection**: A valid event shape can still be stale,
-  cross-lead, or out of order; freshness and ordering are part of the contract.
-- [P00] **Partial lifecycle evidence**: Do not append an attempt before config
-  validation or allow timeout races to append multiple terminal events.
-- [P00] **Checkpoint as completion**: A pushed mid-session version is not a
-  validated session closeout; preserve explicit workflow state and evidence gates.
+- [P01] **Prompt order as authorization**: Model instructions cannot grant a
+  decision, validate identity, or prove prior state.
+- [P01] **Type signatures as runtime trust**: JavaScript dependencies can throw
+  arbitrary values or return invalid shapes despite typed interfaces.
+- [P01] **Shape-only projection**: Schema-valid evidence can still be stale,
+  cross-run, duplicated, or out of order.
+- [P01] **Automatic retry after an unknown effect**: A reservation without a
+  result may already have caused an effect; stop for inspection.
+- [P01] **Assuming separate logs are atomic**: Result, approval, and event files
+  have explicit repair/indeterminate semantics, not transactional guarantees.
+- [P01] **AI review as human permission**: Record autonomous review honestly;
+  it never satisfies a maintainer-only write-capability gate.
+- [P01] **Checkpoint as completion**: A pushed implementation is not complete
+  until review, validation, PRD closeout, and transition evidence pass.
 
 ### Tool/Library Notes
 
-- [P00] **TypeBox 1.3.10**: Closed objects, finite element vocabularies, and
-  compiled guards provide one contract source for types and runtime validation.
-- [P00] **Pi 0.83.0 tools**: The actual five-argument executor is directly
-  testable; JSON content and typed details are separate contracts.
-- [P00] **TypeScript 7 file checks**: Commands naming source files require
-  `--ignoreConfig`; repository checks should prefer `npm run check`.
-- [P00] **Biome 2.5.6**: `npm run format` fixes the scoped TypeScript/JSON set;
-  `npm run format:check` is now part of `npm run verify` and CI.
-- [P00] **Docker health**: Node.js `fetch` can validate HTTP and exact JSON from
-  the image without adding curl or another runtime package.
+- [P01] **TypeBox 1.3.10**: Closed objects, finite vocabularies, and compiled
+  guards provide one source for static and runtime contracts.
+- [P01] **Pi 0.83.0 tools**: The actual five-argument executor is directly
+  testable; JSON content and typed details remain separate contracts.
+- [P01] **TypeScript 7 checks**: File-specific commands need `--ignoreConfig`;
+  repository checks should use `npm run check` or `npm run build`.
+- [P01] **Biome 2.5.6**: Use the `recommended` linter preset plus separate
+  fix/check scripts; formatting and linting are both in `npm run verify`.
+- [P01] **Node.js 24 built-ins**: Native test coverage gates, `fetch` health
+  probes, and the HTTP server avoid extra runtime dependencies.
 
 ---
 
@@ -109,6 +132,7 @@ Recently closed items (buffer - rotates out after 2 phases).
 
 | Phase | Item | Resolution |
 |-------|------|------------|
+| P01 | Event-only pending approval | Closed records, one-way transitions, private durable projection, exact draft linkage, internal decisions, and restart proof now own approval truth. |
 | P00 | Model-owned qualification | Closed schemas, deterministic computation, and application validation now own the outcome. |
 | P00 | Raw inspection and prompt-only sequencing | A frozen focused tool, exact-lead events, and downstream evidence gates now fail closed. |
 

@@ -54,6 +54,9 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Changed
 
+- Re-synthesized cumulative considerations and security/compliance posture from
+  all six Phase 01 sessions, closing durable-approval risk while preserving
+  controlled-exposure, real-data, recovery, and single-process effect gates.
 - Added lint enforcement to Code Quality CI and documented the two-workflow
   local/CI verification contract.
 - Allowed fake-send duplicate recovery to coexist with valid approval and other
