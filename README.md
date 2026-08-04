@@ -110,7 +110,10 @@ real customer data.
 - [Deployment](./docs/deployment.md)
 - [Incident response](./docs/runbooks/incident-response.md)
 - [Contributing](./CONTRIBUTING.md)
-- [Build Log](./docs/build-log.md)
+- Build Logs: [Week 1](./docs/build-log-week1.md) |
+  [Week 2](./docs/build-log-week2.md) |
+  [Week 3](./docs/build-log-week3.md) |
+  [Week 4](./docs/build-log-week4.md)
 - [Workshop path](./docs/todo/README_todo.md)
 
 ## Architecture Ownership
@@ -169,7 +172,7 @@ These require separate authorization after the ordered workshop path:
 
 Releases follow [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 and the repository [versioning policy](./docs/VERSIONING.md). The project is
-currently version 0.1.12; user-visible changes are recorded in the
+currently version 0.1.13; user-visible changes are recorded in the
 [changelog](./docs/CHANGELOG.md).
 
 ## Official Pi References

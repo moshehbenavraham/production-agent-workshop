@@ -57,4 +57,6 @@ Use deterministic assertions for schemas, persisted state, tool events, permissi
 
 ## Evidence
 
-Add the golden-set inventory, rubric, scorecard, one red/fix/green trace for each critical boundary, and final verification output to the Build Log.
+Add the golden-set inventory, rubric, scorecard, one red/fix/green trace for each
+critical boundary, and final verification output to the
+[Week 3 Build Log](../build-log-week3.md).

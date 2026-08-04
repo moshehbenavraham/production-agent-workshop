@@ -99,7 +99,8 @@ or rollback has been validated.
 - Use append-only events as evidence and rebuild typed projections from them.
 - Keep the required workshop path synthetic and no-send.
 
-Detailed rationale and Mermaid traces are in the [Build Log](./build-log.md).
+Detailed rationale and Mermaid traces are in the
+[Week 1 Build Log](./build-log-week1.md).
 Living risks and constraints are in
 [Considerations](../.spec_system/CONSIDERATIONS.md) and
 [Security and Compliance](../.spec_system/SECURITY-COMPLIANCE.md). New decisions

@@ -33,4 +33,6 @@ Replace implicit model judgment with a typed, deterministic qualification result
 
 ## Evidence
 
-Add the schema, tool contract, event sequence, test matrix, verification output, one red/green failure example, and a 60-second vertical-slice demo to the Build Log.
+Add the schema, tool contract, event sequence, test matrix, verification output,
+one red/green failure example, and a 60-second vertical-slice demo to the
+[Week 1 Build Log](../build-log-week1.md).

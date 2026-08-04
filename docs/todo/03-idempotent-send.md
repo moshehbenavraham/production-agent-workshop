@@ -45,4 +45,6 @@ Add the first external-write boundary without permitting unapproved, misdirected
 
 ## Evidence
 
-Add the contract, permission table, idempotency proof, test matrix, sample redacted events, human review result, and verification output to the Build Log.
+Add the contract, permission table, idempotency proof, test matrix, sample
+redacted events, human review result, and verification output to the
+[Week 2 Build Log](../build-log-week2.md).

@@ -48,4 +48,6 @@ Cover missing approval, malformed decision, unknown actor, already-decided appro
 
 ## Evidence
 
-Add the state diagram, storage contract, transition event examples, restart proof, data-lifecycle decision, and verification output to the Build Log.
+Add the state diagram, storage contract, transition event examples, restart
+proof, data-lifecycle decision, and verification output to the
+[Week 2 Build Log](../build-log-week2.md).

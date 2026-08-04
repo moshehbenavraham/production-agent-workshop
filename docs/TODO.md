@@ -23,3 +23,4 @@ The ordered scope and acceptance evidence remain authoritative in
 ## Documentation Maintenance
 
 - [x] Document local Pi authentication through a ChatGPT Plus or Pro Codex subscription.
+- [x] Split Build Log evidence into linked Week 1-4 files with scoped future-week templates.

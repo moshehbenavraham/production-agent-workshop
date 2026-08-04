@@ -54,7 +54,8 @@ A pull request should:
 - include deterministic success and failure evidence;
 - keep credentials, real customer data, and private infrastructure details out
   of code, fixtures, logs, screenshots, and documentation;
-- update `docs/CHANGELOG.md`, `docs/TODO.md`, and the Build Log when applicable;
+- update `docs/CHANGELOG.md`, `docs/TODO.md`, and the
+  [active weekly Build Log](docs/todo/README_todo.md#build-logs) when applicable;
 - pass Code Quality CI and all repository-specific verification gates;
 - call out any external decision rather than inventing a legal, ownership,
   deployment, or data-lifecycle answer.

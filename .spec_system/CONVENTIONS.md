@@ -120,7 +120,7 @@ For a non-trivial change:
 4. Make the smallest coherent change and add failure-path evidence.
 5. Run `npm run verify` and any task-specific checks.
 6. Review the diff for accidental permissions, secrets, side effects, logging, or retention changes.
-7. Update the active Build Log, `docs/TODO.md` when applicable, and `docs/CHANGELOG.md`.
+7. Update the active weekly Build Log, `docs/TODO.md` when applicable, and `docs/CHANGELOG.md`.
 
 ## Definition of Done
 

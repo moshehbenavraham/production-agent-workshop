@@ -73,6 +73,7 @@ so local `npm run verify` remains mandatory.
 
 ## Change Handoff
 
-Before completion, update relevant tests, the Build Log, `docs/TODO.md`, and
+Before completion, update relevant tests, the
+[active weekly Build Log](todo/README_todo.md#build-logs), `docs/TODO.md`, and
 `docs/CHANGELOG.md`; inspect the final diff for secrets, personal data,
 permission expansion, unapproved effects, and stale documentation.

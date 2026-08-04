@@ -37,4 +37,6 @@ Make every interrupted run explainable and safely resumable from durable events 
 
 ## Evidence
 
-Add the event schema, projection rules, recovery decision table, three restart timelines, replay-idempotency proof, retention decision, and verification output to the Build Log.
+Add the event schema, projection rules, recovery decision table, three restart
+timelines, replay-idempotency proof, retention decision, and verification output
+to the [Week 3 Build Log](../build-log-week3.md).

@@ -43,4 +43,6 @@ Cover four distinct layers:
 
 ## Evidence
 
-Add one complete incident timeline, the `runId` query output, alert table, redacted observability view, runbook link, recovery proof, and verification output to the Build Log.
+Add one complete incident timeline, the `runId` query output, alert table,
+redacted observability view, runbook link, recovery proof, and verification
+output to the [Week 4 Build Log](../build-log-week4.md).

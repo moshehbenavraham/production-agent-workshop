@@ -41,7 +41,7 @@ The reference has one HTTP entry point, one bounded Pi session, three custom too
 
 ## Evidence
 
-Add the following to the Build Log:
+Add the following to the [Week 1 Build Log](../build-log-week1.md):
 
 1. the architecture and request-flow diagram;
 2. a concise Harness Decision Record;

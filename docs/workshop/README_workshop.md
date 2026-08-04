@@ -10,7 +10,9 @@ This repository is both a completed bounded reference and a set of progressive a
 4. Read `docs/todo/README_todo.md` and complete the numbered files in order.
 5. Work on one task at a time and use Plan mode for non-trivial changes.
 6. Invoke `$verify-production-agent` before declaring a task complete.
-7. Record observable evidence in the Build Log and commit it with the change.
+7. Record observable evidence in the
+   [active weekly Build Log](../todo/README_todo.md#build-logs) and commit it
+   with the change.
 
 ## Suggested Prompt
 

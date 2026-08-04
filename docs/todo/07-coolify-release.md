@@ -78,7 +78,11 @@ Create a one-page operator guide that answers:
 
 ## Evidence
 
-Add the infrastructure decision record, redacted deployment and service map, security-gate checklist, verification result, image identifier, live health result, redacted run timeline, restart and restore proof, rollback timeline, operator guide, and five-minute demo to the Build Log.
+Add the infrastructure decision record, redacted deployment and service map,
+security-gate checklist, verification result, image identifier, live health
+result, redacted run timeline, restart and restore proof, rollback timeline,
+operator guide, and five-minute demo to the
+[Week 4 Build Log](../build-log-week4.md).
 
 Use this demo structure:
 

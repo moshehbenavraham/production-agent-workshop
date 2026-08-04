@@ -41,4 +41,6 @@ Do not begin this task until tasks `00` through `07` are complete and the single
 
 ## Evidence
 
-Add before-and-after diagrams, the handoff contract, permission table, failure matrix, comparative scorecard, keep-or-remove decision, and verification output to the Build Log.
+Add before-and-after diagrams, the handoff contract, permission table, failure
+matrix, comparative scorecard, keep-or-remove decision, and verification output
+to the Week 5 Build Log created when this task begins.

@@ -28,7 +28,8 @@ Treat every behavior described under a task's `Work` section as planned until it
 6. Define schemas, permission boundaries, failure behavior, and event evidence before implementation.
 7. Run `npm run verify` and invoke `$verify-production-agent` before declaring a task complete.
 8. Review the diff for accidental side effects, broader permissions, secrets, personal data, and stale documentation.
-9. Record the evidence in the Build Log and update `docs/CHANGELOG.md`.
+9. Record the evidence in the task's [weekly Build Log](#build-logs) and update
+   `docs/CHANGELOG.md`.
 
 The repository-wide verification command is:
 
@@ -74,9 +75,24 @@ One Apex phase completes exactly one workshop week. `phasebuild` may split each 
 | 03 | 4 | `06`, `07` | Make operation observable and complete the Coolify release |
 | 04 | 5 | `08` | Complete the measured typed-handoff comparison and keep-or-remove decision |
 
+## Build Logs
+
+Each sprint week has a bounded evidence file. The future-week files are
+templates, not claims of completed behavior.
+
+| Week | Tasks | Build Log |
+|------|-------|-----------|
+| 1 | `00`, `01` | [Completed evidence](../build-log-week1.md) |
+| 2 | `02`, `03` | [Evidence template](../build-log-week2.md) |
+| 3 | `04`, `05` | [Evidence template](../build-log-week3.md) |
+| 4 | `06`, `07` | [Evidence template](../build-log-week4.md) |
+
+Create the Week 5 log when Task `08` begins so its measured handoff experiment
+is not represented as planned evidence in advance.
+
 ## Evidence Standard
 
-Each Build Log entry must include:
+Each task entry in its weekly Build Log must include:
 
 1. the task goal and boundary;
 2. the exact commands run and their results;
@@ -97,7 +113,8 @@ The completed five-week path should leave one reviewable portfolio containing:
 - a redacted observability view and incident timeline from task `06`;
 - live or controlled deployment, restart, restore, rollback, operator-guide, and five-minute-demo evidence from task `07`;
 - the before-and-after diagrams, typed handoff contract, failure matrix, comparative scorecard, and keep-or-remove decision from task `08`;
-- a final Build Log summary of lessons, open risks, and the next justified improvement.
+- a final Week 5 Build Log summary of lessons, open risks, and the next
+  justified improvement.
 
 ## Retired Scratch Coverage
 
@@ -125,4 +142,8 @@ The source notes formerly kept in `docs/scratch.md` are consolidated as follows:
 
 ## Completion Rule
 
-A task is complete only when its acceptance criteria are demonstrated, `npm run verify` passes, the Build Log contains observable evidence, and the diff preserves the tool allowlist and human approval boundary. The workshop path is complete only after all five phases and tasks `00` through `08` are complete.
+A task is complete only when its acceptance criteria are demonstrated,
+`npm run verify` passes, its weekly Build Log contains observable evidence, and
+the diff preserves the tool allowlist and human approval boundary. The workshop
+path is complete only after all five phases and tasks `00` through `08` are
+complete.

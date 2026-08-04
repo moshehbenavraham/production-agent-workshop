@@ -149,7 +149,7 @@ The todo index and tasks `00` through `08` are the authoritative ordered deliver
 - Workshop participant can complete tasks `00` through `08` in order and can treat every unproven `Work` item as planned rather than implemented.
 - Workshop participant can read `AGENTS.md`, its three linked governance files, the client brief, the todo index, the active task, and relevant source and tests, then use Plan mode for a non-trivial change with one coherent goal, context, constraints, and measurable completion checks.
 - Workshop participant can define schemas, permission boundaries, failure behavior, and event evidence before implementation, then run `npm run verify` and `$verify-production-agent` before declaring a task complete.
-- Workshop participant can record the task goal, commands and results, required artifact, one exercised failure, recovery or refusal evidence, final diff review, and remaining risk in the Build Log.
+- Workshop participant can record the task goal, commands and results, required artifact, one exercised failure, recovery or refusal evidence, final diff review, and remaining risk in the appropriate weekly Build Log.
 - Workshop participant can update `docs/CHANGELOG.md` and confirm the final diff introduces no secret, unnecessary personal data, broader permission, unapproved side effect, or stale documentation.
 
 ### Week 5 Requirements (Task 08)
@@ -336,7 +336,7 @@ After Phase 03 completion, transition work, and the measurement entry gate, `pha
 - [ ] Task `07`: The verified image passes pre-public security gates, HTTPS health, redacted smoke testing, persistent restart, backup restore, reversible-failure rollback, local/deployed parity, operator handoff, and the five-minute demo.
 - [ ] Task `08`: Phase 04 begins only after its entry gate passes and documents the measured bottleneck, hypothesis, typed handoff, least-privilege permissions, deterministic failure matrix, and unchanged single-agent comparison.
 - [ ] Task `08`: The required comparative scorecard reports success, safety, latency, cost, explainability, and operational complexity, and the final keep-or-remove decision follows the evidence.
-- [ ] Every task from `00` through `08` has its required Build Log evidence, one exercised failure, a green `npm run verify`, a `$verify-production-agent` result, an updated changelog, and a final permissions, privacy, side-effect, and documentation diff review.
+- [ ] Every task from `00` through `08` has its required weekly Build Log evidence, one exercised failure, a green `npm run verify`, a `$verify-production-agent` result, an updated changelog, and a final permissions, privacy, side-effect, and documentation diff review.
 
 ## Required Evidence Portfolio
 
@@ -351,7 +351,7 @@ The completed five-week path must leave one reviewable portfolio containing:
 - the redacted observability view, `runId` query, alerts, incident timeline, runbook, and recovery proof from task `06`;
 - the infrastructure record, deployment map, security gates, image, health, restart, restore, rollback, operator guide, and demo evidence from task `07`;
 - the before-and-after diagrams, typed handoff contract, permission table, failure matrix, comparative scorecard, and evidence-based keep-or-remove decision from task `08`;
-- a final Build Log summary of lessons, open risks, and the next justified improvement.
+- a final Week 5 Build Log summary of lessons, open risks, and the next justified improvement.
 
 ## Risks
 

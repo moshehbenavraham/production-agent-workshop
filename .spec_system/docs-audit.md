@@ -59,8 +59,9 @@ encoding, security-sensitive claims, and the final two-source workflow decision.
 | File or area | Verification |
 |--------------|--------------|
 | `LICENSE` | Existing MIT text found; no legal choice was invented or changed |
-| `docs/VERSIONING.md` | `package.json` remains the 0.1.12 version source and the release checklist matches repository scripts |
-| `docs/build-log.md` | Phase 00 implementation, Mermaid, RED/GREEN, demo, review, and validation evidence remains the detailed source |
+| `docs/VERSIONING.md` | `package.json` remains the 0.1.13 version source and the release checklist matches repository scripts |
+| `docs/build-log-week1.md` | Scoped Task `00` and `01` architecture, contract, verification, RED/GREEN, and demo evidence remains the completed Week 1 source |
+| `docs/build-log-week2.md` through `docs/build-log-week4.md` | Linked evidence-only templates follow the exact Task `02` through `07` sprint boundaries without claiming planned controls are complete |
 | `docs/openai-codex-subscription-auth.md` | Existing controlled-use auth guide remains linked; credential values and auth state were not inspected |
 | `docs/todo/` and `docs/workshop/` | Ordered task and workshop sources remain authoritative; no future phase session artifact was created |
 | `.spec_system/CONSIDERATIONS.md` | Fresh P00 carryforward is 117/600 lines with 10 concerns, 18 lessons, and 2 resolved items |

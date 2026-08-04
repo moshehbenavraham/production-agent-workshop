@@ -73,8 +73,8 @@ exists. Escalate rather than inventing recovery state or manually editing JSONL.
 ## Escalation And Reporting
 
 - Use [SECURITY.md](../../SECURITY.md) for a suspected vulnerability or secret exposure.
-- Use the [Build Log](../build-log.md) for reproducible workshop evidence that
-  contains no credential or unnecessary personal data.
+- Use the [weekly Build Logs](../todo/README_todo.md#build-logs) for reproducible
+  workshop evidence that contains no credential or unnecessary personal data.
 - Record the exact revision, environment category, `runId` when available,
   observed stop reason, failed command, and redacted error category.
 - Production response ownership and timing remain external decisions until the
