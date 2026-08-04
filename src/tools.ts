@@ -1,5 +1,12 @@
 import { defineTool } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
+import {
+  createPendingApproval,
+  hashApprovalDraft,
+  type ApprovalFailureCode,
+  type PendingApproval,
+} from "./approval.js";
+import type { ApprovalService } from "./approval-service.js";
 import type { AgentEvent, JsonlEventStore } from "./event-store.js";
 import { findLead, type Lead } from "./leads.js";
 import {
@@ -24,18 +31,27 @@ export type QualificationExecutionOptions = {
   timeoutMs?: number;
 };
 
+export type ToolEventStore = Pick<JsonlEventStore, "append" | "readRun">;
+
 type DraftToolDetails = {
   created: boolean;
   draft: string | null;
-  code: "qualification_required" | "lead_not_found" | null;
+  draftId: string | null;
+  sha256: string | null;
+  code: "qualification_required" | "lead_not_found" | "storage_failure" | null;
 };
 
-type Approval = ReturnType<typeof makeApproval>;
+type DraftEvidence = {
+  leadId: string;
+  draftId: string;
+  sha256: string;
+  content: string;
+};
 
 type ApprovalToolDetails = {
   created: boolean;
-  approval: Approval | null;
-  code: "qualification_required" | null;
+  approval: PendingApproval | null;
+  code: "qualification_required" | "draft_mismatch" | ApprovalFailureCode | null;
 };
 
 async function boundedQualification(
@@ -67,7 +83,7 @@ async function boundedQualification(
 export async function executeQualification(
   runId: string,
   requestedLeadId: string,
-  store: JsonlEventStore,
+  store: ToolEventStore,
   input: unknown,
   options: QualificationExecutionOptions = {},
 ): Promise<QualificationOutcome> {
@@ -109,7 +125,7 @@ export async function executeQualification(
 export function createQualificationTool(
   runId: string,
   requestedLeadId: string,
-  store: JsonlEventStore,
+  store: ToolEventStore,
   options: QualificationExecutionOptions = {},
 ) {
   return defineTool({
@@ -148,15 +164,46 @@ export function qualificationOutcomeFromEvents(
   return undefined;
 }
 
-function hasValidatedQualification(
+type ToolEventReadOutcome = { ok: true; value: AgentEvent[] } | { ok: false };
+
+function readToolEvents(store: ToolEventStore, runId: string): ToolEventReadOutcome {
+  try {
+    const events: unknown = store.readRun(runId);
+    if (!Array.isArray(events)) return { ok: false };
+    const valid = events.every(
+      (event) =>
+        typeof event === "object" &&
+        event !== null &&
+        (event as AgentEvent).runId === runId &&
+        typeof (event as AgentEvent).type === "string" &&
+        typeof (event as AgentEvent).data === "object" &&
+        (event as AgentEvent).data !== null &&
+        !Array.isArray((event as AgentEvent).data),
+    );
+    return valid ? { ok: true, value: events as AgentEvent[] } : { ok: false };
+  } catch {
+    return { ok: false };
+  }
+}
+
+function validatedQualificationEvidence(
   runId: string,
   requestedLeadId: string,
   leadId: string,
-  store: JsonlEventStore,
-): boolean {
-  if (leadId !== requestedLeadId) return false;
-  const outcome = qualificationOutcomeFromEvents(store.readRun(runId), requestedLeadId);
-  return Boolean(outcome?.ok && outcome.value.leadId === requestedLeadId);
+  store: ToolEventStore,
+): { ok: true; value: boolean } | { ok: false } {
+  if (leadId !== requestedLeadId) return { ok: true, value: false };
+  const events = readToolEvents(store, runId);
+  if (!events.ok) return events;
+  try {
+    const outcome = qualificationOutcomeFromEvents(events.value, requestedLeadId);
+    return {
+      ok: true,
+      value: Boolean(outcome?.ok && outcome.value.leadId === requestedLeadId),
+    };
+  } catch {
+    return { ok: false };
+  }
 }
 
 export function makeDraft(lead: Lead, angle: string): string {
@@ -173,23 +220,50 @@ export function makeDraft(lead: Lead, angle: string): string {
 }
 
 export function makeApproval(runId: string, leadId: string, draft: string) {
-  return {
-    approvalId: crypto.randomUUID(),
-    runId,
-    leadId,
-    action: "send_follow_up",
-    status: "pending" as const,
-    draft,
-  };
+  const outcome = createPendingApproval({ runId, leadId, action: "send_follow_up", draft });
+  if (!outcome.ok) throw new Error(outcome.error.message);
+  return outcome.value;
+}
+
+function hasCurrentDraftEvidence(
+  events: readonly AgentEvent[],
+  requestedLeadId: string,
+  evidence: DraftEvidence,
+): boolean {
+  let qualificationIndex = -1;
+  for (let index = events.length - 1; index >= 0; index -= 1) {
+    if (
+      events[index]?.type === "qualification.completed" ||
+      events[index]?.type === "qualification.failed"
+    ) {
+      qualificationIndex = index;
+      break;
+    }
+  }
+  if (qualificationIndex < 0) return false;
+
+  for (let index = events.length - 1; index > qualificationIndex; index -= 1) {
+    const event = events[index];
+    if (event?.type !== "domain.follow_up_drafted") continue;
+    return (
+      evidence.leadId === requestedLeadId &&
+      event.data.leadId === evidence.leadId &&
+      event.data.draftId === evidence.draftId &&
+      event.data.sha256 === evidence.sha256
+    );
+  }
+  return false;
 }
 
 export function buildTools(
   runId: string,
   requestedLeadId: string,
-  store: JsonlEventStore,
+  store: ToolEventStore,
+  approvalService: ApprovalService,
   options: QualificationExecutionOptions = {},
 ) {
   const qualificationTool = createQualificationTool(runId, requestedLeadId, store, options);
+  let latestDraft: DraftEvidence | undefined;
 
   const draftParameters = Type.Object(
     {
@@ -206,7 +280,25 @@ export function buildTools(
     parameters: draftParameters,
     executionMode: "sequential",
     execute: async (_toolCallId, params) => {
-      if (!hasValidatedQualification(runId, requestedLeadId, params.leadId, store)) {
+      const qualificationEvidence = validatedQualificationEvidence(
+        runId,
+        requestedLeadId,
+        params.leadId,
+        store,
+      );
+      if (!qualificationEvidence.ok) {
+        return {
+          content: [{ type: "text", text: "Cannot draft: event storage is unavailable." }],
+          details: {
+            created: false,
+            draft: null,
+            draftId: null,
+            sha256: null,
+            code: "storage_failure" as const,
+          },
+        };
+      }
+      if (!qualificationEvidence.value) {
         return {
           content: [
             {
@@ -217,6 +309,8 @@ export function buildTools(
           details: {
             created: false,
             draft: null as string | null,
+            draftId: null as string | null,
+            sha256: null as string | null,
             code: "qualification_required" as const,
           },
         };
@@ -228,19 +322,24 @@ export function buildTools(
           details: {
             created: false,
             draft: null,
+            draftId: null,
+            sha256: null,
             code: "lead_not_found",
           },
         };
       }
       const draft = makeDraft(lead, params.angle);
+      const draftId = `draft_${crypto.randomUUID()}`;
+      const sha256 = hashApprovalDraft(draft);
+      latestDraft = { leadId: params.leadId, draftId, sha256, content: draft };
       store.append({
         runId,
         type: "domain.follow_up_drafted",
-        data: { leadId: params.leadId, draft },
+        data: { leadId: params.leadId, draftId, sha256 },
       });
       return {
         content: [{ type: "text", text: draft }],
-        details: { created: true, draft, code: null },
+        details: { created: true, draft, draftId, sha256, code: null },
       };
     },
   });
@@ -259,7 +358,23 @@ export function buildTools(
     parameters: approvalParameters,
     executionMode: "sequential",
     execute: async (_toolCallId, params) => {
-      if (!hasValidatedQualification(runId, requestedLeadId, params.leadId, store)) {
+      const qualificationEvidence = validatedQualificationEvidence(
+        runId,
+        requestedLeadId,
+        params.leadId,
+        store,
+      );
+      if (!qualificationEvidence.ok) {
+        return {
+          content: [{ type: "text", text: "Approval not created: event storage is unavailable." }],
+          details: {
+            created: false,
+            approval: null,
+            code: "storage_failure" as const,
+          },
+        };
+      }
+      if (!qualificationEvidence.value) {
         return {
           content: [
             {
@@ -274,12 +389,54 @@ export function buildTools(
           },
         };
       }
-      const approval = makeApproval(runId, params.leadId, params.draft);
-      store.append({
-        runId,
-        type: "approval.requested",
-        data: approval,
-      });
+      const events = readToolEvents(store, runId);
+      if (!events.ok) {
+        return {
+          content: [{ type: "text", text: "Approval not created: event storage is unavailable." }],
+          details: {
+            created: false,
+            approval: null,
+            code: "storage_failure" as const,
+          },
+        };
+      }
+      if (
+        !latestDraft ||
+        latestDraft.leadId !== params.leadId ||
+        latestDraft.content !== params.draft ||
+        latestDraft.sha256 !== hashApprovalDraft(params.draft) ||
+        !hasCurrentDraftEvidence(events.value, requestedLeadId, latestDraft)
+      ) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: "Approval not created: the latest exact application-produced draft is required.",
+            },
+          ],
+          details: {
+            created: false,
+            approval: null,
+            code: "draft_mismatch" as const,
+          },
+        };
+      }
+      const outcome = approvalService.requestApproval(
+        {
+          runId,
+          leadId: params.leadId,
+          action: "send_follow_up",
+          draft: latestDraft.content,
+        },
+        { draftId: latestDraft.draftId },
+      );
+      if (!outcome.ok) {
+        return {
+          content: [{ type: "text", text: outcome.error.message }],
+          details: { created: false, approval: null, code: outcome.error.code },
+        };
+      }
+      const approval = outcome.value;
       return {
         content: [
           {

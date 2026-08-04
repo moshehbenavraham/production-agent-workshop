@@ -16,16 +16,23 @@ flowchart LR
     Agent -->|frozen allowlist| Tools[src/tools.ts]
     Tools --> Qualify[src/qualification.ts]
     Qualify --> Leads[src/leads.ts synthetic fixtures]
-    Agent --> Store[src/event-store.ts]
-    Tools --> Store
-    Store --> Log[(JSONL at EVENT_LOG_PATH)]
-    Store --> Projection[Qualification and stop projection]
-    Projection --> Agent
+    Agent --> Events[src/event-store.ts]
+    Tools --> Events
+    Events --> EventLog[(JSONL at EVENT_LOG_PATH)]
+    Tools --> ApprovalService[src/approval-service.ts]
+    Internal[Internal application decision] --> ApprovalService
+    ApprovalService --> ApprovalStore[src/approval-store.ts]
+    ApprovalService --> Events
+    ApprovalStore --> ApprovalLog[(JSONL at APPROVAL_LOG_PATH)]
+    Events --> QualificationProjection[Qualification projection]
+    ApprovalStore --> ApprovalProjection[Approval projection]
+    QualificationProjection --> Agent
+    ApprovalProjection --> Agent
     Agent --> Result[RunResult]
     Result --> Server
     Server --> Caller
-    Tools -->|pending record only| Human[Human approval boundary]
-    Human -. no decision or send endpoint .-> Stop[Stop]
+    Tools -->|request only| Human[Human approval boundary]
+    Human -. no public decision or send endpoint .-> Stop[Stop]
 ```
 
 ## Components
@@ -33,9 +40,11 @@ flowchart LR
 | Component | Location | Technology | Purpose |
 |-----------|----------|------------|---------|
 | HTTP boundary | `src/server.ts` | Node.js HTTP | Health, body limit, `leadId` validation, response mapping |
-| Pi orchestration | `src/pi-agent.ts` | Pi Coding Agent SDK | Session lifecycle, prompt, frozen tool allowlist, event-derived run result |
+| Pi orchestration | `src/pi-agent.ts` | Pi Coding Agent SDK | Session lifecycle, frozen tool allowlist, qualification events, durable approval projection |
 | Qualification domain | `src/qualification.ts` | TypeBox + TypeScript | Closed schemas, runtime validation, deterministic result, canonical failures |
-| Custom tools | `src/tools.ts` | Pi tool definitions | Bounded qualification, deterministic draft, pending approval, exact-lead gates |
+| Custom tools | `src/tools.ts` | Pi tool definitions | Bounded qualification, deterministic draft, exact durable approval request |
+| Approval domain/service | `src/approval.ts`, `src/approval-service.ts` | TypeBox + TypeScript | Closed state, actor policy, durable request/decision operations, minimized events |
+| Approval store | `src/approval-store.ts` | Append-only JSONL projection | Authoritative pending/terminal records at configured path |
 | Synthetic lead source | `src/leads.ts` | In-memory TypeScript data | Exact lookup for classroom fixtures only |
 | Event store | `src/event-store.ts` | Append-only JSONL | Correlated durable evidence by `runId` |
 | Deterministic gates | `tests/`, `src/evals.ts` | `node:test` + TSX | Contract, failure, permission, event, and vertical-slice verification |
@@ -50,10 +59,12 @@ flowchart LR
    three tools over the exact requested identifier and event store.
 3. `qualify_lead` validates input, applies a 1,000 ms application deadline,
    and appends one attempt plus exactly one schema-owned terminal event.
-4. `draft_follow_up` and `request_send_approval` deny work unless the latest
-   valid qualification is a success for the exact run lead.
-5. The application reconstructs qualification from events, derives one finite
-   stop reason, appends `run.completed`, and returns `RunResult`.
+4. `draft_follow_up` records only draft identity/hash; `request_send_approval`
+   verifies exact temporary content after the latest qualification and delegates
+   durable creation to the application service.
+5. The application reconstructs qualification from events, reads exact approval
+   state from the durable projection, derives one finite stop reason, appends
+   `run.completed`, and returns `RunResult`.
 6. Any uncaught run failure appends `run.failed`; the HTTP boundary maps it to
    a 503 response. Whole-run replay and resume are not implemented.
 
@@ -65,9 +76,10 @@ flowchart LR
 | Model/tool input | Treat as untrusted; enforce closed schemas and exact identity |
 | Lookup result | Runtime-validate the complete synthetic lead and identity |
 | Qualification result | Accept only a schema-valid application-owned outcome |
-| Persisted event | Validate type-specific data, identity, freshness, and ordering before projection |
+| Persisted event | Validate type-specific data, identity, freshness, and ordering before qualification projection |
 | Draft creation | Require latest matching qualification success |
-| Approval request | Create `pending` evidence only; never decide or send |
+| Approval request | Exact current draft delegates to durable application state; Pi never decides or sends |
+| Approval decision | Internal application service validates exact identity and synthetic actor policy |
 | External write | Forbidden because no adapter or tool exists |
 
 The production tool names are frozen at runtime. Pi has no shell, filesystem,
@@ -79,10 +91,12 @@ credential, deployment, approval-decision, or network-writing tool.
 - Pi conversation state is in memory for one run.
 - Events append to `EVENT_LOG_PATH`, defaulting to `./data/events.jsonl` and
   set to `/app/data/events.jsonl` in the image.
+- Authoritative approval records append to `APPROVAL_LOG_PATH`, defaulting to
+  `./data/approvals.jsonl` and set under `/app/data` in the image.
 - Qualification events exclude lead profile text and caught dependency detail.
-- Draft and pending approval events currently store a full synthetic draft;
-  lifecycle, backup, restore, and erasure rules remain open.
-- There is no database, queue, cache, durable decision store, or replay engine.
+- Draft and approval events exclude full content; approval records retain exact
+  synthetic draft content/hash under the documented manual lifecycle rule.
+- There is no database, queue, cache, backup, per-record erasure, or replay engine.
 
 ## Deployment Topology
 

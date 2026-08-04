@@ -12,6 +12,7 @@ RUN npm run check
 
 ENV PORT=3000
 ENV EVENT_LOG_PATH=/app/data/events.jsonl
+ENV APPROVAL_LOG_PATH=/app/data/approvals.jsonl
 
 VOLUME ["/app/data"]
 EXPOSE 3000

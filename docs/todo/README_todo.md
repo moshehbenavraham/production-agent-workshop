@@ -12,7 +12,7 @@ The repository currently provides:
 - an append-only JSONL event store keyed by `runId`, including minimized qualification evidence, in `src/event-store.ts`
 - an in-memory Pi session, file-backed events, and a validated file-backed
   approval adapter; runtime approval integration remains Session 03 work
-- 70 deterministic tests and five deterministic eval cases
+- 93 deterministic tests and five deterministic eval cases
 - a Node 24 container, `/health`, a Docker health probe, and a persistent `/app/data` volume contract
 - a passing Code Quality workflow and GitHub-managed CodeQL; broader CI/CD bundles remain incomplete
 - no authentication, tenant isolation, or rate limiting on `/runs`

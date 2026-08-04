@@ -47,7 +47,7 @@ Status: `200`.
 RunResult
 |-- runId: string
 |-- output: string
-|-- stopReason: approval_pending | not_found | qualification_failed | completed
+|-- stopReason: approval_pending | approval_failed | not_found | qualification_failed | completed
 `-- qualification:
     |-- { ok: true, value: QualificationResult }
     `-- { ok: false, error: QualificationFailure }
@@ -72,11 +72,17 @@ codes are:
 - `qualification_timeout`.
 
 The `output` field is application-owned failure text when qualification fails;
-on success it is the final assistant text. Permission and stop truth come from
-validated event evidence, not from `output`.
+on success it is the final assistant text. Qualification truth comes from
+validated event evidence; approval truth comes from the validated durable
+projection. Neither comes from `output`.
 
 `approval_pending` means a pending human record exists after the latest exact-
 lead qualification. It never means approved or sent.
+
+`approval_failed` means qualification succeeded but no valid current durable
+approval state exists for that exact run/lead after the latest qualification.
+Missing, malformed, stale, cross-run, and unavailable approval evidence cannot
+be reported as completion.
 
 ## Error Responses
 

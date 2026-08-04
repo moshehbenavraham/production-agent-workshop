@@ -1,9 +1,11 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test, { after } from "node:test";
 import Schema from "typebox/schema";
+import { ApprovalService } from "../src/approval-service.js";
+import { FileApprovalStore } from "../src/approval-store.js";
 import { JsonlEventStore } from "../src/event-store.js";
 import {
   isQualificationOutcome,
@@ -25,12 +27,28 @@ after(() => {
   }
 });
 
-function createStore(): { runId: string; store: JsonlEventStore } {
+function createStore(): {
+  runId: string;
+  store: JsonlEventStore;
+  approvalService: ApprovalService;
+  approvalPath: string;
+  eventPath: string;
+} {
   const directory = mkdtempSync(join(tmpdir(), "qualification-tool-"));
   temporaryDirectories.push(directory);
+  const approvalPath = join(directory, "approvals.jsonl");
+  const eventPath = join(directory, "events.jsonl");
+  const store = new JsonlEventStore(eventPath);
   return {
     runId: "run_qualification_test",
-    store: new JsonlEventStore(join(directory, "events.jsonl")),
+    store,
+    approvalPath,
+    eventPath,
+    approvalService: new ApprovalService(new FileApprovalStore(approvalPath), store, {
+      authorizedActorIds: new Set(["actor_workshop_reviewer"]),
+      makeApprovalId: () => "approval_tool_test_001",
+      now: () => "2026-08-04T10:00:00.000Z",
+    }),
   };
 }
 
@@ -50,8 +68,13 @@ async function executeTool<TParams>(
 }
 
 test("production qualification tool has the exact closed schema and deadline", () => {
-  const { runId, store } = createStore();
-  const [qualificationTool, draftTool, approvalTool] = buildTools(runId, "lead_ada", store);
+  const { runId, store, approvalService } = createStore();
+  const [qualificationTool, draftTool, approvalTool] = buildTools(
+    runId,
+    "lead_ada",
+    store,
+    approvalService,
+  );
   const inputValidator = Schema.Compile(qualificationTool.parameters);
 
   assert.equal(QUALIFICATION_TIMEOUT_MS, 1_000);
@@ -271,8 +294,13 @@ test("repeated qualification is deterministic and records one pair per call", as
 });
 
 test("draft and approval deny missing, failed, and cross-lead qualification", async () => {
-  const { runId, store } = createStore();
-  const [qualificationTool, draftTool, approvalTool] = buildTools(runId, "lead_ada", store);
+  const { runId, store, approvalService } = createStore();
+  const [qualificationTool, draftTool, approvalTool] = buildTools(
+    runId,
+    "lead_ada",
+    store,
+    approvalService,
+  );
 
   const draftBefore = await executeTool(draftTool, {
     leadId: "lead_ada",
@@ -285,6 +313,8 @@ test("draft and approval deny missing, failed, and cross-lead qualification", as
   assert.deepEqual(draftBefore.details, {
     created: false,
     draft: null,
+    draftId: null,
+    sha256: null,
     code: "qualification_required",
   });
   assert.deepEqual(approvalBefore.details, {
@@ -316,8 +346,13 @@ test("draft and approval deny missing, failed, and cross-lead qualification", as
 });
 
 test("draft and approval deny an exact-lead qualification failure", async () => {
-  const { runId, store } = createStore();
-  const [qualificationTool, draftTool, approvalTool] = buildTools(runId, "lead_unknown", store);
+  const { runId, store, approvalService } = createStore();
+  const [qualificationTool, draftTool, approvalTool] = buildTools(
+    runId,
+    "lead_unknown",
+    store,
+    approvalService,
+  );
 
   const qualificationResult = await executeTool(qualificationTool, {
     leadId: "lead_unknown",
@@ -346,8 +381,13 @@ test("draft and approval deny an exact-lead qualification failure", async () => 
 });
 
 test("known lead completes deterministic qualification-to-approval vertical slice", async () => {
-  const { runId, store } = createStore();
-  const [qualificationTool, draftTool, approvalTool] = buildTools(runId, "lead_ada", store);
+  const { runId, store, approvalService } = createStore();
+  const [qualificationTool, draftTool, approvalTool] = buildTools(
+    runId,
+    "lead_ada",
+    store,
+    approvalService,
+  );
 
   const qualificationResult = await executeTool(qualificationTool, {
     leadId: "lead_ada",
@@ -391,6 +431,200 @@ test("known lead completes deterministic qualification-to-approval vertical slic
     events.some((event) => /sent/i.test(event.type)),
     false,
   );
+  const drafted = events.find((event) => event.type === "domain.follow_up_drafted");
+  assert.equal(typeof drafted?.data.draftId, "string");
+  assert.match(String(drafted?.data.sha256), /^[0-9a-f]{64}$/);
+  assert.equal("draft" in (drafted?.data ?? {}), false);
+  assert.equal(JSON.stringify(drafted).includes(draft), false);
+});
+
+test("approval rejects altered and stale drafts before durable creation", async () => {
+  for (const mode of ["altered", "stale"] as const) {
+    const { runId, store, approvalService } = createStore();
+    const [qualificationTool, draftTool, approvalTool] = buildTools(
+      runId,
+      "lead_ada",
+      store,
+      approvalService,
+    );
+    await executeTool(qualificationTool, { leadId: "lead_ada" });
+    const drafted = await executeTool(draftTool, {
+      leadId: "lead_ada",
+      angle: "An auditable support triage workflow",
+    });
+    const draft = (drafted.details as { draft: string | null }).draft;
+    assert.ok(draft);
+    if (mode === "stale") {
+      await executeTool(qualificationTool, { leadId: "lead_ada" });
+    }
+
+    const approval = await executeTool(approvalTool, {
+      leadId: "lead_ada",
+      draft: mode === "altered" ? `${draft}\nAltered by model.` : draft,
+    });
+    assert.deepEqual(approval.details, {
+      created: false,
+      approval: null,
+      code: "draft_mismatch",
+    });
+    assert.deepEqual(approvalService.listRun(runId), { ok: true, value: [] });
+    assert.equal(
+      store.readRun(runId).some((event) => event.type.startsWith("approval.")),
+      false,
+    );
+  }
+});
+
+test("tool-created pending and internal terminal state survive independent services", async () => {
+  const { runId, store, approvalService, approvalPath, eventPath } = createStore();
+  const [qualificationTool, draftTool, approvalTool] = buildTools(
+    runId,
+    "lead_ada",
+    store,
+    approvalService,
+  );
+  await executeTool(qualificationTool, { leadId: "lead_ada" });
+  const drafted = await executeTool(draftTool, {
+    leadId: "lead_ada",
+    angle: "An auditable support triage workflow",
+  });
+  const draft = (drafted.details as { draft: string | null }).draft;
+  assert.ok(draft);
+  const requested = await executeTool(approvalTool, { leadId: "lead_ada", draft });
+  const approval = (requested.details as { approval: { approvalId: string } | null }).approval;
+  assert.ok(approval);
+
+  const decisionService = new ApprovalService(
+    new FileApprovalStore(approvalPath),
+    new JsonlEventStore(eventPath),
+    {
+      authorizedActorIds: new Set(["actor_workshop_reviewer"]),
+      now: () => "2026-08-04T10:01:00.000Z",
+    },
+  );
+  const decided = decisionService.decideApproval({
+    approvalId: approval.approvalId,
+    runId,
+    actorId: "actor_workshop_reviewer",
+    decision: "approved",
+  });
+  if (!decided.ok) assert.fail(decided.error.message);
+  const restarted = new ApprovalService(
+    new FileApprovalStore(approvalPath),
+    new JsonlEventStore(eventPath),
+  );
+  assert.deepEqual(restarted.get(approval.approvalId), {
+    ok: true,
+    value: decided.value,
+  });
+  assert.equal(readFileSync(approvalPath, "utf8").split("\n").filter(Boolean).length, 2);
+  assert.deepEqual(
+    store.readRun(runId).map((event) => event.type),
+    [
+      "qualification.attempted",
+      "qualification.completed",
+      "domain.follow_up_drafted",
+      "approval.requested",
+      "approval.approved",
+    ],
+  );
+});
+
+test("approval storage outage returns typed tool refusal and minimized evidence", async () => {
+  const directory = mkdtempSync(join(tmpdir(), "qualification-tool-failure-"));
+  temporaryDirectories.push(directory);
+  const runId = "run_qualification_failure";
+  const store = new JsonlEventStore(join(directory, "events.jsonl"));
+  const approvalService = new ApprovalService(
+    new FileApprovalStore(join(directory, "approvals.jsonl"), {
+      writeRecord: () => {
+        throw new Error("sensitive durable write detail");
+      },
+    }),
+    store,
+    {
+      authorizedActorIds: new Set(["actor_workshop_reviewer"]),
+      makeApprovalId: () => "approval_tool_failure_001",
+      now: () => "2026-08-04T10:00:00.000Z",
+    },
+  );
+  const [qualificationTool, draftTool, approvalTool] = buildTools(
+    runId,
+    "lead_ada",
+    store,
+    approvalService,
+  );
+  await executeTool(qualificationTool, { leadId: "lead_ada" });
+  const drafted = await executeTool(draftTool, {
+    leadId: "lead_ada",
+    angle: "An auditable support triage workflow",
+  });
+  const draft = (drafted.details as { draft: string | null }).draft;
+  assert.ok(draft);
+  const requested = await executeTool(approvalTool, { leadId: "lead_ada", draft });
+
+  assert.deepEqual(requested.details, {
+    created: false,
+    approval: null,
+    code: "storage_failure",
+  });
+  assert.deepEqual(
+    store.readRun(runId).map((event) => event.type),
+    [
+      "qualification.attempted",
+      "qualification.completed",
+      "domain.follow_up_drafted",
+      "approval.storage_failed",
+    ],
+  );
+  assert.doesNotMatch(JSON.stringify(store.readRun(runId)), /sensitive|Hi Ada/);
+});
+
+test("tool event-read failures return typed refusals without durable approval", async () => {
+  for (const mode of ["draft", "approval"] as const) {
+    const { runId, store, approvalService } = createStore();
+    let readCalls = 0;
+    const flakyStore = {
+      append: (input: Parameters<JsonlEventStore["append"]>[0]) => store.append(input),
+      readRun: (requestedRunId: string) => {
+        readCalls += 1;
+        const failureRead = mode === "draft" ? 1 : 3;
+        if (readCalls === failureRead) throw null;
+        return store.readRun(requestedRunId);
+      },
+    };
+    const [qualificationTool, draftTool, approvalTool] = buildTools(
+      runId,
+      "lead_ada",
+      flakyStore,
+      approvalService,
+    );
+    await executeTool(qualificationTool, { leadId: "lead_ada" });
+    const drafted = await executeTool(draftTool, {
+      leadId: "lead_ada",
+      angle: "An auditable support triage workflow",
+    });
+
+    if (mode === "draft") {
+      assert.deepEqual(drafted.details, {
+        created: false,
+        draft: null,
+        draftId: null,
+        sha256: null,
+        code: "storage_failure",
+      });
+    } else {
+      const draft = (drafted.details as { draft: string | null }).draft;
+      assert.ok(draft);
+      const requested = await executeTool(approvalTool, { leadId: "lead_ada", draft });
+      assert.deepEqual(requested.details, {
+        created: false,
+        approval: null,
+        code: "storage_failure",
+      });
+    }
+    assert.deepEqual(approvalService.listRun(runId), { ok: true, value: [] });
+  }
 });
 
 test("corrupt terminal event data cannot become qualification truth", () => {

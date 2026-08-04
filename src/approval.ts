@@ -464,6 +464,9 @@ export type ApprovalStore = {
 
 const approvalStorageRecordValidator = Schema.Compile(ApprovalStorageRecordSchema);
 const approvalEventDataValidator = Schema.Compile(ApprovalEventDataSchema);
+const approvalStoreWriteOutcomeValidator = Schema.Compile(ApprovalStoreWriteOutcomeSchema);
+const approvalStoreReadOutcomeValidator = Schema.Compile(ApprovalStoreReadOutcomeSchema);
+const approvalStoreListOutcomeValidator = Schema.Compile(ApprovalStoreListOutcomeSchema);
 
 export function isApprovalStorageRecord(value: unknown): value is ApprovalStorageRecord {
   if (!approvalStorageRecordValidator.Check(value)) return false;
@@ -491,6 +494,21 @@ export function isApprovalEventData(value: unknown): value is ApprovalEventData 
   return true;
 }
 
+export function isApprovalStoreWriteOutcome(value: unknown): value is ApprovalStoreWriteOutcome {
+  if (!approvalStoreWriteOutcomeValidator.Check(value)) return false;
+  return !value.ok || isApprovalRecord(value.value);
+}
+
+export function isApprovalStoreReadOutcome(value: unknown): value is ApprovalStoreReadOutcome {
+  if (!approvalStoreReadOutcomeValidator.Check(value)) return false;
+  return !value.ok || value.value === null || isApprovalRecord(value.value);
+}
+
+export function isApprovalStoreListOutcome(value: unknown): value is ApprovalStoreListOutcome {
+  if (!approvalStoreListOutcomeValidator.Check(value)) return false;
+  return !value.ok || value.value.every(isApprovalRecord);
+}
+
 export const ApprovalRequestInputSchema = Type.Object(
   {
     runId: RunIdSchema,
@@ -510,6 +528,10 @@ export type ApprovalCreationOptions = {
 };
 
 const approvalRequestInputValidator = Schema.Compile(ApprovalRequestInputSchema);
+
+export function isApprovalRequestInput(value: unknown): value is ApprovalRequestInput {
+  return approvalRequestInputValidator.Check(value);
+}
 
 export function createPendingApproval(
   input: unknown,

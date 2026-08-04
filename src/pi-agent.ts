@@ -6,6 +6,9 @@ import {
   SessionManager,
 } from "@earendil-works/pi-coding-agent";
 import { resolve } from "node:path";
+import { isApprovalRecord, type ApprovalRecord } from "./approval.js";
+import { ApprovalService } from "./approval-service.js";
+import { FileApprovalStore } from "./approval-store.js";
 import { JsonlEventStore, type AgentEvent } from "./event-store.js";
 import type { QualificationOutcome } from "./qualification.js";
 import { buildTools, qualificationOutcomeFromEvents } from "./tools.js";
@@ -15,6 +18,8 @@ export const PRODUCTION_TOOL_NAMES = Object.freeze([
   "draft_follow_up",
   "request_send_approval",
 ] as const);
+
+export const WORKSHOP_APPROVAL_ACTOR_IDS = Object.freeze(["actor_workshop_reviewer"] as const);
 
 const SYSTEM_PROMPT = `You are a bounded lead-operations agent.
 
@@ -64,11 +69,17 @@ export type RunResult = {
   qualification: QualificationOutcome;
 };
 
-export type RunStopReason = "approval_pending" | "not_found" | "qualification_failed" | "completed";
+export type RunStopReason =
+  | "approval_pending"
+  | "approval_failed"
+  | "not_found"
+  | "qualification_failed"
+  | "completed";
 
 export function deriveRunStopReason(
   events: readonly AgentEvent[],
   requestedLeadId: string,
+  approvalInput: unknown,
 ): RunStopReason {
   const qualification = qualificationOutcomeFromEvents(events, requestedLeadId);
   if (!qualification) return "qualification_failed";
@@ -84,15 +95,26 @@ export function deriveRunStopReason(
       break;
     }
   }
-  const approvalPending = events
-    .slice(qualificationTerminalIndex + 1)
-    .some(
-      (event) =>
-        event.type === "approval.requested" &&
-        event.data.status === "pending" &&
-        event.data.leadId === qualification.value.leadId,
-    );
-  return approvalPending ? "approval_pending" : "completed";
+  const qualificationTerminal = events[qualificationTerminalIndex];
+  if (!qualificationTerminal || !Array.isArray(approvalInput)) return "approval_failed";
+  if (!approvalInput.every(isApprovalRecord)) return "approval_failed";
+
+  const qualificationAt = Date.parse(qualificationTerminal.at);
+  if (!Number.isFinite(qualificationAt)) return "approval_failed";
+  const approvals = approvalInput as ApprovalRecord[];
+  const exact = approvals.filter(
+    (approval) =>
+      approval.runId === qualificationTerminal.runId &&
+      approval.target.leadId === qualification.value.leadId &&
+      Date.parse(approval.requestedAt) >= qualificationAt,
+  );
+  if (exact.length === 0) return "approval_failed";
+  const latestAt = Math.max(...exact.map((approval) => Date.parse(approval.requestedAt)));
+  const latest = exact.filter((approval) => Date.parse(approval.requestedAt) === latestAt);
+  if (latest.length !== 1) return "approval_failed";
+  const current = latest[0];
+  if (!current) return "approval_failed";
+  return current.status === "pending" ? "approval_pending" : "completed";
 }
 
 export function qualificationRunOutput(
@@ -106,7 +128,12 @@ export async function runLeadAgent(leadId: string): Promise<RunResult> {
   const runId = crypto.randomUUID();
   const cwd = process.cwd();
   const eventPath = resolve(process.env.EVENT_LOG_PATH ?? "./data/events.jsonl");
+  const approvalPath = resolve(process.env.APPROVAL_LOG_PATH ?? "./data/approvals.jsonl");
   const store = new JsonlEventStore(eventPath);
+  const approvalStore = new FileApprovalStore(approvalPath);
+  const approvalService = new ApprovalService(approvalStore, store, {
+    authorizedActorIds: new Set(WORKSHOP_APPROVAL_ACTOR_IDS),
+  });
 
   store.append({
     runId,
@@ -122,7 +149,7 @@ export async function runLeadAgent(leadId: string): Promise<RunResult> {
   await resourceLoader.reload();
 
   const modelRuntime = await ModelRuntime.create();
-  const tools = buildTools(runId, leadId, store);
+  const tools = buildTools(runId, leadId, store, approvalService);
   const { session } = await createAgentSession({
     cwd,
     modelRuntime,
@@ -150,7 +177,11 @@ export async function runLeadAgent(leadId: string): Promise<RunResult> {
     if (!qualification) {
       throw new Error("Qualification tool produced no valid terminal evidence.");
     }
-    const stopReason = deriveRunStopReason(events, leadId);
+    const approvalProjection = approvalService.listRun(runId);
+    if (!approvalProjection.ok) {
+      throw new Error("Approval projection is unavailable.");
+    }
+    const stopReason = deriveRunStopReason(events, leadId, approvalProjection.value);
     const output = qualificationRunOutput(
       qualification,
       finalAssistantText(session.agent.state.messages),

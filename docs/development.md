@@ -33,9 +33,11 @@ are not needed for it.
 - Keep HTTP parsing and response mapping in `src/server.ts`.
 - Keep Pi session orchestration and visible run projection in `src/pi-agent.ts`.
 - Keep custom tool execution and event gates in `src/tools.ts`.
+- Keep approval policy in `src/approval-service.ts`, approval domain rules in
+  `src/approval.ts`, and file projection in `src/approval-store.ts`.
 - Keep deterministic qualification independent of Pi and HTTP in
   `src/qualification.ts`.
-- Keep append-only storage behind `src/event-store.ts`.
+- Keep operational append-only evidence behind `src/event-store.ts`.
 
 Local imports use `.js` specifiers for NodeNext ESM. Treat all external input,
 model output, tool arguments, dependency records, and persisted events as
@@ -60,9 +62,12 @@ Run `npm run format` after a formatting failure, then rerun `npm run verify`.
 
 ## Runtime Data
 
-`EVENT_LOG_PATH` defaults to `./data/events.jsonl`. Runtime event files,
-provider state, secrets, and build output are ignored and must not be committed.
-Use only synthetic fixtures until the documented data-lifecycle gates pass.
+`EVENT_LOG_PATH` defaults to `./data/events.jsonl`; `APPROVAL_LOG_PATH` defaults
+to `./data/approvals.jsonl`. Runtime event/approval files, provider state,
+secrets, and build output are ignored and must not be committed. Approval
+records contain exact full synthetic drafts, while operational events do not.
+Use only synthetic fixtures and follow the manual 30-day-or-teardown whole-file
+retention/deletion rule in [Environments](./environments.md).
 
 ## CI
 

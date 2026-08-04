@@ -10,6 +10,11 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Added
 
+- Added an application-owned durable approval service with authorized internal
+  decisions, exact restart projection, minimized lifecycle events, event-outage
+  recovery, and deterministic request/decision failure coverage.
+- Added configured `APPROVAL_LOG_PATH` persistence plus explicit synthetic
+  retention, redaction, export, deletion, and real-data prohibition rules.
 - Added a replaceable append-only approval store with flush-before-success
   writes, deterministic restart projection, duplicate protection, and visible
   corruption, truncation, ordering, and injected I/O failure behavior.
@@ -25,14 +30,19 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Changed
 
+- Bound Pi approval requests to the latest exact application-produced draft,
+  removed full draft content from operational events, and derived run approval
+  status exclusively from validated durable projection state.
+- Preserved the exact three-tool production allowlist with no Pi/HTTP decision
+  or send capability while adding explicit `approval_failed` run status.
 - Advanced spec workflow tracking to Phase 01 and synchronized the master PRD and project TODO with the bounded Week 2 session split.
 - Renamed the completed log to `docs/build-log-week1.md` and focused it exclusively on evidence required by Task `00` system mapping and Task `01` qualification, removing repeated workflow handoffs, review bookkeeping, and unrelated phase-transition checks.
 - Added formatting commands and made the full verification command enforce a clean formatting check before strict types, tests, and evals.
 - Validated the new Code Quality workflow and GitHub-managed CodeQL against the exact pushed transition commit with no open PR or review blocker.
 - Re-synthesized the living considerations and security/compliance records from every Phase 00 summary, archived plan, implementation discovery log, session security report, and known transition exception.
 - Updated the root README and master PRD from the pre-qualification four-test baseline to the completed Phase 00 tool, event, test, CI, container-health, and no-send boundary.
-- Synchronized current-version documentation with the `0.1.16` Session 02
-  closeout bump and the 70-test deterministic baseline.
+- Synchronized current-version documentation with the `0.1.17` Session 03
+  closeout bump and the 93-test deterministic baseline.
 
 ## [0.1.11] - 2026-08-04
 

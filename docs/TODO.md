@@ -10,14 +10,14 @@ Track planned documentation and implementation work here.
   - [x] Session 03 - Qualification Tool Integration
 
 The ordered scope and acceptance evidence remain authoritative in
-[`docs/todo/README_todo.md`](todo/README_todo.md) and tasks `00` and `01`.
+[`docs/todo/README_todo.md`](todo/README_todo.md) and its linked task contracts.
 
 ## Active Phase
 
 - [ ] Phase 01 - Durable Approval and Safe Write (Week 2)
   - [x] Session 01 - Approval Contract and Transitions
   - [x] Session 02 - Approval Store and Projection
-  - [ ] Session 03 - Durable Approval Integration
+  - [x] Session 03 - Durable Approval Integration
   - [ ] Session 04 - Fake Send Contract and Authorization
   - [ ] Session 05 - Idempotent Fake Send Execution
   - [ ] Session 06 - Safe Write Integration and Evidence

@@ -13,7 +13,8 @@ append-only event evidence, a Docker image, and an explicit human stop.
 
 Given one exact synthetic `leadId`, the current application validates a typed
 qualification, permits a deterministic draft only after matching successful
-evidence, creates a pending approval record, and stops without sending.
+evidence, durably creates the exact pending approval record, derives stop state
+from its projection, and stops without sending.
 
 ```mermaid
 flowchart LR
@@ -22,11 +23,14 @@ flowchart LR
     Pi --> Q[qualify_lead]
     Q -->|validated success| D[draft_follow_up]
     D --> A[request_send_approval]
+    A --> Service[Approval service]
+    Service --> Approvals[(Approval JSONL projection)]
     Q --> Events[(Append-only JSONL events)]
     D --> Events
-    A --> Events
+    Service --> Events
     Events --> Result[RunResult with qualification and stopReason]
-    A -->|pending only| Stop[Human stop - no send]
+    Approvals --> Result
+    Service -->|pending only| Stop[Human stop - no send]
 ```
 
 The frozen production allowlist contains exactly:
@@ -48,7 +52,7 @@ Requirements:
 - Git
 
 Install the locked dependencies, then run the one command that checks
-formatting, strict types, all 70 deterministic tests, and all five evals:
+formatting, strict types, all 93 deterministic tests, and all five evals:
 
 ```bash
 npm ci
@@ -130,11 +134,12 @@ map.
 
 ## Project Status And Safety
 
-Phase 00 is complete: Tasks `00` and `01` have validated architecture and
-qualification evidence. The remaining ordered tasks are planned work, not
+Phase 00 is complete, and Phase 01 now has a durable approval request/decision
+application boundary under active review. Remaining ordered tasks are not
 implemented behavior. In particular:
 
-- approval decisions and restart-safe transitions are not durable;
+- approval decisions are internal only; there is no public authenticated
+  decision endpoint;
 - no fake or real external-write adapter exists;
 - whole-run recovery, production eval gates, and incident operations remain open;
 - `/runs` has no caller authentication, authorization, tenant isolation, or
@@ -146,8 +151,8 @@ The cumulative source of truth is the
 
 ## Docker And Coolify
 
-The Docker image exposes port 3000, stores events under `/app/data`, and has a
-container health probe for `/health`. The image and probe pass local validation;
+The Docker image exposes port 3000, stores event and approval files under
+`/app/data`, and has a container health probe for `/health`. The image and probe pass local validation;
 production Coolify health, persistence, restore, and rollback remain unproved.
 Use the [deployment guide](./docs/deployment.md) for the verified local boundary
 and the remaining external decisions.
@@ -172,7 +177,7 @@ These require separate authorization after the ordered workshop path:
 
 Releases follow [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 and the repository [versioning policy](./docs/VERSIONING.md). The project is
-currently version 0.1.16; user-visible changes are recorded in the
+currently version 0.1.17; user-visible changes are recorded in the
 [changelog](./docs/CHANGELOG.md).
 
 ## Official Pi References

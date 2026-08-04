@@ -19,4 +19,6 @@ test("send request is an approval record, not a send", () => {
   assert.equal(approval.action, "send_follow_up");
   assert.equal(approval.status, "pending");
   assert.ok(approval.approvalId);
+  assert.equal(approval.target.leadId, "lead_ada");
+  assert.equal(approval.draft.content, "This is a long enough draft.");
 });

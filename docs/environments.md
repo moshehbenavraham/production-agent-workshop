@@ -18,6 +18,7 @@ owner. Those are external deployment decisions.
 |----------|----------|---------|---------|----------|
 | `PORT` | No | `3000` | HTTP listen port | Non-secret configuration |
 | `EVENT_LOG_PATH` | No | `./data/events.jsonl` | Append-only event file | Mount persistent storage in a container |
+| `APPROVAL_LOG_PATH` | No | `./data/approvals.jsonl` | Authoritative append-only approval records | Mount persistent storage; contains full synthetic drafts |
 | `OPENAI_API_KEY` | Provider-dependent | None | Optional supported provider auth | Secret; inject outside repository |
 | `ANTHROPIC_API_KEY` | Provider-dependent | None | Optional supported provider auth | Secret; inject outside repository |
 
@@ -31,11 +32,21 @@ images, documentation, or screenshots.
 ## Data Rules By Environment
 
 - Use only the committed synthetic lead identifiers in every current environment.
-- Local event evidence defaults to `./data/events.jsonl`.
-- The image sets `EVENT_LOG_PATH=/app/data/events.jsonl` and declares
-  `/app/data` as a volume.
-- Retention, backup, restore, export, erasure, data location, and subprocessors
-  are not approved for real data.
+- Local event and approval evidence defaults to `./data/events.jsonl` and
+  `./data/approvals.jsonl`.
+- The image sets both paths under `/app/data` and declares that directory as a
+  volume. Approval files are created with mode `0600`.
+- Synthetic approval files are retained for at most 30 days or until the
+  environment is torn down, whichever occurs first. This is a manual operator
+  rule; no automated expiry exists.
+- Operational events exclude full drafts. Approval request records retain the
+  exact synthetic target, draft ID/hash/content, and request time; decision
+  records retain actor, decision, and time.
+- Export is a controlled offline copy of the exact configured files while the
+  service is stopped. There is no public export endpoint.
+- Deletion is a whole-file synthetic environment reset after the service stops;
+  append-only records are never edited in place. Per-record erasure, backup,
+  restore, data location, and subprocessors are not approved for real data.
 - `/runs` must remain private or otherwise controlled because authentication,
   authorization, tenant isolation, and rate limiting are not implemented.
 

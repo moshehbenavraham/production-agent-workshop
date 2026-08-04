@@ -22,9 +22,10 @@ synthetic draft ID/content/SHA-256, request time, and null decision. Approved an
 declined are mutually exclusive terminal variants with minimized actor ID and
 decision time.
 
-This first slice performs no file I/O, Pi/HTTP integration, or external effect.
-The replaceable store contract exists, but its file-backed implementation and
-restart evidence belong to the next Phase 01 session.
+`src/approval-service.ts` now integrates this domain with the replaceable file
+store and minimized operational events. Pi can request the exact current draft
+but has no approve/decline operation; decisions remain internal application
+calls. There is still no public decision endpoint or external effect.
 
 ### Approval State Diagram
 
@@ -39,7 +40,7 @@ stateDiagram-v2
     Declined --> Declined: duplicate returns original state
     Approved --> Refused: conflicting decline returns original approved state
     Declined --> Refused: conflicting approval returns original declined state
-    Pending --> StorageFailure: future store adapter failure
+    Pending --> StorageFailure: approval or event storage failure
     StorageFailure --> [*]: visible typed failure, no inferred state
     Approved --> [*]
     Declined --> [*]
@@ -47,8 +48,8 @@ stateDiagram-v2
 ```
 
 Source: `ApprovalRecordSchema`, `createPendingApproval`, and
-`transitionApproval` in `src/approval.ts`, exercised by
-`tests/approval.test.ts`.
+`transitionApproval` in `src/approval.ts`; `FileApprovalStore`; and
+`ApprovalService`, exercised by approval domain/store/service and tool tests.
 
 ### Storage Contract
 
@@ -69,8 +70,8 @@ pending record; a decision line retains only record identity, recording time,
 approval/run identity, and minimized decision metadata. The adapter opens in
 append mode, writes one complete line, calls `fsync`, closes in `finally`, and
 rebuilds from disk before returning success. It holds no authoritative current-
-state cache. Session 03 selects the configured runtime approval path when it
-integrates the store.
+state cache. Runtime composition selects `APPROVAL_LOG_PATH`, defaulting to
+`./data/approvals.jsonl` locally and `/app/data/approvals.jsonl` in the image.
 
 ### Transition Event Examples
 
@@ -86,7 +87,9 @@ The closed `ApprovalEventDataSchema` permits minimized synthetic data such as:
 
 The surrounding `AgentEvent` supplies the original `runId`; full draft content,
 credentials, raw exceptions, and unrelated lead data are rejected as extra
-event properties. Event emission is not integrated in this session.
+event properties. `ApprovalService` emits these events after authoritative state
+mutation and recovers a missing request/terminal event from durable state on a
+retry without appending another transition.
 
 ### Restart Proof
 
@@ -96,19 +99,39 @@ Command:
 node --import tsx --test tests/approval-store.test.ts
 ```
 
-Observed result: 11/11 tests pass. A first store appends pending then terminal
-records; separately constructed instances read the same file and rebuild exact
+Observed result: 13/13 adapter tests pass. A first store appends pending then
+terminal records; separately constructed instances read the same file and rebuild exact
 pending, approved, and declined objects. The tests also inspect durable line
 counts: one request plus one terminal decision remains exactly two lines after
-an identical retry. No raw conversation or in-memory cache participates.
+an identical retry. The 11-test service suite and cross-layer tool test construct
+new service/store instances for pending and terminal views and preserve the same
+two-line result. No raw conversation or in-memory cache grants state.
 
 ### Data-Lifecycle Decision
 
-Current scope is synthetic only. The closed record identifies exactly which
-approval, actor, target, and draft fields a later adapter may persist; the
-operational event schema excludes full drafts. Retention, export, and deletion
-operations remain unimplemented until Session 03 records the complete Task 02
-data-lifecycle decision. Real personal data remains prohibited.
+Current scope is synthetic only. A request line retains storage record ID/time,
+approval/run/action, target kind/lead ID, draft ID/SHA-256/full content, pending
+status, request time, and null decision. A terminal line retains storage record
+ID/time, approval/run identity, actor ID, decision, and decision time.
+Operational qualification/draft/approval events contain only the identifiers,
+hashes, finite states, and canonical error codes defined by their schemas.
+
+- **Retention**: keep synthetic approval/event files for at most 30 days or
+  until environment teardown, whichever occurs first. This is a manual rule;
+  no expiry scheduler exists.
+- **Redaction**: never edit append-only lines in place. Share minimized event
+  evidence by default; the approval file remains restricted because it contains
+  the exact synthetic draft.
+- **Export**: only an authorized operator may make a controlled offline copy of
+  the exact configured files while the service is stopped. There is no public
+  export API.
+- **Deletion**: stop the service and delete the whole exact synthetic data file
+  during reset/expiry, then verify it is absent. Individual-record erasure is
+  unsupported because it would break append-only evidence.
+
+There is no backup/restore drill, per-record erasure, consent, tenant, or real-
+data governance. Real personal/customer data remains prohibited until those
+controls are designed and validated.
 
 ### Exercised Failure and Recovery
 
@@ -117,11 +140,13 @@ data-lifecycle decision. Real personal data remains prohibited.
 | Missing approval | `approval_not_found` | None |
 | Malformed decision | `invalid_decision` | None |
 | Unknown actor | `unknown_actor` | None |
+| Duplicate request | `duplicate_request` | No second request line |
 | Run or approval mismatch | `approval_identity_mismatch` | None |
 | Same terminal decision | `duplicate` + original terminal record | None |
 | Opposite terminal decision | `conflict` + original terminal record | None |
 | Invalid current record | `invalid_approval_record` | None |
-| Storage failure | Closed `storage_failure` contract for Session 02 | No success may be inferred |
+| Storage failure | `storage_failure` plus minimized correlated event when writable | No success may be inferred |
+| Event outage after state append | `storage_failure`; retry repairs missing minimized event | No second state line |
 
 The pure transition tests exercise domain refusals without editing state. The
 file-store suite additionally writes invalid JSON, malformed schema data, and a
@@ -130,6 +155,12 @@ with no projection. Injected writer failure returns redacted `storage_failure`;
 a new store lookup proves no in-memory approval was created. Recovery is to
 repair the storage source through a later operator workflow, never to skip or
 silently truncate damaged evidence.
+
+The application-service suite additionally injects approval/event read/write,
+ID, and clock failures. A durable state append followed by an event outage
+returns visible failure; retry restores the missing minimized event from the
+record and preserves the one-request/one-decision line count. Unknown actors,
+malformed inputs, missing approvals, duplicates, and conflicts append no state.
 
 ### Verification Output
 
@@ -145,19 +176,28 @@ and npm 12.0.2:
   restart tests pass.
 - Session 02 `npm run verify` - formatting and strict types pass, 70/70
   deterministic tests pass, and 5/5 deterministic evals pass.
+- `npx tsx --test tests/approval-service.test.ts` - 11/11 service tests pass.
+- Selected service/tool/Pi integration gate - 39/39 tests and strict types pass.
+- Session 03 `npm run verify` - formatting and strict types pass, 86/86
+  deterministic tests pass, and 5/5 deterministic evals pass.
+- Session 03 `npm audit --audit-level=low` - 0 vulnerabilities; targeted
+  credential, network/process, data, Pi/HTTP permission, and whitespace scans pass.
+- Post-review Session 03 gate - 93/93 deterministic tests and 5/5 evals pass
+  after runtime adapter validation, failure canonicalization, and ordering repairs.
 
 ### Final Diff Review and Remaining Risk
 
-Session 01 adds no Pi tool, allowlist change, HTTP route, provider credential,
-or external effect. Session 02 adds one replaceable file adapter but no runtime
-path selection, Pi integration, application service, network access, or public
-operation. Synthetic full draft content is confined to the approval record;
-operational event contracts remain minimized.
+Sessions 01-03 add no Pi allowlist entry, HTTP decision route, provider
+credential, network access, or external effect. Session 03 selects the
+configured approval path, delegates exact requests to application state, keeps
+decisions internal, minimizes events, and derives stop truth from projection.
+Synthetic full draft content is confined to the approval record.
 
-Remaining Task `02` risk is explicit: this is a single-process append-only
-workshop adapter without inter-process locking or operator repair automation.
-Session 03 must select its configured persistent path and integrate requests,
-decisions, and minimized event evidence before durable approval is complete.
+Remaining Task `02` risks are explicit: the adapter is single-process; audit and
+state files do not share an atomic transaction; damaged-file repair is manual;
+the 30-day retention rule is manual; and no per-record erasure, backup/restore,
+public actor authentication, or tenant boundary exists. These restrictions keep
+real data and public decision operations prohibited.
 
 ## Task 03 - Add an Idempotent Send Boundary
 

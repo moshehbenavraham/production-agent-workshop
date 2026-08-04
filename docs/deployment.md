@@ -67,8 +67,10 @@ When deployment is separately authorized, the repository evidence requires:
 
 1. Build from the included `Dockerfile` and a verified revision.
 2. Inject provider credentials only as Coolify secrets.
-3. Set `EVENT_LOG_PATH=/app/data/events.jsonl`.
-4. Mount persistent storage at `/app/data`.
+3. Set `EVENT_LOG_PATH=/app/data/events.jsonl` and
+   `APPROVAL_LOG_PATH=/app/data/approvals.jsonl`.
+4. Mount persistent storage at `/app/data` and verify both configured files
+   survive a controlled container replacement before claiming persistence.
 5. Expose container port 3000.
 6. Confirm the Docker health probe and verify `/health` over the assigned HTTPS URL.
 7. Keep `/runs` controlled until authentication, authorization, tenant,
@@ -81,9 +83,10 @@ decisions and are not stored in this repository.
 ## Persistence And Backup
 
 The container declares `/app/data`, but a volume declaration is not backup or
-restore evidence. There is no configured backup schedule, external storage,
-retention policy, restore drill, or real-data erasure path. Keep data synthetic
-until those controls are implemented and validated.
+restore evidence. The only current retention/deletion control is the manual
+synthetic 30-day-or-teardown whole-file rule. There is no configured backup
+schedule, external storage, restore drill, or per-record real-data erasure path.
+Keep data synthetic until those controls are implemented and validated.
 
 ## Release And Rollback
 
