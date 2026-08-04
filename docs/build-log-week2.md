@@ -23,33 +23,55 @@ declined are mutually exclusive terminal variants with minimized actor ID and
 decision time.
 
 `src/approval-service.ts` now integrates this domain with the replaceable file
-store and minimized operational events. Pi can request the exact current draft
-but has no approve/decline operation; decisions remain internal application
-calls. There is still no public decision endpoint or external effect.
+store and minimized operational events. Pi can request approval for the exact
+current draft but has no approve/decline operation; decisions remain internal
+application calls. There is still no public decision endpoint or external effect.
+
+The Task `02` state concerns remain separate:
+
+| Concern | Current owner | Authority |
+|---------|---------------|-----------|
+| Working context | Per-run Pi/tool memory | Temporary only; never grants approval |
+| Durable state | `ApprovalStore` records | Authoritative approval facts |
+| Event log | `AgentEvent` approval events | Operational evidence, not authorization |
+| Projection | `projectApprovalRecords` / store reads | Current view rebuilt from durable records |
 
 ### Approval State Diagram
 
 ```mermaid
 stateDiagram-v2
     [*] --> Pending: createPendingApproval(valid exact input)
-    [*] --> Refused: invalid request
-    Pending --> Approved: authorized approved decision
-    Pending --> Declined: authorized declined decision
-    Pending --> Refused: malformed / missing / identity mismatch / unknown actor
-    Approved --> Approved: duplicate returns original state
-    Declined --> Declined: duplicate returns original state
-    Approved --> Refused: conflicting decline returns original approved state
-    Declined --> Refused: conflicting approval returns original declined state
-    Pending --> StorageFailure: approval or event storage failure
-    StorageFailure --> [*]: visible typed failure, no inferred state
+    Pending --> Approved: authorized approve + durable append
+    Pending --> Declined: authorized decline + durable append
     Approved --> [*]
     Declined --> [*]
-    Refused --> [*]
+
+    note right of Pending
+      Invalid request, missing approval, identity mismatch,
+      unknown actor, and pre-write storage failure do not
+      change approval state.
+    end note
+
+    note right of Approved
+      Same decision returns duplicate + original.
+      Opposite decision returns conflict + original.
+      Neither appends another decision record.
+    end note
+
+    note right of Declined
+      Same decision returns duplicate + original.
+      Opposite decision returns conflict + original.
+      Neither appends another decision record.
+    end note
 ```
 
 Source: `ApprovalRecordSchema`, `createPendingApproval`, and
 `transitionApproval` in `src/approval.ts`; `FileApprovalStore`; and
 `ApprovalService`, exercised by approval domain/store/service and tool tests.
+An operational-event failure after a successful state append does not create a
+fourth state or roll back durable truth. The service returns a visible storage
+failure, and an exact retry repairs the missing event without another state
+record.
 
 ### Storage Contract
 
@@ -61,16 +83,18 @@ record crossing.
 
 The replaceable `ApprovalStore` contract exposes `appendRequest`,
 `appendDecision`, `get`, and `listRun`, each returning a discriminated typed
-outcome. `ApprovalStorageRecordSchema` permits only one pending request record
-or one matching approved/declined decision record.
+outcome. `ApprovalStorageRecordSchema` defines the closed request and terminal
+decision line shapes; `projectApprovalRecords` enforces one request followed by
+at most one matching approved or declined decision for an approval.
 
 `FileApprovalStore` in `src/approval-store.ts` stores one closed record per LF-
 terminated JSONL line at its injected path. A request line retains the exact
 pending record; a decision line retains only record identity, recording time,
 approval/run identity, and minimized decision metadata. The adapter opens in
-append mode, writes one complete line, calls `fsync`, closes in `finally`, and
-rebuilds from disk before returning success. It holds no authoritative current-
-state cache. Runtime composition selects `APPROVAL_LOG_PATH`, defaulting to
+append mode with `0600` mode when creating the file, writes one complete line,
+calls `fsync`, closes in `finally`, and rebuilds from disk before returning
+success. It holds no authoritative current-state cache. Runtime composition
+selects `APPROVAL_LOG_PATH`, defaulting to
 `./data/approvals.jsonl` locally and `/app/data/approvals.jsonl` in the image.
 
 ### Transition Event Examples
@@ -80,7 +104,10 @@ The closed `ApprovalEventDataSchema` permits minimized synthetic data such as:
 ```json
 {"eventType":"approval.requested","approvalId":"approval_test_001","action":"send_follow_up","targetKind":"lead","leadId":"lead_ada","draftId":"draft_test_001","status":"pending"}
 {"eventType":"approval.approved","approvalId":"approval_test_001","actorId":"actor_reviewer","status":"approved"}
+{"eventType":"approval.declined","approvalId":"approval_test_002","actorId":"actor_reviewer","status":"declined"}
 {"eventType":"approval.decision_duplicate","approvalId":"approval_test_001","actorId":"actor_reviewer","requestedDecision":"approved","status":"approved"}
+{"eventType":"approval.decision_conflict","approvalId":"approval_test_001","actorId":"actor_reviewer","requestedDecision":"declined","status":"approved"}
+{"eventType":"approval.invalid","approvalId":"approval_test_001","operation":"request","code":"duplicate_request"}
 {"eventType":"approval.invalid","approvalId":"approval_test_001","operation":"decision","code":"unknown_actor"}
 {"eventType":"approval.storage_failed","approvalId":"approval_test_001","operation":"decision","code":"storage_failure"}
 ```
@@ -91,6 +118,13 @@ event properties. `ApprovalService` emits these events after authoritative state
 mutation and recovers a missing request/terminal event from durable state on a
 retry without appending another transition.
 
+A repeated decision does append a minimized
+`approval.decision_duplicate` or `approval.decision_conflict` attempt event.
+It does not append another `approval.approved`/`approval.declined` terminal
+event, approval decision record, or effect. This distinction reconciles the
+Task `02` requirement to observe duplicate attempts with its prohibition on
+duplicate transitions and effects.
+
 ### Restart Proof
 
 Command:
@@ -100,12 +134,13 @@ node --import tsx --test tests/approval-store.test.ts
 ```
 
 Observed result: 13/13 adapter tests pass. A first store appends pending then
-terminal records; separately constructed instances read the same file and rebuild exact
-pending, approved, and declined objects. The tests also inspect durable line
-counts: one request plus one terminal decision remains exactly two lines after
-an identical retry. The 11-test service suite and cross-layer tool test construct
-new service/store instances for pending and terminal views and preserve the same
-two-line result. No raw conversation or in-memory cache grants state.
+terminal records; separately constructed instances read the same file and
+rebuild exact pending, approved, and declined objects. The tests also inspect
+durable line counts: one request plus one terminal decision remains exactly two
+lines after an identical retry. The current 16-test service suite also
+constructs new service/store instances for pending and terminal views and
+preserves the same two-line result while exercising event-repair and hostile
+dependency outcomes. No raw conversation or in-memory cache grants state.
 
 ### Data-Lifecycle Decision
 
@@ -164,26 +199,19 @@ malformed inputs, missing approvals, duplicates, and conflicts append no state.
 
 ### Verification Output
 
-Session 01 contract and Session 02 storage verification under Node.js 24.15.0
-and npm 12.0.2:
+Current revalidation under Node.js 24.15.0 and npm 12.0.2:
 
-- `node --import tsx --test tests/approval.test.ts` - 17/17 focused tests pass.
-- `npm run verify` - formatting and strict types pass, 57/57 deterministic
-  tests pass, and 5/5 deterministic evals pass.
-- `npm audit --audit-level=low` - 0 vulnerabilities.
-- Targeted permission, credential, ASCII/LF, and `git diff --check` scans pass.
-- `npx tsx --test tests/approval-store.test.ts` - 13/13 focused adapter and
+- `node --import tsx --test tests/approval.test.ts` - 17/17 domain tests pass.
+- `node --import tsx --test tests/approval-store.test.ts` - 13/13 adapter and
   restart tests pass.
-- Session 02 `npm run verify` - formatting and strict types pass, 70/70
-  deterministic tests pass, and 5/5 deterministic evals pass.
-- `npx tsx --test tests/approval-service.test.ts` - 11/11 service tests pass.
-- Selected service/tool/Pi integration gate - 39/39 tests and strict types pass.
-- Session 03 `npm run verify` - formatting and strict types pass, 86/86
-  deterministic tests pass, and 5/5 deterministic evals pass.
-- Session 03 `npm audit --audit-level=low` - 0 vulnerabilities; targeted
-  credential, network/process, data, Pi/HTTP permission, and whitespace scans pass.
-- Post-review Session 03 gate - 93/93 deterministic tests and 5/5 evals pass
-  after runtime adapter validation, failure canonicalization, and ordering repairs.
+- `node --import tsx --test tests/approval-service.test.ts` - 16/16 service,
+  event-repair, and replaceable-boundary tests pass.
+- The combined Task `02` focused command over those three files passes 46/46.
+- `npm run verify` - formatting, linting, strict types, 156/156 deterministic
+  tests, and 5/5 deterministic evals pass.
+- `npm audit --audit-level=low` - 0 vulnerabilities.
+- Targeted permission, credential, network/process, data, ASCII/LF, and
+  `git diff --check` scans pass.
 
 ### Final Diff Review and Remaining Risk
 
@@ -193,11 +221,11 @@ configured approval path, delegates exact requests to application state, keeps
 decisions internal, minimizes events, and derives stop truth from projection.
 Synthetic full draft content is confined to the approval record.
 
-Remaining Task `02` risks are explicit: the adapter is single-process; audit and
-state files do not share an atomic transaction; damaged-file repair is manual;
-the 30-day retention rule is manual; and no per-record erasure, backup/restore,
-public actor authentication, or tenant boundary exists. These restrictions keep
-real data and public decision operations prohibited.
+Remaining Task `02` risks are explicit: the adapter is single-process; approval
+and event files do not share an atomic transaction; damaged-file repair and the
+30-day retention rule are manual; and no per-record erasure, backup/restore,
+public actor authentication, or tenant boundary exists. These restrictions
+keep real data and public decision operations prohibited.
 
 ## Task 03 - Add an Idempotent Send Boundary
 
@@ -217,13 +245,16 @@ boundary without exposing it to Pi or HTTP. Responsibilities are split as:
 - `src/fake-send-service.ts` - state/event/effect ordering, deadline, duplicate
   replay, and evidence recovery;
 - `src/fake-send-adapter.ts` - deterministic in-process fake adapter only;
-- `src/fake-send-execution.ts` - closed application outcome contract.
+- `src/fake-send-execution.ts` - closed application outcome contract;
 - `src/safe-write-application.ts` - shared approval/event/result composition,
   snapshotted actor permissions, and the explicit production exclusion decision.
 
-The service receives a previously validated exact approved action. It invokes no
-provider and performs no socket, DNS, HTTP, subprocess, or real message write.
-The production Pi allowlist remains exactly three request/read tools.
+The service receives a closed identity-only request and resolves the exact
+approved action through the authorizer before it can claim execution. It invokes
+no provider and performs no socket, DNS, HTTP, subprocess, or real message
+write. The production Pi allowlist remains exactly `qualify_lead`,
+`draft_follow_up`, and `request_send_approval`; none can decide approval or
+execute fake send.
 
 ```mermaid
 flowchart TD
@@ -232,7 +263,7 @@ flowchart TD
     W --> A[Authorize exact durable approval]
     A --> C{Durable claim}
     C -->|Completed| D[Recover terminal event and return original duplicate]
-    C -->|Reserved| I[In progress / indeterminate; no effect]
+    C -->|Reserved| I[In progress / indeterminate; no additional adapter call]
     C -->|New claim| E[Append minimized attempted event]
     E -->|Event failure| I
     E --> F[Invoke fake adapter once under 1000 ms deadline]
@@ -246,6 +277,17 @@ flowchart TD
 ```
 
 ### Write Contract
+
+The typed boundary is narrower than a provider-send API:
+
+| Contract surface | Implemented contract |
+|------------------|----------------------|
+| Request | Closed identity claims only: `approvalId`, `runId`, `actorId`, literal action, exact lead target, and `draftId`; caller content and provider fields are rejected |
+| Authorization | Actor permission is checked before approval lookup; executable target and draft are copied only from the exact durable approved record |
+| Adapter | `execute(command, AbortSignal)` returns only accepted, rejected, or downstream-failure outcomes; the application owns the default 1,000 ms timeout |
+| Durable result | Accepted, rejected, timed-out, or downstream-failure result with exact identity, duration, and `manual_review_required` compensation metadata |
+| Application outcome | First execution or duplicate wraps the exact durable result; reservation-only returns `execution_in_progress`; pre-effect refusals return canonical typed failures |
+| Operational evidence | Attempt, terminal, duplicate, permission-denied, and storage-failure events use closed minimized schemas; the outer event supplies `runId` |
 
 The identity-only request and immutable command rules from Session 04 remain
 unchanged. The application owns the full execution order:
@@ -275,11 +317,11 @@ compensation unsupported and `manual_review_required`.
 
 ### Permission And Outcome Table
 
-| Case | Implemented result | Adapter effects |
-|------|--------------------|-----------------|
+| Case | Implemented result | Adapter calls |
+|------|--------------------|---------------|
 | Exact approved first request | Durable reservation, one fake invocation, exact terminal result | 1 |
-| Completed duplicate/restart | Exact original result with `duplicate` kind | 0 additional |
-| Existing reservation only | `execution_in_progress`; indeterminate/manual review | 0 additional |
+| Completed duplicate/restart | Outer `duplicate` kind containing the exact original durable result | 0 additional |
+| Existing reservation only | `execution_in_progress`; prior effect is unknown and requires manual review | 0 additional |
 | Invalid/extra request | `invalid_request` | 0 |
 | Unauthorized actor | `permission_denied` before approval lookup + minimized event | 0 |
 | Missing approval | `approval_not_found` | 0 |
@@ -291,8 +333,8 @@ compensation unsupported and `manual_review_required`.
 | Adapter rejection | Durable `rejected` result and event | 1 |
 | Adapter throw/reject/malformed result | Durable redacted `downstream_failure` | 1 |
 | Adapter deadline | Abort signal + durable `timed_out`; late settlement ignored | 1 |
-| Completion-store failure after effect | Reservation remains indeterminate; storage failure | 1, never retried automatically |
-| Terminal-event failure | Durable result + storage-failure evidence; duplicate retry repairs terminal event | 1 |
+| Completion-store failure after adapter call | Reservation remains indeterminate; storage failure | 1, never retried automatically |
+| Terminal-event failure | Durable result + storage-failure evidence; duplicate retry repairs terminal event | 1 total |
 
 ### Idempotency Proof
 
@@ -304,8 +346,9 @@ Observed deterministic proof:
 
 - a first accepted execution writes exactly two result-file lines: reservation
   then terminal result;
-- a new store/service instance returns a deep-equal original result, leaves the
-  file at two lines, and calls a fresh adapter spy zero times;
+- a new store/service instance returns an outer `duplicate` outcome whose
+  `value` is the deep-equal original durable result, leaves the file at two
+  lines, and calls a fresh adapter spy zero times;
 - two concurrent calls in one Node process synchronously serialize at the file
   claim, producing one adapter call and one `execution_in_progress` response;
 - repeated exact completion is idempotent and adds no line; a different terminal
@@ -320,15 +363,28 @@ distributed or multi-process locking claim is made.
 
 ### Test Matrix
 
-| Suite | Tests | Covered behavior |
-|-------|------:|------------------|
-| `tests/fake-send.test.ts` | 16 | Closed authorization/adapter/result/execution contracts, semantic identity, stable key, permission order, zero-effect denials |
-| `tests/fake-send-store.test.ts` | 16 | Projection, restart, line counts, private mode, duplicate/in-progress, exact completion, corruption, interruption, I/O and metadata failures |
-| `tests/fake-send-service.test.ts` | 15 | First/duplicate/concurrent execution, all authorization denials, rejection/downstream/timeout/late paths, store/event outages, immutable replaceable boundaries, duplicate terminal evidence, and recovery |
-| `tests/safe-write-application.test.ts` | 9 | File-backed valid/missing/mismatch/pending/declined/timeout/duplicate/permission/rejected/downstream paths, actor snapshots, shared event domains, and production exclusion |
+| Required Task `03` path | Direct evidence | Observed outcome |
+|-------------------------|-----------------|------------------|
+| 1. Valid approved action | Service and file-backed application suites | One reservation, one adapter call, one durable accepted result |
+| 2. Missing required input | Contract and application suites | `invalid_request`; no result file or adapter call |
+| 3. Invalid or mismatched target | Authorizer and application suites | `approval_identity_mismatch`; no reservation or adapter call |
+| 4. Pending or declined approval | Authorizer and application suites | Distinct `approval_pending` / `approval_declined`; zero calls |
+| 5. Timeout | Service and application suites | One abort, durable `timed_out`, late settlement ignored |
+| 6. Duplicate request | Store, service, and restart application suites | Exact original durable result; zero additional calls or lines |
+| 7. Permission denied | Authorizer, service, and application suites | Denied before approval lookup; minimized event; zero calls |
+| 8. Downstream failure | Service and application suites | Durable canonical failure/result/event without raw detail |
 
-The combined Task `03` gate passes 56/56 tests. The complete repository passes
-149/149 deterministic tests plus five evals.
+Current suite totals:
+
+| Suite | Tests | Primary scope |
+|-------|------:|---------------|
+| `tests/fake-send.test.ts` | 16 | Closed contracts, authorization, semantic identity, stable key, and zero-call denials |
+| `tests/fake-send-store.test.ts` | 16 | Projection, restart, private mode, duplicates, corruption, interruption, and I/O failures |
+| `tests/fake-send-service.test.ts` | 15 | Execution order, concurrency, timeout, adapter/store/event failures, replay, and recovery |
+| `tests/safe-write-application.test.ts` | 9 | File-backed required paths, rejected adapter, actor snapshots, shared logs, and production exclusion |
+
+The combined Task `03` gate passes 56/56 tests. Current repository verification
+passes 156/156 deterministic tests plus five evals.
 
 ### File-Backed Vertical Slice Proof
 
@@ -345,8 +401,9 @@ Observed proof through actual temporary JSONL files:
 - the same shared run log contains approval and fake-send domains, and duplicate
   recovery ignores valid other-domain events while rejecting any malformed
   event that claims `fake_send.*`;
-- a new application instance on the same three paths returns the deep-equal
-  original with zero calls to its injected adapter and no third result line;
+- a new application instance on the same three paths returns a `duplicate`
+  outcome containing the deep-equal original result, with zero calls to its
+  injected adapter and no third result line;
 - missing input, target mismatch, pending/declined state, and permission denial
   create no result file and invoke no adapter;
 - timeout, rejection, throws, and malformed adapter output create one exact
@@ -361,6 +418,10 @@ data examples are:
 {"eventType":"fake_send.attempted","approvalId":"approval_test_001","idempotencyKey":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
 {"eventType":"fake_send.accepted","approvalId":"approval_test_001","idempotencyKey":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","durationMs":25,"outcome":"accepted"}
 {"eventType":"fake_send.duplicate","approvalId":"approval_test_001","idempotencyKey":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","durationMs":1,"outcome":"duplicate","originalStatus":"accepted"}
+{"eventType":"fake_send.rejected","approvalId":"approval_test_001","idempotencyKey":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","durationMs":25,"outcome":"rejected","code":"rejected"}
+{"eventType":"fake_send.timed_out","approvalId":"approval_test_001","idempotencyKey":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","durationMs":1000,"outcome":"timed_out","code":"timed_out"}
+{"eventType":"fake_send.downstream_failed","approvalId":"approval_test_001","idempotencyKey":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","durationMs":25,"outcome":"downstream_failure","code":"downstream_failure"}
+{"eventType":"fake_send.permission_denied","approvalId":"approval_test_001","code":"permission_denied"}
 {"eventType":"fake_send.storage_failed","approvalId":"approval_test_001","idempotencyKey":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","code":"storage_failure"}
 ```
 
@@ -414,8 +475,10 @@ indeterminate key are intentionally absent.
 - Code-review RED/GREEN: mutable reservation/result/event values, repeated exact
   terminal evidence, and terminal-only generic failures were reproduced and
   repaired with direct regressions.
-- `npm run verify`: formatting and strict types pass, 149/149 tests pass, and
-  5/5 evals pass.
+- Task-close `npm run verify`: formatting and strict types passed, 149/149 tests
+  passed, and 5/5 evals passed at the end of Session 06.
+- Current `npm run verify`: formatting, linting, strict types, 156/156 tests,
+  and 5/5 evals pass; the focused Task `03` gate remains 56/56.
 - `npm audit --audit-level=low`: 0 vulnerabilities.
 - Final review additionally checks persistence, events, permission order,
   credentials, process/network capabilities, ASCII/LF, and the complete diff.
@@ -431,12 +494,12 @@ imports the internal application.
 
 Values generated by the service are frozen before replaceable result/event
 adapters receive them. Duplicate replay also requires exactly one matching
-terminal event; multiple matching terminal records are treated as corrupt
-evidence and fail closed.
+terminal event; multiple matching terminal result records or terminal events
+are treated as corrupt evidence and fail closed.
 
 Known constraints remain explicit: the claim is single-process only; approval,
 event, and result files are not one transaction; a crash or completion failure
 can leave an indeterminate reservation; repair and retention are manual; no
 lease expiry, distributed lock, backup/restore, tenant boundary, public actor
 authentication, or real-data lifecycle exists. Whole-run recovery and
-production eval gates remain later-phase work and are not started here.
+production eval gates are outside Tasks `02` and `03` and are not claimed here.

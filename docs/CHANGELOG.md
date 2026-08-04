@@ -54,6 +54,11 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Changed
 
+- Reconciled the Week 2 Build Log directly with Tasks `02` and `03`, current
+  contracts, and focused tests: corrected approval-state and duplicate-event
+  semantics, clarified indeterminate fake-send reservations, added the typed
+  fake-write contract and eight required test paths, and refreshed the 46/46,
+  56/56, and repository-wide verification evidence.
 - Reconciled the master PRD, Phase 01 plans/specifications, onboarding,
   incident guidance, workshop index, and documentation audit with the verified
   six-session Phase 01 state while leaving Phase 02 unbuilt and unplanned.

@@ -46,3 +46,5 @@ command is `phasebuild`; it is deliberately outside the Phase 01 cutoff.
 
 - [x] Document local Pi authentication through a ChatGPT Plus or Pro Codex subscription.
 - [x] Split Build Log evidence into linked Week 1-4 files with scoped future-week templates.
+- [x] Reconcile the Week 2 Build Log with Tasks `02` and `03` and current
+  approval/fake-send source and test evidence.
