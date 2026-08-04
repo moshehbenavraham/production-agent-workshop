@@ -166,6 +166,22 @@ For a non-trivial change:
 | Integration | not configured | - |
 | Operations | not configured | - |
 
+GitHub-managed CodeQL default setup and Dependabot Updates are enabled. They
+are validated alongside repository workflows but do not, by themselves, mark
+the broader Security or Operations bundles configured.
+
+## Infrastructure
+
+| Component | Provider | Details |
+|-----------|----------|---------|
+| Health endpoint | Node.js HTTP server | `GET /health` returns `200` and `{"status":"ok"}` |
+| Health probe | Docker / Coolify | Dockerfile `HEALTHCHECK`: 30s interval, 5s timeout, 10s start period, 3 retries |
+| Hosting target | Coolify | Docker image, port 3000, and `/app/data`; production target not deployed yet |
+| Persistence | Append-only JSONL | `EVENT_LOG_PATH=/app/data/events.jsonl` on the declared `/app/data` volume |
+| Security | not configured | WAF and rate limiting remain later-phase work |
+| Backup | not configured | Persistent JSONL backup and restore policy remain later-phase work |
+| Deploy | not configured | Coolify Git integration or deploy trigger remains later-phase work |
+
 ## When In Doubt
 
 - Decide from repository evidence, document material assumptions, and keep uncertainty out of safety claims.

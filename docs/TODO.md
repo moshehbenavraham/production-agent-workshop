@@ -15,9 +15,9 @@ The ordered scope and acceptance evidence remain authoritative in
 ## Phase Transition
 
 - [x] Audit and validate the first local-tooling bundle (Biome formatting).
-- [ ] Validate the CI/CD pipeline.
-- [ ] Validate infrastructure and deployment configuration.
-- [ ] Record carryforward risks and decisions.
+- [x] Validate the Code Quality pipeline and all active GitHub-managed workflows.
+- [x] Add and validate the Docker/Coolify Health infrastructure bundle locally.
+- [x] Record Phase 00 carryforward risks, lessons, controls, and release gates.
 - [ ] Complete the documentation transition gate.
 
 ## Documentation Maintenance
