@@ -21,6 +21,7 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 - Validated the new Code Quality workflow and GitHub-managed CodeQL against the exact pushed transition commit with no open PR or review blocker.
 - Re-synthesized the living considerations and security/compliance records from every Phase 00 summary, archived plan, implementation discovery log, session security report, and known transition exception.
 - Updated the root README and master PRD from the pre-qualification four-test baseline to the completed Phase 00 tool, event, test, CI, container-health, and no-send boundary.
+- Synchronized current-version documentation with the `0.1.12` checkpoint bump.
 
 ## [0.1.11] - 2026-08-04
 

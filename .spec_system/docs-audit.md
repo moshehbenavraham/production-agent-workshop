@@ -59,7 +59,7 @@ encoding, security-sensitive claims, and the final two-source workflow decision.
 | File or area | Verification |
 |--------------|--------------|
 | `LICENSE` | Existing MIT text found; no legal choice was invented or changed |
-| `docs/VERSIONING.md` | `package.json` remains the 0.1.11 version source and the release checklist matches repository scripts |
+| `docs/VERSIONING.md` | `package.json` remains the 0.1.12 version source and the release checklist matches repository scripts |
 | `docs/build-log.md` | Phase 00 implementation, Mermaid, RED/GREEN, demo, review, and validation evidence remains the detailed source |
 | `docs/openai-codex-subscription-auth.md` | Existing controlled-use auth guide remains linked; credential values and auth state were not inspected |
 | `docs/todo/` and `docs/workshop/` | Ordered task and workshop sources remain authoritative; no future phase session artifact was created |
