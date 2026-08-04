@@ -10,6 +10,9 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Added
 
+- Added closed, Pi-independent approval record, decision, transition, storage,
+  and minimized event contracts with deterministic valid, duplicate, conflict,
+  malformed, missing, unknown-actor, identity, and corruption refusal tests.
 - Added the six-session Phase 01 Apex plan for durable approvals and the fake idempotent write boundary sourced from Tasks `02` and `03`.
 - Added linked Week 2-4 Build Log templates aligned with the required evidence for Tasks `02` through `07`.
 - Added Biome 2.5.6 as the Phase Transition formatting bundle with repository-scoped TypeScript and JSON configuration.
@@ -25,7 +28,7 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 - Validated the new Code Quality workflow and GitHub-managed CodeQL against the exact pushed transition commit with no open PR or review blocker.
 - Re-synthesized the living considerations and security/compliance records from every Phase 00 summary, archived plan, implementation discovery log, session security report, and known transition exception.
 - Updated the root README and master PRD from the pre-qualification four-test baseline to the completed Phase 00 tool, event, test, CI, container-health, and no-send boundary.
-- Synchronized current-version documentation with the `0.1.14` checkpoint bump.
+- Synchronized current-version documentation with the `0.1.15` Session 01 closeout bump.
 
 ## [0.1.11] - 2026-08-04
 

@@ -15,7 +15,7 @@ The ordered scope and acceptance evidence remain authoritative in
 ## Active Phase
 
 - [ ] Phase 01 - Durable Approval and Safe Write (Week 2)
-  - [ ] Session 01 - Approval Contract and Transitions
+  - [x] Session 01 - Approval Contract and Transitions
   - [ ] Session 02 - Approval Store and Projection
   - [ ] Session 03 - Durable Approval Integration
   - [ ] Session 04 - Fake Send Contract and Authorization

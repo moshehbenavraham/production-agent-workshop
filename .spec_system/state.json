@@ -14,14 +14,15 @@
     "1": {
       "name": "Durable Approval and Safe Write",
       "description": "Persist exact approval decisions and add a fake exact-target idempotent write boundary without a real network effect.",
-      "status": "not_started",
+      "status": "in_progress",
       "session_count": 6
     }
   },
   "completed_sessions": [
     "phase00-session01-bounded-system-map",
     "phase00-session02-qualification-contract-and-domain",
-    "phase00-session03-qualification-tool-integration"
+    "phase00-session03-qualification-tool-integration",
+    "phase01-session01-approval-contract-and-transitions"
   ],
   "next_session_history": [
     {
@@ -72,6 +73,21 @@
     {
       "date": "2026-08-04",
       "session": "phase00-session03-qualification-tool-integration",
+      "status": "completed"
+    },
+    {
+      "date": "2026-08-04",
+      "session": "phase01-session01-approval-contract-and-transitions",
+      "status": "planned"
+    },
+    {
+      "date": "2026-08-04",
+      "session": "phase01-session01-approval-contract-and-transitions",
+      "status": "validated"
+    },
+    {
+      "date": "2026-08-04",
+      "session": "phase01-session01-approval-contract-and-transitions",
       "status": "completed"
     }
   ]

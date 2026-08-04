@@ -5,9 +5,9 @@
 [Week 3](build-log-week3.md) |
 [Week 4](build-log-week4.md)
 
-> Template only. This log is reserved for observable evidence from Tasks 02
-> and 03. Replace each italic instruction after running the named work; never
-> present planned behavior as an implemented control.
+> This log contains only observed evidence from Tasks 02 and 03. Sections that
+> remain outside the current implementation say so explicitly; planned behavior
+> is never presented as an implemented control.
 
 ## Task 02 - Make Approvals Durable
 
@@ -15,47 +15,122 @@ Task contract: [02 - Make Approvals Durable](todo/02-durable-approvals.md)
 
 ### Goal and Boundary
 
-_State the implemented durable-approval boundary and what remains outside it._
+`src/approval.ts` owns the closed, Pi-independent approval record and pure
+decision transition boundary. One pending record binds a stable `approvalId` to
+the original `runId`, exact `send_follow_up` action, exact lead target, immutable
+synthetic draft ID/content/SHA-256, request time, and null decision. Approved and
+declined are mutually exclusive terminal variants with minimized actor ID and
+decision time.
+
+This first slice performs no file I/O, Pi/HTTP integration, or external effect.
+The replaceable store contract exists, but its file-backed implementation and
+restart evidence belong to the next Phase 01 session.
 
 ### Approval State Diagram
 
-_Add a source-backed Mermaid diagram for pending, approved, and declined states,
-plus invalid, duplicate, and storage-failure refusal paths._
+```mermaid
+stateDiagram-v2
+    [*] --> Pending: createPendingApproval(valid exact input)
+    [*] --> Refused: invalid request
+    Pending --> Approved: authorized approved decision
+    Pending --> Declined: authorized declined decision
+    Pending --> Refused: malformed / missing / identity mismatch / unknown actor
+    Approved --> Approved: duplicate returns original state
+    Declined --> Declined: duplicate returns original state
+    Approved --> Refused: conflicting decline returns original approved state
+    Declined --> Refused: conflicting approval returns original declined state
+    Pending --> StorageFailure: future store adapter failure
+    StorageFailure --> [*]: visible typed failure, no inferred state
+    Approved --> [*]
+    Declined --> [*]
+    Refused --> [*]
+```
+
+Source: `ApprovalRecordSchema`, `createPendingApproval`, and
+`transitionApproval` in `src/approval.ts`, exercised by
+`tests/approval.test.ts`.
 
 ### Storage Contract
 
-_Record the approval schema, store interface, file-backed implementation,
-projection ownership, exact persisted fields, and failure behavior._
+The schema separates three closed variants: pending, approved, and declined.
+Each record retains only synthetic approval/run/action/target/draft linkage,
+request time, status, and minimized decision metadata. Draft identity is linked
+to content with an application-owned SHA-256 and revalidated at every untrusted
+record crossing.
+
+The replaceable `ApprovalStore` contract exposes `appendRequest`,
+`appendDecision`, `get`, and `listRun`, each returning a discriminated typed
+outcome. `ApprovalStorageRecordSchema` permits only one pending request record
+or one matching approved/declined decision record. The Phase 01 Session 01
+boundary deliberately defines no file adapter and makes no restart claim.
 
 ### Transition Event Examples
 
-_Add minimized synthetic examples for request, approval, decline, duplicate,
-invalid, and storage-failure events under the original `runId`._
+The closed `ApprovalEventDataSchema` permits minimized synthetic data such as:
+
+```json
+{"eventType":"approval.requested","approvalId":"approval_test_001","action":"send_follow_up","targetKind":"lead","leadId":"lead_ada","draftId":"draft_test_001","status":"pending"}
+{"eventType":"approval.approved","approvalId":"approval_test_001","actorId":"actor_reviewer","status":"approved"}
+{"eventType":"approval.decision_duplicate","approvalId":"approval_test_001","actorId":"actor_reviewer","requestedDecision":"approved","status":"approved"}
+{"eventType":"approval.invalid","approvalId":"approval_test_001","operation":"decision","code":"unknown_actor"}
+{"eventType":"approval.storage_failed","approvalId":"approval_test_001","operation":"decision","code":"storage_failure"}
+```
+
+The surrounding `AgentEvent` supplies the original `runId`; full draft content,
+credentials, raw exceptions, and unrelated lead data are rejected as extra
+event properties. Event emission is not integrated in this session.
 
 ### Restart Proof
 
-_Record the exact command and observed evidence proving pending and decided
-approvals survive restart and rebuild to the same projection._
+Not implemented in the contract-only slice. Session 02 must provide the
+file-backed adapter and exact process-restart projection proof before this
+section can claim durability.
 
 ### Data-Lifecycle Decision
 
-_Record retention, redaction, export, deletion, actor-data, and draft-data
-decisions without adding real personal data._
+Current scope is synthetic only. The closed record identifies exactly which
+approval, actor, target, and draft fields a later adapter may persist; the
+operational event schema excludes full drafts. Retention, export, and deletion
+operations remain unimplemented until Session 03 records the complete Task 02
+data-lifecycle decision. Real personal data remains prohibited.
 
 ### Exercised Failure and Recovery
 
-_Record at least one required failure, its visible outcome, and the safe
-recovery or refusal without manually editing durable state._
+| Case | Deterministic Outcome | State Effect |
+|------|-----------------------|--------------|
+| Missing approval | `approval_not_found` | None |
+| Malformed decision | `invalid_decision` | None |
+| Unknown actor | `unknown_actor` | None |
+| Run or approval mismatch | `approval_identity_mismatch` | None |
+| Same terminal decision | `duplicate` + original terminal record | None |
+| Opposite terminal decision | `conflict` + original terminal record | None |
+| Invalid current record | `invalid_approval_record` | None |
+| Storage failure | Closed `storage_failure` contract for Session 02 | No success may be inferred |
+
+The pure transition tests exercise refusals without editing state. Durable
+failure and recovery evidence is added only after the file store exists.
 
 ### Verification Output
 
-_Record the exact verification commands and results, including
-`npm run verify`._
+Session 01 contract verification under Node.js 24.15.0 and npm 12.0.2:
+
+- `node --import tsx --test tests/approval.test.ts` - 17/17 focused tests pass.
+- `npm run verify` - formatting and strict types pass, 57/57 deterministic
+  tests pass, and 5/5 deterministic evals pass.
+- `npm audit --audit-level=low` - 0 vulnerabilities.
+- Targeted permission, credential, ASCII/LF, and `git diff --check` scans pass.
 
 ### Final Diff Review and Remaining Risk
 
-_Record the permissions, privacy, side-effect, persistence, and documentation
-diff review plus unresolved approval risks._
+Session 01 adds no Pi tool, allowlist change, HTTP route, filesystem adapter,
+provider credential, or external effect. The new domain module is independent
+from Pi and I/O. It permits synthetic full draft content only inside the
+approval record contract and rejects it from operational event data.
+
+Remaining Task `02` risk is explicit: the store interface has no file-backed
+implementation, projection, restart proof, interruption handling, or integrated
+event lifecycle yet. Sessions 02 and 03 must close those items before durable
+approval is claimed complete.
 
 ## Task 03 - Add an Idempotent Send Boundary
 
