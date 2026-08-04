@@ -1,42 +1,40 @@
 # Security Policy
 
-## Supported versions
+This public policy explains how to report a suspected vulnerability, which
+versions receive fixes, how maintainers respond, and the boundaries for security
+research. It intentionally does not duplicate the repository's implemented
+controls, current gaps, privacy inventory, or change-review checklist. Maintainers
+track those facts in the internal [Security and Compliance Record](./.spec_system/SECURITY-COMPLIANCE.md),
+while future hardening remains explicitly planned in the
+[ordered workshop tasks](./docs/todo/README_todo.md).
 
-This project is in pre-1.0 development. Security fixes are made on the default
-branch and released from the latest supported line according to the
-[versioning policy](./docs/VERSIONING.md).
+## Supported Versions
+
+This project is in pre-1.0 development and has not published a release tag. The
+default branch is therefore the only currently supported line. Once releases
+are tagged, support and fixes follow the [versioning policy](./docs/VERSIONING.md).
 
 | Target | Security support |
-| --- | --- |
-| Latest tagged release | Supported |
-| Default branch | Receives fixes for the next release |
-| Older tags and release lines | Not supported |
+|--------|------------------|
+| Default branch | Supported |
+| Tagged releases | None published yet |
+| Older commits and future superseded release lines | Not supported |
 
-Upgrade to the latest release before reporting a vulnerability that may already
-have been fixed.
+## Reporting Scope
 
-## What to report
+Report a reproducible defect that could compromise the confidentiality,
+integrity, or availability of this repository or a deployment built from it.
+Examples include unauthorized access or actions, a bypass of a documented
+approval or permission boundary, cross-run or cross-tenant disclosure, secret
+or sensitive-data exposure, unsafe input or path handling, replay or
+idempotency failures, and dependency or deployment flaws with concrete impact.
 
-Please report vulnerabilities that could compromise this repository or a
-deployment built from it, especially:
+The internal record identifies known limitations and the task plan identifies
+features that do not exist yet. A report that only restates one of those planned
+gaps is out of scope unless it demonstrates an unexpected impact or bypass of a
+protection the project claims is active.
 
-- bypasses of the human approval boundary or any path that can send or claim to
-  send without approval;
-- escapes from the production tool allowlist, including shell or filesystem
-  access;
-- input-validation, path-handling, replay, or idempotency flaws;
-- disclosure of provider credentials, customer data, approval records, or
-  sensitive event-log content;
-- cross-run or cross-tenant data exposure;
-- dependency, container, CI, or release-process weaknesses with a concrete
-  impact on this project.
-
-The starter intentionally leaves `/runs` without authentication or rate
-limiting and must not be exposed publicly in that state. A report that only
-restates this documented limitation is out of scope, but an unexpected exposure
-or bypass of an implemented protection is in scope.
-
-## Report privately
+## Report Privately
 
 Do not open a public issue, discussion, or pull request for a suspected
 vulnerability. Use GitHub's private vulnerability reporting form:
@@ -45,18 +43,18 @@ vulnerability. Use GitHub's private vulnerability reporting form:
 
 Include:
 
-- the affected version, tag, or commit;
+- the affected branch, version, tag, or commit;
 - the security boundary and realistic impact;
 - minimal, repeatable steps using synthetic data;
-- expected behavior versus observed behavior;
-- any suggested mitigation, if known.
+- expected behavior and observed behavior;
+- a suggested mitigation, if known.
 
-Never include live credentials, provider keys, Pi authentication files,
-customer data, or complete production logs. If a credential may be exposed,
-revoke or rotate it first and report only the minimum redacted evidence needed
-to explain the impact.
+Do not submit live credentials, provider keys, Pi authentication files,
+customer data, private infrastructure identifiers, or complete production
+logs. If a credential may be exposed, revoke or rotate it first and include
+only the minimum redacted evidence needed to explain the issue.
 
-## Response process
+## Maintainer Response
 
 Maintainers aim to:
 
@@ -64,26 +62,32 @@ Maintainers aim to:
 - provide an initial assessment within seven business days;
 - provide a status update at least every fourteen days until resolution.
 
-Accepted reports will be prioritized by impact and exploitability. A fix should
-include a deterministic regression test or eval when behavior changes, pass
-`npm run verify`, and preserve the approval and tool-permission boundaries.
-Public disclosure should be coordinated until a fix or mitigation is available.
-If a report is declined, the maintainer will explain why. This project does not
-currently offer a paid bug-bounty program.
+Accepted reports are prioritized by impact and exploitability. A fix must
+satisfy the internal record's [change security checks](./.spec_system/SECURITY-COMPLIANCE.md#change-security-checks)
+and be released according to the versioning policy. Public disclosure should
+be coordinated until a fix or mitigation is available. If a report is
+declined, the maintainer will explain why. This project does not currently
+offer a paid bug-bounty program.
 
-## Research boundaries
+## Research Boundaries
 
-Use a local copy or a deployment you own, and use synthetic leads and accounts.
-Do not access other people's data, send messages to real recipients, disrupt a
-live service, use social engineering, retain sensitive data, or test GitHub,
-npm, Coolify, model providers, or other third-party infrastructure through this
-project. Report vulnerabilities in third-party services to their maintainers.
+Use a local copy or a deployment you own, with synthetic leads and accounts.
+Do not access another person's data, target a service you do not own, send
+messages to real recipients, disrupt a live system, use social engineering, or
+test GitHub, npm, Coolify, model providers, or other third-party infrastructure
+through this project. Report vulnerabilities in third-party services directly
+to their maintainers.
 
-If testing reveals secrets or personal data, stop immediately, do not copy or
-share the data, and report the exposure privately.
+If testing reveals a secret or personal data, stop, do not retain or distribute
+it, and report the exposure privately.
 
-## Deployment incidents
+## Active Deployment Incidents
 
-For an active compromise of a deployed copy, take the service private, revoke
-and rotate affected credentials, preserve only the evidence needed for
-investigation, and avoid posting event logs or incident details publicly.
+A private vulnerability report is not a substitute for incident response on a
+deployed service. Contain an active compromise using the deployment owner's
+procedures, rotate affected credentials, preserve only necessary redacted
+evidence, and then report any underlying repository defect privately. The
+repository's incident runbook and operator handoff are planned deliverables in
+[Task 06](./docs/todo/06-observability-and-incidents.md) and
+[Task 07](./docs/todo/07-coolify-release.md); do not assume those controls exist
+until their acceptance evidence is complete.

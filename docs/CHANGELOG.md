@@ -8,6 +8,13 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-08-04
+
+### Changed
+
+- Separated the internal security and compliance posture record from the public vulnerability disclosure policy, aligned current gaps with the ordered workshop tasks, and added reciprocal cross-references.
+- Realigned the master PRD with the complete `docs/todo` path, including verified-versus-planned scope, tasks `00` through `08`, required evidence, delivery gates, and the corrected core-to-optional phase sequence.
+
 ## [0.1.4] - 2026-08-04
 
 ### Added
