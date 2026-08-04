@@ -63,6 +63,9 @@
 - Keep the HTTP layer limited to input parsing, validation, status mapping, and response serialization.
 - Validate `leadId` and body size before starting an agent run; preserve the 16,384-byte request limit unless an evidenced requirement changes it.
 - Return JSON with stable machine-readable error codes and appropriate HTTP status codes.
+- Apply the process-wide `/runs` rate gate before body parsing or Pi work; keep
+  its bounded integer environment settings fail-fast and treat it as capacity
+  protection, not caller identity or authorization.
 - Do not expose `/runs` or approval endpoints publicly without authentication, authorization, exposure-appropriate tenant isolation, and rate limiting.
 - Keep `/health` lightweight and free of secrets or internal data.
 
@@ -180,7 +183,7 @@ the broader Security or Operations bundles configured.
 | Health probe | Docker / Coolify | Dockerfile `HEALTHCHECK`: 30s interval, 5s timeout, 10s start period, 3 retries |
 | Hosting target | Coolify | Docker image, port 3000, and `/app/data`; production target not deployed yet |
 | Persistence | Append-only JSONL | `EVENT_LOG_PATH=/app/data/events.jsonl` on the declared `/app/data` volume |
-| Security | not configured | WAF and rate limiting remain later-phase work |
+| Security | Node.js application gate | Process-wide `/runs` fixed-window limit; default 10 requests per 60 seconds; local HTTP/container validation only |
 | Backup | not configured | Persistent JSONL backup and restore policy remain later-phase work |
 | Deploy | not configured | Coolify Git integration or deploy trigger remains later-phase work |
 

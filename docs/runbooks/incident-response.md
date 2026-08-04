@@ -60,6 +60,7 @@ treated as a visible failure, never repaired by inference.
 | Qualification returns `lead_not_found` | Exact synthetic lead is absent | Stop; do not draft or request approval |
 | Qualification returns lookup failure or timeout | Bounded read did not complete | Preserve `runId`; investigate dependency or deadline; do not infer success |
 | HTTP returns `agent_run_failed` | Pi run threw; response may omit `runId` | Inspect controlled server/event evidence; do not report completion |
+| HTTP returns `rate_limited` | The current process window exhausted before body parsing or Pi work | Honor `Retry-After`; investigate traffic/capacity; do not bypass the gate or infer a run started |
 | Approval remains pending | Human decision is required | Do not send; no decision endpoint exists |
 | Event file is malformed or truncated | Durable truth is unreliable | Preserve the file and escalate; do not edit or replay manually |
 | Credential may be exposed | Potential security incident | Stop use, preserve minimal evidence, rotate through the provider, report privately |

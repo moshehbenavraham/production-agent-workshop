@@ -19,6 +19,8 @@ owner. Those are external deployment decisions.
 | `PORT` | No | `3000` | HTTP listen port | Non-secret configuration |
 | `EVENT_LOG_PATH` | No | `./data/events.jsonl` | Append-only event file | Mount persistent storage in a container |
 | `APPROVAL_LOG_PATH` | No | `./data/approvals.jsonl` | Authoritative append-only approval records | Mount persistent storage; contains full synthetic drafts |
+| `RUN_RATE_LIMIT_MAX` | No | `10` | Maximum admitted `/runs` requests per process window | Non-secret integer from 1 through 10,000 |
+| `RUN_RATE_LIMIT_WINDOW_MS` | No | `60000` | Process-wide `/runs` window in milliseconds | Non-secret integer from 1 through 3,600,000 |
 | `OPENAI_API_KEY` | Provider-dependent | None | Optional supported provider auth | Secret; inject outside repository |
 | `ANTHROPIC_API_KEY` | Provider-dependent | None | Optional supported provider auth | Secret; inject outside repository |
 
@@ -52,8 +54,9 @@ images, documentation, or screenshots.
 - Deletion is a whole-file synthetic environment reset after the service stops;
   append-only records are never edited in place. Per-record erasure, backup,
   restore, data location, and subprocessors are not approved for real data.
-- `/runs` must remain private or otherwise controlled because authentication,
-  authorization, tenant isolation, and rate limiting are not implemented.
+- `/runs` must remain private or otherwise controlled. Its process-wide rate
+  gate protects bounded capacity but is not authentication, authorization,
+  tenant isolation, distributed rate state, or an edge WAF.
 
 ## Verification
 

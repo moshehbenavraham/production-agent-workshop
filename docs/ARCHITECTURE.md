@@ -14,7 +14,8 @@ server or agent runtime.
 ```mermaid
 flowchart LR
     Caller[Controlled caller] -->|GET /health or POST /runs| Server[src/server.ts]
-    Server -->|validated leadId| Agent[src/pi-agent.ts]
+    Server -->|POST /runs| RateGate[src/rate-limit.ts]
+    RateGate -->|admitted validated leadId| Agent[src/pi-agent.ts]
     Agent <-->|model messages| Provider[Configured model provider]
     Agent -->|frozen allowlist| Tools[src/tools.ts]
     Tools --> Qualify[src/qualification.ts]
@@ -51,7 +52,8 @@ flowchart LR
 
 | Component | Location | Technology | Purpose |
 |-----------|----------|------------|---------|
-| HTTP boundary | `src/server.ts` | Node.js HTTP | Health, body limit, `leadId` validation, response mapping |
+| HTTP boundary | `src/server.ts` | Node.js HTTP | Health, process-wide rate gate, body limit, `leadId` validation, response mapping |
+| Rate gate | `src/rate-limit.ts` | Deterministic TypeScript | Fail-fast bounded configuration and process-wide fixed-window `/runs` admission |
 | Pi orchestration | `src/pi-agent.ts` | Pi Coding Agent SDK | Session lifecycle, frozen tool allowlist, qualification events, durable approval projection |
 | Qualification domain | `src/qualification.ts` | TypeBox + TypeScript | Closed schemas, runtime validation, deterministic result, canonical failures |
 | Custom tools | `src/tools.ts` | Pi tool definitions | Bounded qualification, deterministic draft, exact durable approval request |
@@ -65,12 +67,12 @@ flowchart LR
 | Deterministic gates | `tests/`, `src/evals.ts` | `node:test` + TSX | Contract, failure, permission, event, and vertical-slice verification |
 | Container boundary | `Dockerfile` | Node.js 24 Alpine | Port 3000, `/app/data`, process start, and container health probe |
 | Code Quality CI | `.github/workflows/quality.yml` | GitHub Actions | Locked install, formatting, linting, and strict TypeScript |
-| Build & Test CI | `.github/workflows/test.yml` | GitHub Actions | TypeScript build, 149 tests with coverage thresholds, and five evals |
+| Build & Test CI | `.github/workflows/test.yml` | GitHub Actions | TypeScript build, 156 tests with coverage thresholds, and five evals |
 
 ## Run And Evidence Flow
 
-1. `POST /runs` accepts JSON under 16,384 bytes and validates the `leadId`
-   string pattern before starting Pi.
+1. `POST /runs` consumes one process-wide rate slot, then accepts JSON under
+   16,384 bytes and validates the `leadId` string pattern before starting Pi.
 2. The application creates a `runId`, appends `run.started`, and closes the
    three tools over the exact requested identifier and event store.
 3. `qualify_lead` validates input, applies a 1,000 ms application deadline,
@@ -88,6 +90,7 @@ flowchart LR
 
 | Boundary | Application rule |
 |----------|------------------|
+| HTTP admission | Rate-limit globally before body parsing or Pi work; do not trust forwarding headers as caller identity |
 | HTTP input | Validate body size and `leadId` before starting Pi |
 | Model/tool input | Treat as untrusted; enforce closed schemas and exact identity |
 | Lookup result | Runtime-validate the complete synthetic lead and identity |
@@ -122,9 +125,10 @@ credential, deployment, approval-decision, or network-writing tool.
 ## Deployment Topology
 
 The locally validated image contains one Node.js process, port 3000, a declared
-`/app/data` volume, and a Docker `HEALTHCHECK` for `/health`. Coolify is the
-intended hosting boundary, but no production URL, persistence proof, restore,
-or rollback has been validated.
+`/app/data` volume, a Docker `HEALTHCHECK` for `/health`, and a process-wide
+fixed-window `/runs` gate. Coolify is the intended hosting boundary, but no
+production URL, WAF, caller identity, shared limiter, persistence proof,
+restore, or rollback has been validated.
 
 ## Key Decisions
 

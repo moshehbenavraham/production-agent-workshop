@@ -28,3 +28,4 @@ exempt and when it was added. Remove entries that no longer apply.
 | Item | Reason | Added |
 |------|--------|-------|
 | Production Health validation | No reachable production deployment exists; the Docker image, container probe, and local endpoint passed on 2026-08-04. Re-verify against the Coolify URL when Task `07` deploys it. | 2026-08-04 |
+| Production Security validation | No reachable production edge, domain, or trusted caller identity exists; the process-wide `/runs` limiter passed direct HTTP and container validation on 2026-08-04. Configure and verify the deployment WAF plus shared per-principal policy before public exposure. | 2026-08-04 |

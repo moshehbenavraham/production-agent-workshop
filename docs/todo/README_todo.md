@@ -14,10 +14,12 @@ The repository currently provides:
   into the runtime approval path
 - a validated internal file-backed approval-to-fake-write application with no
   Pi/HTTP execution entrypoint or network effect
-- 149 deterministic tests and five deterministic eval cases
+- 156 deterministic tests and five deterministic eval cases
 - a Node 24 container, `/health`, a Docker health probe, and a persistent `/app/data` volume contract
-- a passing Code Quality workflow and GitHub-managed CodeQL; broader CI/CD bundles remain incomplete
-- no authentication, tenant isolation, or rate limiting on `/runs`
+- passing Code Quality and Build & Test workflows plus GitHub-managed CodeQL;
+  broader CI/CD bundles remain incomplete
+- a process-wide `/runs` capacity gate, but no authentication, tenant
+  isolation, distributed rate state, or deployed WAF
 
 Treat every behavior described under a task's `Work` section as planned until its acceptance evidence proves otherwise.
 

@@ -14,6 +14,9 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
   commands and enforcement in the complete local verification gate.
 - Added a least-privilege Build & Test workflow with a TypeScript build, all
   deterministic tests, built-in coverage gates, and all five evals.
+- Added a fail-fast process-wide `/runs` fixed-window rate gate, bounded
+  environment configuration, standard capacity headers, deterministic tests,
+  and local process/container `429` evidence.
 - Added one internal safe-write application that composes shared durable
   approval/event truth, exact fake authorization, result persistence, and the
   deterministic adapter while snapshotting synthetic actor permissions.

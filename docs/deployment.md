@@ -2,10 +2,11 @@
 
 ## Current Status
 
-The Node.js 24 Docker image and its health probe pass local validation. No
-production Coolify URL, persistent restart, backup restore, rollback, or
-operator-access path has been validated. The repository is not ready for public
-exposure or real customer data.
+The Node.js 24 Docker image, health probe, and process-wide `/runs` rate gate
+pass local validation. No production Coolify URL, WAF, caller-access boundary,
+persistent restart, backup restore, rollback, or operator-access path has been
+validated. The repository is not ready for public exposure or real customer
+data.
 
 ## Local Service Check
 
@@ -48,13 +49,14 @@ and three retries.
 
 ## CI/CD Pipeline
 
-The repository Code Quality workflow runs on pushes to `main` and pull
-requests. It installs with `npm ci`, checks Biome formatting, and runs strict
-TypeScript. GitHub-managed CodeQL and Dependabot are enabled.
+The Code Quality workflow enforces locked installation, formatting, linting,
+and strict TypeScript. Build & Test compiles the repository, runs all tests
+with coverage thresholds, and runs all deterministic evals. Both run on pushes
+to `main` and pull requests. GitHub-managed CodeQL and Dependabot are enabled.
 
-Build & Test, full Security, Integration, Operations, release tagging, deploy,
-and post-deploy smoke workflows are not configured. Run this full gate locally
-before treating a revision as verified:
+Security, Integration, Operations, release tagging, deploy, and post-deploy
+smoke workflow bundles are not configured. Run this full gate locally before
+treating a revision as verified:
 
 ```bash
 npm run verify
@@ -73,12 +75,25 @@ When deployment is separately authorized, the repository evidence requires:
    survive a controlled container replacement before claiming persistence.
 5. Expose container port 3000.
 6. Confirm the Docker health probe and verify `/health` over the assigned HTTPS URL.
-7. Keep `/runs` controlled until authentication, authorization, tenant,
-   rate-limit, and data-lifecycle gates match the intended exposure.
+7. Configure bounded `RUN_RATE_LIMIT_MAX` and `RUN_RATE_LIMIT_WINDOW_MS` values
+   for measured single-replica capacity.
+8. Keep `/runs` controlled until authentication, authorization, tenant,
+   shared rate-limit, edge-WAF, and data-lifecycle gates match the intended
+   exposure.
 
 Region, sizing, DNS, HTTPS ownership, access policy, secret rotation, backup
 destination, retention, recovery ownership, and monitoring require operator
 decisions and are not stored in this repository.
+
+## Security Boundary
+
+The application admits 10 `/runs` requests per 60-second process window by
+default, returns `429` plus `Retry-After` after exhaustion, and leaves
+`/health` outside the quota. The policy is deliberately global: it avoids
+trusting spoofable forwarding headers before a trusted proxy and caller-
+identity contract exist. It resets on restart and applies separately to each
+replica, so it is not a distributed abuse-control or fairness boundary. Add
+the deployment-owned WAF and shared per-principal policy before public access.
 
 ## Persistence And Backup
 

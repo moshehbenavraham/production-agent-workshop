@@ -2,10 +2,11 @@
 
 ## Scope And Exposure
 
-The service exposes two routes from `src/server.ts`. There is no caller
-authentication, authorization, tenant isolation, rate limiting, CORS policy,
-approval-decision endpoint, or send endpoint. Keep `/runs` private or otherwise
-controlled and use only synthetic lead identifiers.
+The service exposes two routes from `src/server.ts`. A process-wide fixed-
+window gate limits `/runs`, but there is no caller authentication,
+authorization, tenant isolation, distributed rate state, deployed WAF, CORS
+policy, approval-decision endpoint, or send endpoint. Keep `/runs` private or
+otherwise controlled and use only synthetic lead identifiers.
 
 ## `GET /health`
 
@@ -26,6 +27,13 @@ Status: `200`.
 
 Starts one Pi-backed lead run. Provider authentication must already be
 available to the process.
+
+Each admitted request consumes one process-wide slot before its body is read or
+Pi can start. Defaults are 10 requests per 60 seconds. Configure bounded
+positive integers with `RUN_RATE_LIMIT_MAX` and
+`RUN_RATE_LIMIT_WINDOW_MS`; malformed values stop startup. The limiter does not
+trust `X-Forwarded-For`, does not identify a caller, resets on process restart,
+and is independent per replica.
 
 ### Request
 
@@ -84,6 +92,10 @@ approval state exists for that exact run/lead after the latest qualification.
 Missing, malformed, stale, cross-run, and unavailable approval evidence cannot
 be reported as completion.
 
+Every admitted `/runs` response includes `RateLimit-Limit`,
+`RateLimit-Remaining`, and `RateLimit-Reset`, where reset is the remaining
+window duration in seconds. A denied response also includes `Retry-After`.
+
 ## Error Responses
 
 | Status | Body | Condition |
@@ -91,6 +103,7 @@ be reported as completion.
 | `400` | `{"error":"invalid_lead_id"}` | Parsed body has a missing, non-string, or pattern-invalid `leadId` |
 | `404` | `{"error":"not_found"}` | Method/path pair is not `GET /health` or `POST /runs` |
 | `413` | `{"error":"body_too_large"}` | Request body exceeds 16,384 bytes while streaming |
+| `429` | `{"error":"rate_limited","retryAfterSeconds":N}` | The process-wide fixed-window quota is exhausted |
 | `503` | `{"error":"agent_run_failed","message":"..."}` | JSON parsing or the Pi-backed run throws |
 
 The current 503 response does not include a `runId` or structured terminal stop

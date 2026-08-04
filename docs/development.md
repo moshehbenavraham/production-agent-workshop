@@ -36,6 +36,8 @@ are not needed for it.
 ## Source Boundaries
 
 - Keep HTTP parsing and response mapping in `src/server.ts`.
+- Keep deterministic `/runs` capacity policy and fail-fast environment parsing
+  in `src/rate-limit.ts`; do not derive caller identity from forwarding headers.
 - Keep Pi session orchestration and visible run projection in `src/pi-agent.ts`.
 - Keep custom tool execution and event gates in `src/tools.ts`.
 - Keep approval policy in `src/approval-service.ts`, approval domain rules in

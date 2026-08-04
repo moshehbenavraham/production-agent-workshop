@@ -57,7 +57,7 @@ Requirements:
 - Git
 
 Install the locked dependencies, then run the one command that checks
-formatting, linting, strict types, all 149 deterministic tests, and all five
+formatting, linting, strict types, all 156 deterministic tests, and all five
 evals:
 
 ```bash
@@ -149,8 +149,9 @@ Task `03` evidence. In particular:
 - an internal deterministic fake adapter/result store exists for tests and
   later integration, but no Pi/HTTP entrypoint or real external-write adapter exists;
 - whole-run recovery, production eval gates, and incident operations remain open;
-- `/runs` has no caller authentication, authorization, tenant isolation, or
-  rate limiting and must remain private or otherwise controlled;
+- `/runs` has a bounded process-wide capacity gate but no caller
+  authentication, authorization, tenant isolation, distributed limiter, or
+  deployed WAF, so it must remain private or otherwise controlled;
 - real customer data remains prohibited until lifecycle and access controls pass.
 
 The cumulative source of truth is the
@@ -159,8 +160,9 @@ The cumulative source of truth is the
 ## Docker And Coolify
 
 The Docker image exposes port 3000, stores event and approval files under
-`/app/data`, and has a container health probe for `/health`. The image and probe pass local validation;
-production Coolify health, persistence, restore, and rollback remain unproved.
+`/app/data`, and has a container health probe for `/health`. The image, probe,
+and process-wide `/runs` rate gate pass local validation; production Coolify
+health, edge security, persistence, restore, and rollback remain unproved.
 Use the [deployment guide](./docs/deployment.md) for the verified local boundary
 and the remaining external decisions.
 
