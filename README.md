@@ -1,119 +1,191 @@
 # Production Agent Workshop
 
-Build an Agency Lead Operations Agent with Codex, Pi, and Coolify.
+Build a bounded Agency Lead Operations Agent with Codex, Pi, and Coolify.
 
 ![Production Agent Sprint cover](./docs/production-agent-sprint-cover.png)
 
-This public repository contains:
+This public repository contains a runnable reference agent, a realistic
+[client brief](./docs/todo/client-brief.md), ordered
+[workshop tasks](./docs/todo/README_todo.md), deterministic tests and evals,
+append-only event evidence, a Docker image, and an explicit human stop.
 
-- a completed, runnable reference agent;
-- a believable [client brief](./docs/todo/client-brief.md);
-- an explicit [AGENTS.md](./AGENTS.md) for Codex and Pi;
-- ordered [workshop tasks](./docs/todo/README_todo.md);
-- a reusable `$verify-production-agent` skill;
-- tests, evals, events, approval boundaries, Docker, and release guidance.
+## Current Bounded Behavior
 
-The completed reference performs one bounded job:
+Given one exact synthetic `leadId`, the current application validates a typed
+qualification, permits a deterministic draft only after matching successful
+evidence, creates a pending approval record, and stops without sending.
 
-```text
-HTTP request
-  -> Pi agent session
-    -> inspect_lead
-    -> draft_follow_up
-    -> request_send_approval
-  -> JSONL event log
-  -> response with a visible stop reason
+```mermaid
+flowchart LR
+    Caller[Controlled caller] -->|POST /runs| HTTP[Node HTTP boundary]
+    HTTP --> Pi[Bounded Pi session]
+    Pi --> Q[qualify_lead]
+    Q -->|validated success| D[draft_follow_up]
+    D --> A[request_send_approval]
+    Q --> Events[(Append-only JSONL events)]
+    D --> Events
+    A --> Events
+    Events --> Result[RunResult with qualification and stopReason]
+    A -->|pending only| Stop[Human stop - no send]
 ```
 
-The project deliberately stops before sending anything. That boundary illustrates the difference between a useful agent and an unsafe automation.
+The frozen production allowlist contains exactly:
 
-## Why this architecture
+- `qualify_lead`
+- `draft_follow_up`
+- `request_send_approval`
 
-- **Codex** is the repository-level builder: inspect, plan, edit, test, and review.
-- **Pi** owns the runtime loop: model messages, typed tools, sessions, and lifecycle events.
-- **Coolify** owns deployment, environment variables, health, persistence, and rollback.
-- **The application** owns permissions, domain state, audit events, and evals.
+Pi has no production shell, filesystem, approval-decision, or send tool. A
+pending approval is evidence that a human decision is required; it is not
+authorization and it is not a completed external effect.
 
-The implementation follows the official Pi SDK patterns for `createAgentSession()`, custom tools, context files, session management, and event subscriptions.
-
-## Quick start
+## Quick Start
 
 Requirements:
 
-- Node.js 24.15+ (Node 24 LTS)
-- npm 12+
-- A provider configured for Pi in `~/.pi/agent/auth.json`, or a supported provider key in the environment
+- Node.js 24.15 or newer
+- npm 12 or newer; the repository pins npm 12.0.2
+- Git
 
-To use a ChatGPT Plus or Pro Codex subscription instead of an API key, follow
-the [Pi OpenAI Codex subscription authentication guide](./docs/openai-codex-subscription-auth.md).
+Install the locked dependencies, then run the one command that checks
+formatting, strict types, all 40 deterministic tests, and all five evals:
 
 ```bash
-cp .env.example .env
-npm install
+npm ci
 npm run verify
-npm run demo -- lead_ada
+```
+
+The verification path is provider-independent. Running the Pi agent also
+requires a provider configured in supported Pi auth state or a supported
+provider key exported to the process. To use a ChatGPT Plus or Pro Codex
+subscription, follow the
+[Pi OpenAI Codex subscription authentication guide](./docs/openai-codex-subscription-auth.md).
+
+Start the HTTP service:
+
+```bash
 npm start
 ```
 
-Test the service:
+Check the provider-independent health endpoint:
 
 ```bash
-curl http://localhost:3000/health
+curl --fail http://127.0.0.1:3000/health
+```
 
-curl -X POST http://localhost:3000/runs \
+With provider authentication configured, a controlled synthetic run is:
+
+```bash
+curl -X POST http://127.0.0.1:3000/runs \
   -H 'content-type: application/json' \
   -d '{"leadId":"lead_ada"}'
 ```
 
-Available classroom leads:
+Available classroom identifiers are `lead_ada`, `lead_grace`, and the
+intentional not-found case `lead_unknown`. Do not replace the fixtures with
+real customer data.
 
-- `lead_ada` - strong technical fit
-- `lead_grace` - strong business fit
-- `lead_unknown` - intentional not-found eval
+## Repository Structure
 
-## Coolify deployment
+```text
+.
+|-- .github/workflows/       # Code Quality CI
+|-- .spec_system/            # PRD, workflow state, governance, and evidence
+|-- docs/                    # Architecture, operations, workshop, and task docs
+|-- src/                     # HTTP, Pi orchestration, tools, schemas, and events
+|-- tests/                   # Deterministic contract and integration tests
+|-- biome.json               # Formatting scope and style
+|-- Dockerfile               # Node 24 image, /app/data, and health probe
+|-- package.json             # Runtime, scripts, and dependency contract
+`-- AGENTS.md                # Repository guidance entry point
+```
 
-1. Push this folder to a Git repository.
-2. Create a Coolify application from the repository.
-3. Use the included `Dockerfile`.
-4. Add a persistent volume mounted at `/app/data`.
-5. Configure one provider credential as a secret.
-6. Set `EVENT_LOG_PATH=/app/data/events.jsonl`.
-7. Expose port `3000`.
-8. Configure the health check as `/health`.
-9. Deploy.
-10. Trigger a run, inspect logs, restart, and confirm the event file remains.
+## Documentation
 
-Do not expose the `/runs` endpoint publicly without authentication and rate limiting. Those controls are required release gates in Week 4 task `07`.
+- [Onboarding](./docs/onboarding.md)
+- [Development guide](./docs/development.md)
+- [Architecture](./docs/ARCHITECTURE.md)
+- [HTTP API](./docs/api/http-api.md)
+- [Environments](./docs/environments.md)
+- [Deployment](./docs/deployment.md)
+- [Incident response](./docs/runbooks/incident-response.md)
+- [Contributing](./CONTRIBUTING.md)
+- [Build Log](./docs/build-log.md)
+- [Workshop path](./docs/todo/README_todo.md)
 
-## Required workshop path
+## Architecture Ownership
 
-Complete the [ordered workshop tasks](./docs/todo/README_todo.md) across five phases, with exactly one phase per week. Week 5 task `08` is required: the comparison must be completed even when its evidence says to remove the added handoff.
+- **Codex** changes, tests, reviews, and documents the repository.
+- **Pi** owns the bounded model loop and invokes only supplied custom tools.
+- **The application** owns validation, permissions, domain truth, event
+  evidence, stop reasons, and every future external-effect gate.
+- **Coolify** is the intended deployment boundary for secrets, persistence,
+  health, and rollback; no production deployment has been validated yet.
 
-## Deferred integrations
+See [Architecture](./docs/ARCHITECTURE.md) for the current component and trust
+map.
 
-After the required workshop path, consider these separately authorized extensions:
+## Project Status And Safety
 
-1. Replace the sample lead lookup with a read-only CRM adapter.
-2. Add company research as a separate approved read-only source.
-3. Add a real send provider with the established approval and idempotency guarantees.
-4. Replace file-backed persistence with Postgres without changing its contracts.
-5. Add model-based grading only for qualities that deterministic evals cannot measure.
+Phase 00 is complete: Tasks `00` and `01` have validated architecture and
+qualification evidence. The remaining ordered tasks are planned work, not
+implemented behavior. In particular:
+
+- approval decisions and restart-safe transitions are not durable;
+- no fake or real external-write adapter exists;
+- whole-run recovery, production eval gates, and incident operations remain open;
+- `/runs` has no caller authentication, authorization, tenant isolation, or
+  rate limiting and must remain private or otherwise controlled;
+- real customer data remains prohibited until lifecycle and access controls pass.
+
+The cumulative source of truth is the
+[Security and Compliance record](./.spec_system/SECURITY-COMPLIANCE.md).
+
+## Docker And Coolify
+
+The Docker image exposes port 3000, stores events under `/app/data`, and has a
+container health probe for `/health`. The image and probe pass local validation;
+production Coolify health, persistence, restore, and rollback remain unproved.
+Use the [deployment guide](./docs/deployment.md) for the verified local boundary
+and the remaining external decisions.
+
+## Required Workshop Path
+
+Complete the [ordered workshop tasks](./docs/todo/README_todo.md) across five
+phases, one workshop week per phase. Task `08` is a required comparison even
+when its evidence says to remove the added handoff.
+
+## Deferred Integrations
+
+These require separate authorization after the ordered workshop path:
+
+1. A read-only production CRM adapter.
+2. A separately approved company-research source.
+3. A real send provider with exact approval and idempotency guarantees.
+4. Postgres behind the existing persistence contracts.
+5. Model grading only for qualities deterministic gates cannot measure.
 
 ## Versioning
 
-Releases follow [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html) and the repository's
-[versioning policy](./docs/VERSIONING.md). User-visible changes are recorded in the
+Releases follow [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
+and the repository [versioning policy](./docs/VERSIONING.md). The project is
+currently version 0.1.11; user-visible changes are recorded in the
 [changelog](./docs/CHANGELOG.md).
 
-## Official references
+## Official Pi References
 
-- Pi repository: https://github.com/earendil-works/pi
-- Pi SDK guide: https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/sdk.md
-- Pi SDK examples: https://github.com/earendil-works/pi/tree/main/packages/coding-agent/examples/sdk
+- [Pi repository](https://github.com/earendil-works/pi)
+- [Pi SDK guide](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/sdk.md)
+- [Pi SDK examples](https://github.com/earendil-works/pi/tree/main/packages/coding-agent/examples/sdk)
 
-Pi does not provide a general permission sandbox by default. The production boundary must come from tool allowlists, application-level approvals, and container or sandbox controls.
+Pi is not a general permission sandbox. The production boundary comes from the
+frozen tool allowlist, application validation and approvals, deterministic
+evidence, and container or platform controls.
 
-### Dependency note
+### Dependency Note
 
-At the time this classroom reference was verified, `@earendil-works/pi-coding-agent@0.83.0` pinned vulnerable versions of `brace-expansion` and `undici` in its published shrinkwrap. This project requires npm 12, which honors the root overrides to install `brace-expansion@5.0.9`, `minimatch@10.2.6`, and `undici@8.10.0`; `npm audit` then reports zero vulnerabilities. Keep npm on the declared version, re-run `npm audit` before deployment, and remove the overrides once Pi publishes the patched dependency tree directly.
+Pi 0.83.0 currently requires root overrides for `brace-expansion`, `minimatch`,
+and `undici`. npm 12 honors the committed overrides; the current audit reports
+zero vulnerabilities. Keep npm on the declared version, run `npm audit` before
+release, and remove an override only after the upstream dependency tree is
+verified.

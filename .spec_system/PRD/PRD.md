@@ -2,7 +2,7 @@
 
 ## Overview
 
-Production Agent Workshop is a runnable reference and guided implementation path for a bounded agency lead-operations agent. Given an exact `leadId`, the current Pi session reads a synthetic lead, drafts a relevant first follow-up, creates a pending human approval request, and stops. Codex owns repository changes, Pi owns the model loop, the application owns validation, permissions, state, and evidence, and Coolify owns the deployment boundary.
+Production Agent Workshop is a runnable reference and guided implementation path for a bounded agency lead-operations agent. Given an exact `leadId`, the current Pi session obtains an application-validated synthetic qualification, drafts a relevant first follow-up, creates a pending human approval request, and stops. Codex owns repository changes, Pi owns the model loop, the application owns validation, permissions, state, and evidence, and Coolify owns the deployment boundary.
 
 The product prioritizes clarity, observability, and safe recovery over autonomy. The current reference uses synthetic leads and never sends a message. Its production-hardening path adds explicit qualification, durable approvals, a fake idempotent external-write boundary, event-based recovery, deployment-blocking evals, operator observability, and a controlled Coolify release before any real provider integration is considered.
 
@@ -11,11 +11,12 @@ The product prioritizes clarity, observability, and safe recovery over autonomy.
 The baseline verified by [`docs/todo/README_todo.md`](../../docs/todo/README_todo.md) is deliberately smaller than the planned production-hardening scope:
 
 - `GET /health` and a body-limited, validated `POST /runs` are implemented.
-- One in-memory Pi session allowlists exactly `inspect_lead`, `draft_follow_up`, and `request_send_approval`.
-- Lead inspection, draft creation, and a pending approval record are implemented; typed qualification, approval decisions, and sending are not.
-- Append-only JSONL events are keyed by `runId`; approval state and resumable session state are not yet durable.
-- Four deterministic tests and five deterministic eval cases pass through `npm run verify`.
-- The Node 24 container exposes port 3000, provides `/health`, and declares `/app/data` for persistent event storage.
+- One in-memory Pi session uses a frozen allowlist containing exactly `qualify_lead`, `draft_follow_up`, and `request_send_approval`.
+- Typed deterministic qualification, exact-lead downstream gates, draft creation, and a pending approval record are implemented; approval decisions and sending are not.
+- Append-only JSONL events are keyed by `runId` and carry minimized qualification evidence; approval decisions and resumable whole-run state are not yet durable.
+- Biome formatting, strict TypeScript, 40 deterministic tests, and five deterministic eval cases pass through `npm run verify`.
+- The Node 24 container exposes port 3000, provides `/health`, declares `/app/data` for persistent event storage, and has a locally validated Docker health probe.
+- A least-privilege GitHub Actions Code Quality workflow and GitHub-managed CodeQL pass on the Phase 00 transition commits.
 - `/runs` has no authentication, authorization, tenant isolation, or rate limiting and must remain private or controlled; runs also have no explicit deadline or maximum step count, and no external-write adapter exists.
 
 The todo index and tasks `00` through `08` are the authoritative ordered delivery plan. All nine tasks are required. Tasks `00` through `07` occupy Weeks 1 through 4, and task `08` occupies Week 5 after its measurement entry gate passes. Completing the task `08` experiment and its keep-or-remove decision is mandatory even when the evidence says to remove the added handoff. Every behavior in a task's `Work` section remains planned until its acceptance evidence exists; this PRD must not imply otherwise.
@@ -314,18 +315,19 @@ After Phase 03 completion, transition work, and the measurement entry gate, `pha
 - **Node.js 24.15+ and npm 12.0.2** - Supported runtime and reproducible package-management baseline.
 - **TypeScript 7.0.2 with strict checking** - Typed application, tool, event, and persistence contracts.
 - **Pi Coding Agent SDK 0.83.0** - Bounded model session, custom tools, resource loading, lifecycle events, and in-memory working context.
-- **TypeBox 1.3.10** - Runtime schemas for custom-tool boundaries.
+- **TypeBox 1.3.10** - Static and runtime schemas for qualification and custom-tool boundaries.
 - **Node.js HTTP server** - Small HTTP boundary for health and validated run requests.
 - **Append-only JSONL files** - Current durable event evidence; task `02` approval storage and task `04` projections remain planned behind replaceable interfaces.
-- **Node.js test runner, TSX, and deterministic eval runner** - Provider-independent verification and safety gates.
+- **Biome 2.5.6, Node.js test runner, TSX, and deterministic eval runner** - Formatting and provider-independent verification gates.
+- **GitHub Actions and CodeQL** - Current formatting/type CI and managed static analysis; broader build, test, security, integration, and operations bundles remain incomplete.
 - **Docker and Coolify** - Reproducible container build, secrets, health checks, persistent storage, deployment, and rollback.
 
 ## Success Criteria
 
 ### Required Path (Tasks 00-08)
 
-- [ ] Task `00`: The eight-boundary system map, three-path request trace, permission table, Harness Decision Record, and risk ownership are complete, and baseline type-checking, four tests, and five evals pass.
-- [ ] Task `01`: A known lead produces a schema-valid deterministic qualification; missing, malformed, unknown, and simulated-failure cases stop visibly; no tool permission is broadened.
+- [x] Task `00`: The eight-boundary system map, three-path request trace, permission table, Harness Decision Record, and risk ownership are complete, and the recorded baseline checks pass.
+- [x] Task `01`: A known lead produces a schema-valid deterministic qualification; missing, malformed, unknown, and simulated-failure cases stop visibly; no tool permission is broadened.
 - [ ] Task `02`: Pending, approved, and declined approval state survives restart; projections rebuild identically; invalid, duplicate, conflicting, interrupted, and corrupted decisions never imply success.
 - [ ] Task `03`: The fake adapter rejects every unapproved or mismatched action, returns the original result on duplicate approved requests, passes all eight required paths, and remains non-networked throughout the required five-week path.
 - [ ] Task `04`: Three documented interruption points resume from durable events with zero duplicate approvals or effects; deadline, step-limit, replay, and corrupt-record paths fail visibly without manual state edits.
@@ -368,7 +370,7 @@ The completed five-week path must leave one reviewable portfolio containing:
 - File-backed append-only storage is sufficient for the current single-process workshop: repository architecture guidance explicitly defers a database, Redis, or queue until durable concurrency requires it, and the storage interfaces remain replaceable.
 - The repository is a single package rather than a monorepo: deterministic analysis found no workspace indicators or packages, and the root contains one `package.json`, so package-scoped planning is unnecessary.
 - Phases map one-to-one to workshop weeks: Phase 00 owns Week 1 tasks `00`-`01`, Phase 01 owns Week 2 tasks `02`-`03`, Phase 02 owns Week 3 tasks `04`-`05`, Phase 03 owns Week 4 tasks `06`-`07`, and Phase 04 owns required Week 5 task `08`; the user supplied this phase boundary directly, so no unrelated integration phase may be inserted.
-- Project state currently registers only not-started Phase 00, which remains named Foundation: Phases 01 through 04 are PRD-planned future phases and gain session state sequentially through `phasebuild`, never in advance.
+- Project state registers completed Phase 00 only: Phases 01 through 04 remain PRD-planned future phases and gain session state sequentially through `phasebuild`, never in advance.
 - Production CRM, company research, real send, and Postgres work remain unscheduled deferred requirements: they appear in future-looking repository material but not in the ordered todo path, so aligning the PRD does not authorize or schedule them.
 
 ### Conflict Resolutions
@@ -377,7 +379,7 @@ The completed five-week path must leave one reviewable portfolio containing:
 - Older assignment material labels task `08` as optional, while the project owner requires it: treat the experiment and decision as mandatory Week 5 work, preserve its evidence entry gate, and allow only the added orchestration component itself to be removed when the comparison does not justify it.
 - The former root README student-extension list mixed required workshop work with deferred integrations: use the todo index as the delivery authority, keep CRM, company research, a real send provider, Postgres, and model grading unscheduled, and place required task `08` in Phase 04 after the four foundational weeks.
 - Task `03` is named as a send boundary while the core path prohibits real sending: implement only the deterministic fake adapter and keep any real network provider and network-writing Pi tool deferred.
-- The root README describes release guidance rather than implemented CI because `.github` contains no workflow; CI quality and deployment gates remain planned until a workflow exists and passes.
+- The root README distinguishes the passing Code Quality/CodeQL checks from broader unconfigured pipeline and deployment bundles; CI success does not imply production deployment readiness.
 
 ## Open Decisions
 

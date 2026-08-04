@@ -18,7 +18,7 @@ The ordered scope and acceptance evidence remain authoritative in
 - [x] Validate the Code Quality pipeline and all active GitHub-managed workflows.
 - [x] Add and validate the Docker/Coolify Health infrastructure bundle locally.
 - [x] Record Phase 00 carryforward risks, lessons, controls, and release gates.
-- [ ] Complete the documentation transition gate.
+- [x] Complete the Phase 00 documentation transition gate.
 
 ## Documentation Maintenance
 

@@ -7,12 +7,13 @@ This directory is the required five-week implementation path for turning the bou
 The repository currently provides:
 
 - `GET /health` and a validated `POST /runs` boundary in `src/server.ts`
-- one Pi session with exactly three allowlisted custom tools in `src/pi-agent.ts`
-- read, draft, and pending-approval tools in `src/tools.ts`; no send tool exists
-- an append-only JSONL event store keyed by `runId` in `src/event-store.ts`
+- one Pi session with the frozen `qualify_lead`, `draft_follow_up`, and `request_send_approval` allowlist in `src/pi-agent.ts`
+- deterministic typed qualification, exact-lead draft and pending-approval gates in `src/tools.ts`; no send tool exists
+- an append-only JSONL event store keyed by `runId`, including minimized qualification evidence, in `src/event-store.ts`
 - an in-memory Pi session and file-backed events; approvals are not yet durable
-- four deterministic tests and five deterministic eval cases
-- a Node 24 container, `/health`, and a persistent `/app/data` volume contract
+- 40 deterministic tests and five deterministic eval cases
+- a Node 24 container, `/health`, a Docker health probe, and a persistent `/app/data` volume contract
+- a passing Code Quality workflow and GitHub-managed CodeQL; broader CI/CD bundles remain incomplete
 - no authentication, tenant isolation, or rate limiting on `/runs`
 
 Treat every behavior described under a task's `Work` section as planned until its acceptance evidence proves otherwise.
@@ -35,7 +36,7 @@ The repository-wide verification command is:
 npm run verify
 ```
 
-It runs type-checking, deterministic tests, and the eval suite.
+It checks Biome formatting, strict TypeScript, deterministic tests, and the eval suite.
 
 ## Permission Vocabulary
 

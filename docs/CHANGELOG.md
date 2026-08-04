@@ -13,12 +13,14 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 - Added Biome 2.5.6 as the Phase Transition formatting bundle with repository-scoped TypeScript and JSON configuration.
 - Added a least-privilege GitHub Actions code-quality workflow with immutable action pins, locked dependency installation, formatting enforcement, and strict type checking.
 - Added a Docker health probe that verifies the `/health` response body and status under bounded interval, timeout, start-period, and retry settings.
+- Added current architecture, onboarding, development, environment, deployment, HTTP API, incident-response, contribution, and ADR-template documentation.
 
 ### Changed
 
 - Added formatting commands and made the full verification command enforce a clean formatting check before strict types, tests, and evals.
 - Validated the new Code Quality workflow and GitHub-managed CodeQL against the exact pushed transition commit with no open PR or review blocker.
 - Re-synthesized the living considerations and security/compliance records from every Phase 00 summary, archived plan, implementation discovery log, session security report, and known transition exception.
+- Updated the root README and master PRD from the pre-qualification four-test baseline to the completed Phase 00 tool, event, test, CI, container-health, and no-send boundary.
 
 ## [0.1.11] - 2026-08-04
 

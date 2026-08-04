@@ -1,112 +1,125 @@
 # Documentation Audit
 
-**Date:** 2026-08-04
-**Project:** production-agent-workshop
-**Version inspected:** 0.1.6
-**Audit mode:** Full source-to-task consolidation and phase/week alignment within the workshop documentation scope
+**Date**: 2026-08-04
+**Project**: `production-agent-workshop`
+**Audit mode**: Phase-focused after completed Phase 00
+**Result**: PASS with external decision gaps recorded
 
 ## Scope
 
-This audit compared every section of the committed `docs/scratch.md` source against the ordered tasks in `docs/todo/`, verified all technical claims against the repository, consolidated missing requirements, repaired live navigation, and removed the scratch file only after coverage and recoverability checks passed.
+The project analyzer reports Phase 00 complete, three completed sessions, no
+current session, and no remaining Phase 00 candidate. The first session records
+base commit `5d9d66432ee0782db8863951266f3670453f7819`; the base-to-HEAD manifest and
+all three implementation logs define the Phase 00 documentation surface.
 
-This was not a claim that planned production features already exist. The todo files clearly separate the implemented baseline from future work and acceptance evidence.
+The audit covered the root documentation requirements, every standard
+operational document, the current HTTP API, README naming, phase progress,
+tooling and deployment changes, local commands, relative links, ASCII/LF
+encoding, security-sensitive claims, and the final two-source workflow decision.
 
-The roadmap was subsequently clarified as five required weeks: Phases 00 through 04 map one-to-one to Weeks 1 through 5, and task `08` is required after its evidence entry gate. The handoff experiment must be completed, although its keep-or-remove decision may remove the added orchestration.
+## Coverage Summary
 
-## Summary
-
-| Area | Required or Inspected | Found or Mapped | Status |
-|------|-----------------------|-----------------|--------|
-| Scratch source sections | 17 | 17 | Complete |
-| Ordered implementation tasks | 9 | 9 | Complete |
-| Standard task sections | 36 | 36 | Complete |
-| Todo index files | 1 | 1 | Complete |
-| Local Markdown links | 54 | 54 valid | Complete |
-| Updated-file ASCII and LF checks | All scoped files | No violations | Complete |
-| Type-check command | 1 | Passed | Complete |
-| Deterministic tests | 4 | 4 passed | Complete |
-| Eval cases | 5 | 5 passed | Complete |
-
-## Source Disposition
-
-- Source size: 1,599 lines and 34,480 bytes.
-- Source SHA-256: `8d4d9be5c636d286aec6178c6b1344a936d931e63b687a668e0d37aa4d595a18`.
-- Recoverability check: the working source hash matched `HEAD` before deletion.
-- Recovery point: commit `3d84e25` contains the exact deleted source.
-- Coverage proof: the 17-row matrix in [README_todo.md](../docs/todo/README_todo.md) maps every source section to an authoritative destination.
+| Area | Required | Found | Status |
+|------|----------|-------|--------|
+| Root files (`README.md`, `CONTRIBUTING.md`, `LICENSE`) | 3 | 3 | PASS |
+| Standard `/docs` files including API and ownership | 9 | 8 | PASS with external `CODEOWNERS` gap |
+| ADR template | 1 | 1 | PASS |
+| Package/service READMEs | 0 | 0 | N/A - analyzer reports one root package and no monorepo packages |
+| Root-only `README.md` naming | 1 | 1 | PASS |
+| Relative Markdown links | 81 | 81 | PASS; 0 missing |
+| Markdown ASCII/LF files | 69 | 69 | PASS |
 
 ## Files Created
 
-- `docs/todo/README_todo.md` - baseline, workflow, task order, evidence standard, and coverage map
-- `docs/todo/06-observability-and-incidents.md` - service, run, model, and tool observability plus incident drills
-- `docs/todo/07-coolify-release.md` - server hardening, pre-public gates, deployment, recovery, rollback, and handoff
-- `docs/todo/08-typed-handoff-experiment.md` - required Week 5 measured orchestration experiment
-- `.spec_system/docs-audit.md` - this evidence ledger
+| File | Verified purpose |
+|------|------------------|
+| `CONTRIBUTING.md` | Repository branch, verification, PR, documentation, and safety workflow |
+| `docs/ARCHITECTURE.md` | Current Mermaid component, trust, event, persistence, and deployment map |
+| `docs/onboarding.md` | Provider-independent setup and controlled Pi authentication handoff |
+| `docs/development.md` | Exact package scripts, source boundaries, formatting, tests, data, and CI |
+| `docs/environments.md` | Local/container environment matrix, variable names, and data restrictions |
+| `docs/deployment.md` | Executed local image/health sequence and accurate Coolify gaps |
+| `docs/adr/0000-template.md` | Evidence, consequences, security/data, and verification decision template |
+| `docs/runbooks/incident-response.md` | Implemented local triage and explicit recovery limits without invented SLA |
+| `docs/api/http-api.md` | Current `/health` and `/runs` request, response, error, and exposure contract |
 
 ## Files Updated
 
-- Tasks `00` through `05` now cover the architecture, repository, harness, focused-tool, durable-state, recovery, and eval requirements that fit their existing goals.
-- `README.md` links to the todo index and uses current ASCII flow notation.
-- `.agents/skills/verify-production-agent/SKILL.md` uses task terminology.
-- `docs/workshop/README_workshop.md` describes the required five-week path.
-- `docs/workshop/support-thread-convention.md` covers tasks `00` through `08`.
-- `docs/CHANGELOG.md` records the consolidation and aligns the completed rename with version 0.1.3.
+| File | Reason |
+|------|--------|
+| `README.md` | Replaced stale `inspect_lead` flow with the frozen qualification boundary, one-command gate, repository map, current status, and doc index |
+| `.spec_system/PRD/PRD.md` | Reconciled baseline, stack, Tasks `00`/`01`, state assumptions, and CI claims with completed Phase 00 evidence |
+| `docs/TODO.md` | Marked all five Phase Transition documentation gates complete |
+| `docs/CHANGELOG.md` | Recorded the verified transition tooling and documentation surface |
+| `docs/todo/README_todo.md` | Updated the current baseline, test count, formatter gate, container health, and CI status |
+| `docs/workshop/README_workshop.md` | Switched setup to the lockfile install and converted the learning loop to Mermaid |
 
-## Files Renamed or Removed
+## Files Verified As Current
 
-- `docs/todo/06-coolify-release.md` was split into task `06` for observability and task `07` for release.
-- `docs/workshop/README.md` became `docs/workshop/README_workshop.md` to keep the root README filename unique.
-- `docs/scratch.md` was deleted after its exact committed source passed the coverage gate.
-
-## Verified Current Behavior
-
-- `package.json` defines Node 24.15+, npm 12+, and `npm run verify` as type-check plus tests plus evals.
-- `src/server.ts` exposes `GET /health` and validated `POST /runs`; it does not implement authentication or rate limiting.
-- `src/pi-agent.ts` creates one Pi session and allowlists only `inspect_lead`, `draft_follow_up`, and `request_send_approval`.
-- `src/tools.ts` has read, draft, and pending-approval behavior; it contains no send adapter.
-- `src/event-store.ts` appends JSONL events and reads them by `runId`.
-- Pi session state is in memory, while event persistence uses `EVENT_LOG_PATH`.
-- `Dockerfile` uses Node 24, exposes port 3000, and declares `/app/data` for persistent events.
-- The current deterministic baseline is four tests and five eval cases.
+| File or area | Verification |
+|--------------|--------------|
+| `LICENSE` | Existing MIT text found; no legal choice was invented or changed |
+| `docs/VERSIONING.md` | `package.json` remains the 0.1.11 version source and the release checklist matches repository scripts |
+| `docs/build-log.md` | Phase 00 implementation, Mermaid, RED/GREEN, demo, review, and validation evidence remains the detailed source |
+| `docs/openai-codex-subscription-auth.md` | Existing controlled-use auth guide remains linked; credential values and auth state were not inspected |
+| `docs/todo/` and `docs/workshop/` | Ordered task and workshop sources remain authoritative; no future phase session artifact was created |
+| `.spec_system/CONSIDERATIONS.md` | Fresh P00 carryforward is 117/600 lines with 10 concerns, 18 lessons, and 2 resolved items |
+| `.spec_system/SECURITY-COMPLIANCE.md` | Fresh P00 synthesis is 214/1000 lines with five open release gates and synthetic-only GDPR status |
 
 ## Evidence Ledger
 
-| Area | Document | Codebase, Spec, or Command Evidence | Result |
-|------|----------|-------------------------------------|--------|
-| Workflow state | `.spec_system/state.json` | `bash .spec_system/scripts/analyze-project.sh --json` | Phase 00 not started; 3 planned session stubs; no active session; monorepo false |
-| Product context | `.spec_system/PRD/PRD.md` | Populated PRD inspected after concurrent `createprd` | Current phases and planned requirements reflected |
-| Source coverage | `docs/todo/README_todo.md` | Scratch headings counted with `rg`; 17 source sections and 17 map rows | Complete |
-| Source recovery | `docs/scratch.md` | Working and `HEAD` SHA-256 values compared before deletion | Exact match |
-| Runtime boundary | Tasks 00-04 | `src/server.ts`, `src/pi-agent.ts`, `src/tools.ts`, `src/event-store.ts` inspected | Updated from verified behavior |
-| Eval boundary | Task 05 | `src/evals.ts`, `tests/tools.test.ts`, `tests/event-store.test.ts` inspected | Updated from verified baseline and planned gaps |
-| Deployment boundary | Task 07 | `Dockerfile`, `.env.example`, `README.md`, and `SECURITY.md` inspected | Current facts separated from operator decisions |
-| Orchestration boundary | Task 08 | Client brief future phases, project-owner clarification, and current single-session implementation inspected | Required Week 5 work and evidence-gated |
-| Navigation | Root README, todo index, workshop guide, PRD, and governance docs | Local Markdown link checker | 54 links checked; none missing |
-| Encoding | All updated documentation | ASCII and CR scans | No scoped violations |
-| Type safety | Repository | `npm run check` | Passed |
-| Deterministic tests | Repository | `npm test` | 4 of 4 passed |
-| Evals | Repository | `npm run eval` | 5 of 5 passed |
-| Complete gate | Repository | `npm run verify` | Passed |
+| Area | Document | Codebase or Spec Evidence | Result |
+|------|----------|---------------------------|--------|
+| Project state | Audit mode and progress | `.spec_system/scripts/analyze-project.sh --json` | Phase-focused; P00 complete, 3/3 sessions, no active session |
+| Phase manifest | All changed areas | First spec base plus `git diff --name-status BASE..HEAD` | Phase changes and transition artifacts inventoried |
+| Current runtime | `README.md`, `docs/ARCHITECTURE.md` | `src/server.ts`, `src/pi-agent.ts`, `src/tools.ts`, `src/qualification.ts`, `src/event-store.ts` | Updated |
+| HTTP contract | `docs/api/http-api.md` | `src/server.ts`, `RunResult`, qualification schemas, finite stop reasons | Created and current |
+| Commands | README, onboarding, development | `package.json`, `biome.json`; `npm ci`, `npm start`, `npm run verify`, and `npm audit` executed | PASS |
+| Environment | `docs/environments.md` | `.env.example`, source defaults, Dockerfile environment and volume | Created and current |
+| Container | `docs/deployment.md` | Exact documented build/run/curl/inspect/cleanup sequence executed | `running healthy`; temporary artifacts removed |
+| CI | README, development, deployment | `.github/workflows/quality.yml`; GitHub runs `30892315416` and `30892309779` | Code Quality and CodeQL PASS |
+| Security/privacy | All setup and deployment docs | Security checklist, living security record, secret scan, known issues | No insecure default or credential signature found |
+| Documentation links | All Markdown | Node-based tracked/untracked relative-link scan | 81 local links, 0 missing |
+| Encoding | All Markdown | Byte scan | 69 files ASCII with LF |
+| Stale claims | Active docs and master PRD | Targeted scan for `inspect_lead`, four-test baseline, missing-CI claim, and pending bookkeeping | 0 stale active claim |
+| Strict cutoff | Entire Phase 00 base diff | Changed/untracked path scan | 0 Phase 01 artifact path |
 
-## Security and Privacy Review
+## External Decision Gaps
 
-- No production code, dependency, tool allowlist, process permission, or external side effect changed.
-- No credentials, private URLs, or customer data were added.
-- Deployment tasks require secret storage, redacted evidence, authentication, authorization, tenant isolation, rate limiting, and data-lifecycle decisions before public exposure.
-- Event, approval, observability, and Build Log requirements explicitly minimize personal data and forbid complete production logs.
+### `docs/CODEOWNERS`
 
-## External Decisions Preserved as Task Work
+Missing. Assigning owners is an organizational decision that cannot be inferred
+from Git history or source. Create it only after maintainers provide the exact
+people or teams and ownership patterns.
 
-The documentation does not invent values for VPS sizing, region, domain, Coolify access, backup destination, alert thresholds, provider credentials, real send provider, tenant model, retention duration, or model-grading thresholds. Tasks `03` through `07` require those decisions and their evidence at the point where they become actionable.
+### Production Operations
 
-## Remaining Coverage Gaps
+A production URL, region, sizing, DNS/HTTPS owner, Coolify access policy,
+on-call owner, response-time objectives, backup destination, retention,
+recovery ownership, and rollback authority remain external decisions. Current
+docs state these gaps instead of inventing values.
 
-No unique source-to-todo coverage gap remains. Architecture diagrams, incident and operator runbooks, deployment evidence, and comparative orchestration results remain future task deliverables rather than unsupported claims about the current repository.
+Neither gap blocks accurate Phase 00 documentation or the next planning gate.
 
-## Concurrent Spec-System Update
+## Documentation Readiness
 
-A separate `createprd` run populated `PRD.md`, refreshed `CONVENTIONS.md`, set `monorepo` to `false`, and created an archive backup while this audit was running. Those changes were preserved. This audit corrected the root README's unsupported CI claim and resynchronized the workflow conclusion below; it does not claim authorship of the concurrent spec changes.
+- Commands and paths exist and were run or inspected.
+- Root README prominently names `npm run verify` as the one-command gate.
+- README and architecture describe implemented behavior only.
+- New dependency, script, workflow, container probe, API shape, and transition
+  evidence appear in the correct documentation surfaces.
+- No placeholder content exists outside the intentional ADR template fields.
+- No secret, real personal data, private infrastructure identifier, or
+  unsupported compliance claim was added.
+- No subdirectory file is named `README.md`.
 
-## Workflow State
+## Next Action Decision
 
-The spec system has a planned Week 1 Phase 00 but has not started implementation: the PRD defines the required five-week sequence through Phase 04, three Phase 00 session stubs exist, and no session is active. This targeted documentation audit does not advance state. The staged workflow handoff is `plansession` for Session 01.
+The analyzer state contains completed Phase 00 only. The master PRD still
+defines planned unfinished Phases 01 through 04, so the two-source rule selects
+`phasebuild` as the next workflow command. This audit does not run it and does
+not create or modify any Phase 01 artifact.
+
+Next command: `phasebuild`
+Reason: the master PRD defines another unfinished phase; Phase 00 transition is
+complete and ready for the separately authorized next-phase build step.

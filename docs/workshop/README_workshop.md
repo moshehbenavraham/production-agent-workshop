@@ -5,7 +5,7 @@ This repository is both a completed bounded reference and a set of progressive a
 ## How to Use It
 
 1. Fork the repository.
-2. Run `npm install` and `npm run verify`.
+2. Run `npm ci` and `npm run verify`.
 3. Read `docs/todo/client-brief.md`, `AGENTS.md`, and the governance files it links.
 4. Read `docs/todo/README_todo.md` and complete the numbered files in order.
 5. Work on one task at a time and use Plan mode for non-trivial changes.
@@ -23,15 +23,15 @@ Done when: The acceptance criteria are demonstrated and $verify-production-agent
 
 ## Learning Loop
 
-```text
-brief
-  -> task
-  -> plan
-  -> smallest vertical slice
-  -> tests and evals
-  -> diff review
-  -> evidence
-  -> commit
+```mermaid
+flowchart LR
+    Brief[Brief] --> Task[Task]
+    Task --> Plan[Plan]
+    Plan --> Slice[Smallest vertical slice]
+    Slice --> Gates[Tests and evals]
+    Gates --> Review[Diff review]
+    Review --> Evidence[Evidence]
+    Evidence --> Commit[Commit]
 ```
 
 The tasks move from understanding to typed behavior, durable approval, controlled writes, recovery, evals, observability, deployment, and a required evidence-based handoff experiment.
