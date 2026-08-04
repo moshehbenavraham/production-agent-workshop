@@ -12,6 +12,8 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 - Enabled the Biome 2.5.6 recommended-rule linting bundle with fix/check
   commands and enforcement in the complete local verification gate.
+- Added a least-privilege Build & Test workflow with a TypeScript build, all
+  deterministic tests, built-in coverage gates, and all five evals.
 - Added one internal safe-write application that composes shared durable
   approval/event truth, exact fake authorization, result persistence, and the
   deterministic adapter while snapshotting synthetic actor permissions.
@@ -49,6 +51,8 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Changed
 
+- Added lint enforcement to Code Quality CI and documented the two-workflow
+  local/CI verification contract.
 - Allowed fake-send duplicate recovery to coexist with valid approval and other
   domain events in the shared run log while failing closed on malformed events
   that claim the `fake_send.*` namespace.

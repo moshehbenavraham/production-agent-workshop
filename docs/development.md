@@ -17,12 +17,14 @@
 | `npm run dev` | Watch and restart the HTTP server through TSX |
 | `npm start` | Start the HTTP service once |
 | `npm run demo -- lead_ada` | Run a Pi-backed synthetic lead through the agent |
+| `npm run build` | Compile source and tests to ignored `dist/` output |
 | `npm run format` | Apply Biome formatting to scoped TypeScript and root JSON |
 | `npm run format:check` | Verify formatting without writing |
 | `npm run lint` | Check scoped TypeScript and root JSON with Biome recommended rules |
 | `npm run lint:fix` | Apply Biome safe lint fixes |
 | `npm run check` | Run strict TypeScript with no emit |
 | `npm test` | Run all deterministic `node:test` cases through TSX |
+| `npm run test:coverage` | Run tests with 95% line, 85% branch, and 95% function minimums |
 | `npx tsx --test tests/safe-write-application.test.ts` | Run the internal file-backed Task `03` vertical-slice matrix |
 | `npm run eval` | Run the five deterministic eval cases |
 | `npm run verify` | Run formatting, linting, types, tests, and evals in one gate |
@@ -85,10 +87,12 @@ retention/deletion rule in [Environments](./environments.md).
 
 ## CI
 
-`.github/workflows/quality.yml` runs `npm ci`, `npm run format:check`, and
-`npm run check` on pushes to `main` and pull requests. GitHub-managed CodeQL and
-Dependabot are enabled. The full Build & Test pipeline bundle is not configured,
-so local `npm run verify` remains mandatory.
+`.github/workflows/quality.yml` runs locked-install formatting, linting, and
+strict-type checks. `.github/workflows/test.yml` compiles the repository, runs
+all deterministic tests with built-in coverage thresholds, and runs all five
+evals. Both workflows run on pushes to `main` and pull requests. GitHub-managed
+CodeQL and Dependabot remain enabled; local `npm run verify` is still mandatory
+before review.
 
 ## Change Handoff
 

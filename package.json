@@ -13,12 +13,14 @@
     "start": "tsx src/server.ts",
     "demo": "tsx src/demo.ts",
     "eval": "tsx src/evals.ts",
+    "build": "tsc",
     "format": "biome format --write .",
     "format:check": "biome format .",
     "lint": "biome lint .",
     "lint:fix": "biome lint --write .",
     "check": "tsc --noEmit",
     "test": "tsx --test tests/*.test.ts",
+    "test:coverage": "tsx --test --experimental-test-coverage --test-coverage-lines=95 --test-coverage-branches=85 --test-coverage-functions=95 tests/*.test.ts",
     "verify": "npm run format:check && npm run lint && npm run check && npm test && npm run eval"
   },
   "dependencies": {

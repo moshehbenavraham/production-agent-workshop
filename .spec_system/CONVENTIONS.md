@@ -148,6 +148,8 @@ For a non-trivial change:
 | Package Manager | npm 12.0.2 | `packageManager`, `package-lock.json` |
 | Type Safety | TypeScript strict | `npm run check`, `tsconfig.json` |
 | Testing | Node.js test runner | `npm test` |
+| Build | TypeScript compiler | `npm run build`, `dist/` (generated and ignored) |
+| Coverage | Node.js test coverage | `npm run test:coverage`; lines 95%, branches 85%, functions 95% |
 | Evals | Deterministic TypeScript runner | `npm run eval` |
 | Full Verification | npm scripts | `npm run verify` |
 | Formatter | Biome 2.5.6 | `npm run format`, `npm run format:check`, `biome.json` |
@@ -161,7 +163,7 @@ For a non-trivial change:
 | Bundle | Status | Workflow |
 |--------|--------|----------|
 | Code Quality | configured | `.github/workflows/quality.yml` |
-| Build & Test | not configured | - |
+| Build & Test | configured | `.github/workflows/test.yml` |
 | Security | not configured | - |
 | Integration | not configured | - |
 | Operations | not configured | - |

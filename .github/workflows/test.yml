@@ -1,4 +1,4 @@
-name: Code Quality
+name: Build and Test
 
 on:
   push:
@@ -10,14 +10,14 @@ permissions:
   contents: read
 
 concurrency:
-  group: quality-${{ github.workflow }}-${{ github.ref }}
+  group: test-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  quality:
-    name: Format, lint, and type check
+  test:
+    name: Build, test, coverage, and evals
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     steps:
       - name: Check out repository
@@ -32,11 +32,11 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
 
-      - name: Check formatting
-        run: npm run format:check
+      - name: Build TypeScript
+        run: npm run build
 
-      - name: Check lint rules
-        run: npm run lint
+      - name: Run tests with coverage thresholds
+        run: npm run test:coverage
 
-      - name: Check strict TypeScript
-        run: npm run check
+      - name: Run deterministic evals
+        run: npm run eval

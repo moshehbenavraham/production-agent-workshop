@@ -64,7 +64,8 @@ flowchart LR
 | Event store | `src/event-store.ts` | Append-only JSONL | Correlated durable evidence by `runId` |
 | Deterministic gates | `tests/`, `src/evals.ts` | `node:test` + TSX | Contract, failure, permission, event, and vertical-slice verification |
 | Container boundary | `Dockerfile` | Node.js 24 Alpine | Port 3000, `/app/data`, process start, and container health probe |
-| Code Quality CI | `.github/workflows/quality.yml` | GitHub Actions | Locked install, formatting check, and strict TypeScript |
+| Code Quality CI | `.github/workflows/quality.yml` | GitHub Actions | Locked install, formatting, linting, and strict TypeScript |
+| Build & Test CI | `.github/workflows/test.yml` | GitHub Actions | TypeScript build, 149 tests with coverage thresholds, and five evals |
 
 ## Run And Evidence Flow
 
