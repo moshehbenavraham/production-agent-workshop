@@ -27,21 +27,28 @@ test("production allowlist contains exactly three bounded custom tools", () => {
     "draft_follow_up",
     "request_send_approval",
   ]);
+  assert.equal(Object.isFrozen(PRODUCTION_TOOL_NAMES), true);
 });
 
 test("known success with pending approval derives approval_pending", () => {
   assert.equal(
-    deriveRunStopReason([
-      event("qualification.completed", known.value),
-      event("approval.requested", { leadId: "lead_ada", status: "pending" }),
-    ]),
+    deriveRunStopReason(
+      [
+        event("qualification.completed", known.value),
+        event("approval.requested", { leadId: "lead_ada", status: "pending" }),
+      ],
+      "lead_ada",
+    ),
     "approval_pending",
   );
 });
 
 test("known success without approval derives completed", () => {
   assert.equal(
-    deriveRunStopReason([event("qualification.completed", known.value)]),
+    deriveRunStopReason(
+      [event("qualification.completed", known.value)],
+      "lead_ada",
+    ),
     "completed",
   );
 });
@@ -51,39 +58,71 @@ test("not-found qualification failure wins over attempted approval", () => {
   if (notFound.ok) assert.fail("Expected not found");
 
   assert.equal(
-    deriveRunStopReason([
-      event("qualification.failed", notFound.error),
-      event("approval.requested", { status: "pending" }),
-    ]),
+    deriveRunStopReason(
+      [
+        event("qualification.failed", notFound.error),
+        event("approval.requested", { status: "pending" }),
+      ],
+      "lead_unknown",
+    ),
     "not_found",
   );
 });
 
 test("other qualification failure wins over assistant or approval state", () => {
   assert.equal(
-    deriveRunStopReason([
-      event("qualification.failed", {
-        code: "qualification_timeout",
-        message: "Qualification timed out.",
-        retryable: true,
-      }),
-      event("approval.requested", { status: "pending" }),
-    ]),
+    deriveRunStopReason(
+      [
+        event("qualification.failed", {
+          code: "qualification_timeout",
+          message: "Qualification timed out.",
+          retryable: true,
+        }),
+        event("approval.requested", { status: "pending" }),
+      ],
+      "lead_ada",
+    ),
     "qualification_failed",
   );
 });
 
 test("missing or corrupt qualification evidence fails closed", () => {
-  assert.equal(deriveRunStopReason([]), "qualification_failed");
+  assert.equal(deriveRunStopReason([], "lead_ada"), "qualification_failed");
   assert.equal(
-    deriveRunStopReason([
-      event("qualification.completed", {
-        leadId: "lead_ada",
-        fit: "invented",
-        confidence: 2,
-      }),
-    ]),
+    deriveRunStopReason(
+      [
+        event("qualification.completed", {
+          leadId: "lead_ada",
+          fit: "invented",
+          confidence: 2,
+        }),
+      ],
+      "lead_ada",
+    ),
     "qualification_failed",
+  );
+});
+
+test("schema-valid cross-lead completion fails closed for the requested run", () => {
+  assert.equal(
+    deriveRunStopReason(
+      [event("qualification.completed", known.value)],
+      "lead_grace",
+    ),
+    "qualification_failed",
+  );
+});
+
+test("approval before the latest qualification cannot derive approval_pending", () => {
+  assert.equal(
+    deriveRunStopReason(
+      [
+        event("approval.requested", { leadId: "lead_ada", status: "pending" }),
+        event("qualification.completed", known.value),
+      ],
+      "lead_ada",
+    ),
+    "completed",
   );
 });
 

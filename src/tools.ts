@@ -45,18 +45,17 @@ async function boundedQualification(
   qualificationExecutor: QualificationExecutor,
   timeoutMs: number,
 ): Promise<QualificationOutcome> {
-  if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) {
-    throw new Error("Qualification timeout must be a positive finite number.");
-  }
-
   let timer: NodeJS.Timeout | undefined;
   const execution = Promise.resolve()
     .then(() => qualificationExecutor(input))
-    .then((candidate) =>
-      isQualificationOutcome(candidate)
+    .then((candidate) => {
+      if (!isQualificationOutcome(candidate)) {
+        return makeQualificationFailure("lead_lookup_failed");
+      }
+      return candidate.ok
         ? candidate
-        : makeQualificationFailure("lead_lookup_failed"),
-    )
+        : makeQualificationFailure(candidate.error.code);
+    })
     .catch(() => makeQualificationFailure("lead_lookup_failed"));
   const timeout = new Promise<QualificationOutcome>((resolve) => {
     timer = setTimeout(
@@ -79,6 +78,11 @@ export async function executeQualification(
   input: unknown,
   options: QualificationExecutionOptions = {},
 ): Promise<QualificationOutcome> {
+  const timeoutMs = options.timeoutMs ?? QUALIFICATION_TIMEOUT_MS;
+  if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) {
+    throw new Error("Qualification timeout must be a positive finite number.");
+  }
+
   const validatedInput = isQualificationInput(input) ? input : undefined;
   store.append({
     runId,
@@ -86,14 +90,20 @@ export async function executeQualification(
     data: validatedInput ? { leadId: validatedInput.leadId } : {},
   });
 
-  const outcome =
-    validatedInput && validatedInput.leadId !== requestedLeadId
-      ? makeQualificationFailure("invalid_input")
-      : await boundedQualification(
-          input,
-          options.qualificationExecutor ?? qualifyLead,
-          options.timeoutMs ?? QUALIFICATION_TIMEOUT_MS,
-        );
+  let outcome: QualificationOutcome;
+  if (validatedInput && validatedInput.leadId !== requestedLeadId) {
+    outcome = makeQualificationFailure("invalid_input");
+  } else {
+    const candidate = await boundedQualification(
+      input,
+      options.qualificationExecutor ?? qualifyLead,
+      timeoutMs,
+    );
+    outcome =
+      candidate.ok && candidate.value.leadId !== requestedLeadId
+        ? makeQualificationFailure("lead_lookup_failed")
+        : candidate;
+  }
 
   store.append({
     runId,
@@ -134,16 +144,18 @@ export function createQualificationTool(
 
 export function qualificationOutcomeFromEvents(
   events: readonly AgentEvent[],
+  requestedLeadId: string,
 ): QualificationOutcome | undefined {
   for (const event of [...events].reverse()) {
     if (event.type === "qualification.completed") {
-      return isQualificationResult(event.data)
+      return isQualificationResult(event.data) &&
+        event.data.leadId === requestedLeadId
         ? { ok: true, value: event.data }
         : undefined;
     }
     if (event.type === "qualification.failed") {
       return isQualificationFailure(event.data)
-        ? { ok: false, error: event.data }
+        ? makeQualificationFailure(event.data.code)
         : undefined;
     }
   }
@@ -157,7 +169,10 @@ function hasValidatedQualification(
   store: JsonlEventStore,
 ): boolean {
   if (leadId !== requestedLeadId) return false;
-  const outcome = qualificationOutcomeFromEvents(store.readRun(runId));
+  const outcome = qualificationOutcomeFromEvents(
+    store.readRun(runId),
+    requestedLeadId,
+  );
   return Boolean(
     outcome?.ok && outcome.value.leadId === requestedLeadId,
   );

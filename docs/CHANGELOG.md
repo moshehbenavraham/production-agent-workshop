@@ -8,6 +8,37 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ## [Unreleased]
 
+## [0.1.11] - 2026-08-04
+
+### Added
+
+- Added resolved code-review, targeted security/GDPR, and full validation reports for Session 03.
+
+### Changed
+
+- Closed Session 03 and Phase 00 after 40/40 deterministic tests, 5/5 evals, zero dependency vulnerabilities, and complete production-agent verification.
+- Froze the exact production tool allowlist at runtime and required approval evidence to follow the latest matching qualification terminal event.
+
+### Security
+
+- Canonicalized executor failures and cross-lead results, rejected out-of-order approval evidence, and confirmed that the synthetic-only, pending-approval, no-send boundary remains intact.
+
+## [0.1.10] - 2026-08-04
+
+### Added
+
+- Checkpointed a focused, closed-schema `qualify_lead` tool with a 1,000 ms application deadline, minimized correlated attempt/outcome events, typed run-result qualification, and deterministic integration coverage.
+- Added provider-independent tests for exact-run binding, structured dependency failures, timeout and late-result behavior, corrupt-event rejection, downstream bypass denial, and the qualification-to-pending-approval vertical slice.
+
+### Changed
+
+- Replaced raw `inspect_lead` access with the application-validated qualification boundary while preserving exactly three production tools and no shell, filesystem, send, or approval-decision capability.
+- Required the latest matching qualification success before drafting or pending approval creation, and derived visible run outcomes from validated event evidence instead of assistant prose.
+
+### Security
+
+- Redacted thrown, rejected, invalid, and cross-lead qualification executor results, minimized qualification event data, and preserved the synthetic-only, pending-approval, no-send boundary.
+
 ## [0.1.9] - 2026-08-04
 
 ### Changed

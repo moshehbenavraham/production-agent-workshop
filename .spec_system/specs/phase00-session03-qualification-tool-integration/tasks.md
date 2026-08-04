@@ -38,32 +38,32 @@ Legend: `[x]` completed; `[ ]` pending; `[P]` parallelizable; `[SNNMM]` session 
 - [x] T013 [S0003] Add typed qualification to `RunResult` and derive `not_found`, `qualification_failed`, `completed`, or `approval_pending` from validated terminal evidence with failure precedence (`src/pi-agent.ts`, `tests/pi-agent.test.ts`)
 - [x] T014 [S0003] Fail visibly when no valid qualification terminal evidence exists and replace failure-path assistant prose with the application-owned structured failure message (`src/pi-agent.ts`, `tests/pi-agent.test.ts`)
 - [x] T015 [S0003] Replace inspection evals with deterministic qualification success, refusal, schema, draft, and pending-approval assertions (`src/evals.ts`)
-- [ ] T016 [S0003] Complete Task `01` runtime contract, minimized event sequence, failure matrix, test matrix, and sub-60-second vertical-slice evidence (`docs/build-log.md`)
-- [ ] T017 [S0003] Update implemented security posture, active tracking, and Unreleased notes without claiming later approval, recovery, exposure, or Phase 01 work (`.spec_system/SECURITY-COMPLIANCE.md`, `docs/TODO.md`, `docs/CHANGELOG.md`)
+- [x] T016 [S0003] Complete Task `01` runtime contract, minimized event sequence, failure matrix, test matrix, and sub-60-second vertical-slice evidence (`docs/build-log.md`)
+- [x] T017 [S0003] Update implemented security posture, active tracking, and Unreleased notes without claiming later approval, recovery, exposure, or Phase 01 work (`.spec_system/SECURITY-COMPLIANCE.md`, `docs/TODO.md`, `docs/CHANGELOG.md`)
 
 ---
 
 ## Testing (6 tasks)
 
-- [ ] T018 [S0003] Run the targeted tool and Pi-projection suites to GREEN and record the same RED/GREEN commands and exact counts (`tests/qualification-tool.test.ts`, `tests/pi-agent.test.ts`, `docs/build-log.md`)
-- [ ] T019 [S0003] Exercise success, missing, malformed, cross-lead, unknown, thrown, rejected, invalid-result, timeout, late-result, repeated-call, and corrupted-event cases with no dangling timer or duplicate terminal evidence (`src/tools.ts`, `tests/qualification-tool.test.ts`)
-- [ ] T020 [S0003] Execute the deterministic known-lead vertical slice plus pre-qualification, post-failure, and cross-lead bypass attempts; prove one `runId`, minimized order, `approval_pending`, and no send (`tests/qualification-tool.test.ts`, `tests/pi-agent.test.ts`, `docs/build-log.md`)
-- [ ] T021 [S0003] Run strict TypeScript, all deterministic tests, and all evals under the required Node and npm toolchain (`package.json`, `tests/`, `src/evals.ts`)
-- [ ] T022 [S0003] Run the production-agent verification workflow, dependency audit, exact allowlist and capability scans, credential/data minimization review, ASCII/LF and link checks, and Behavioral Quality checklist (`.agents/skills/verify-production-agent/SKILL.md`, `.spec_system/SECURITY-COMPLIANCE.md`, `src/`, `tests/`, `docs/`)
-- [ ] T023 [S0003] Re-read the complete base-commit diff, update final evidence and handoff, and confirm Task `01` is complete while Phase 01 planning remains absent (`.spec_system/specs/phase00-session03-qualification-tool-integration/implementation-notes.md`, `docs/build-log.md`, `docs/TODO.md`, `docs/CHANGELOG.md`)
+- [x] T018 [S0003] Run the targeted tool and Pi-projection suites to GREEN and record the same RED/GREEN commands and exact counts (`tests/qualification-tool.test.ts`, `tests/pi-agent.test.ts`, `docs/build-log.md`)
+- [x] T019 [S0003] Exercise success, missing, malformed, cross-lead, unknown, thrown, rejected, invalid-result, timeout, late-result, repeated-call, and corrupted-event cases with no dangling timer or duplicate terminal evidence (`src/tools.ts`, `tests/qualification-tool.test.ts`)
+- [x] T020 [S0003] Execute the deterministic known-lead vertical slice plus pre-qualification, post-failure, and cross-lead bypass attempts; prove one `runId`, minimized order, `approval_pending`, and no send (`tests/qualification-tool.test.ts`, `tests/pi-agent.test.ts`, `docs/build-log.md`)
+- [x] T021 [S0003] Run strict TypeScript, all deterministic tests, and all evals under the required Node and npm toolchain (`package.json`, `tests/`, `src/evals.ts`)
+- [x] T022 [S0003] Run the production-agent verification workflow, dependency audit, exact allowlist and capability scans, credential/data minimization review, ASCII/LF and link checks, and Behavioral Quality checklist (`.agents/skills/verify-production-agent/SKILL.md`, `.spec_system/SECURITY-COMPLIANCE.md`, `src/`, `tests/`, `docs/`)
+- [x] T023 [S0003] Re-read the complete base-commit diff, update final evidence and handoff, and confirm Task `01` is complete while Phase 01 planning remains absent (`.spec_system/specs/phase00-session03-qualification-tool-integration/implementation-notes.md`, `docs/build-log.md`, `docs/TODO.md`, `docs/CHANGELOG.md`)
 
 ---
 
 ## Completion Checklist
 
-- [ ] All tasks marked `[x]`.
-- [ ] All tests and checks passing.
-- [ ] All files ASCII-encoded with LF line endings.
-- [ ] `implementation-notes.md` updated.
-- [ ] Ready for `creview` (next step in the implement -> creview -> validate sequence).
+- [x] All tasks marked `[x]`.
+- [x] All tests and checks passing.
+- [x] All files ASCII-encoded with LF line endings.
+- [x] `implementation-notes.md` updated.
+- [x] Ready for `creview` (next step in the implement -> creview -> validate sequence).
 
 ---
 
 ## Next Steps
 
-Run the `implement` workflow step.
+Run the `creview` workflow step.

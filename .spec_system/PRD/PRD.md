@@ -200,7 +200,7 @@ One phase corresponds to exactly one workshop week. Each phase is implemented th
 
 | Phase | Week | Name | Source tasks | Sessions | Status |
 |-------|------|------|--------------|----------|--------|
-| 00 | 1 | Foundation | `00`, `01` | 3 | Not Started |
+| 00 | 1 | Foundation | `00`, `01` | 3 | Complete |
 | 01 | 2 | Durable Approval and Safe Write | `02`, `03` | TBD after Phase 00 | Planned |
 | 02 | 3 | Recovery and Evaluation Gates | `04`, `05` | TBD after Phase 01 | Planned |
 | 03 | 4 | Operations and Coolify Release | `06`, `07` | TBD after Phase 02 | Planned |

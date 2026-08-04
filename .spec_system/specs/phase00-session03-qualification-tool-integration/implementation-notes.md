@@ -2,7 +2,7 @@
 
 **Session ID**: `phase00-session03-qualification-tool-integration`
 **Started**: 2026-08-04 10:28 IDT
-**Last Updated**: 2026-08-04 10:28 IDT
+**Last Updated**: 2026-08-04 11:06 IDT
 
 ---
 
@@ -10,8 +10,8 @@
 
 | Metric | Value |
 |--------|-------|
-| Tasks Completed | 15 / 23 |
-| Estimated Remaining | 1.3 hours |
+| Tasks Completed | 23 / 23 |
+| Estimated Remaining | 0 minutes |
 | Blockers | 0 |
 
 ---
@@ -539,3 +539,262 @@ Next task: T015 - align deterministic evals with typed qualification.
 
 Checkpoint 5: application integration is implemented at 15/23 tasks. Next task
 T016 records final Task `01` runtime and demo evidence after targeted GREEN.
+
+### Task T016 - Complete runtime, matrix, and vertical-slice evidence
+
+**Started**: 2026-08-04 10:46 IDT
+**Completed**: 2026-08-04 10:47 IDT
+**Duration**: 1 minute
+
+**Notes**:
+
+- Reconciled the Session 02 planned contract with the active Session 03
+  wrapper, exact allowlist, minimized events, downstream gates, typed result,
+  failure/stop matrix, and deterministic coverage map.
+- Recorded a provider-independent actual-tool vertical slice under 60 seconds.
+
+**Files Changed**:
+
+- `docs/build-log.md` - added active runtime, Mermaid sequence, matrices, and demo evidence.
+
+**Verification**:
+
+- Command/check: named vertical-slice test through `/usr/bin/time` plus a direct
+  execution of all three actual Pi tool definitions under Node.js 24.15.0.
+  - Result: PASS - 1/1 named test passed in 1.05 seconds; direct execution took
+    1.00 seconds and proved exact tool names, four-event order, one `runId`,
+    minimized qualification keys, `approval_pending`, pending status, and no send.
+- BQC: PASS - evidence covers cleanup, trust, failure, and contract alignment.
+- UI product-surface and craft checks: N/A - no UI changed.
+
+---
+
+Next task: T017 - synchronize security posture, active tracking, and changelog.
+
+### Task T017 - Synchronize security posture and active documentation
+
+**Started**: 2026-08-04 10:49 IDT
+**Completed**: 2026-08-04 10:51 IDT
+**Duration**: 2 minutes
+
+**Notes**:
+
+- Replaced the stale raw-inspection posture with the implemented typed tool,
+  exact-lead binding, minimized events, deadline, and downstream gates.
+- Kept Tasks `02` through `08`, release blockers, real-data restrictions,
+  durable approval, recovery, public exposure, and Phase 01 work unclaimed.
+
+**Files Changed**:
+
+- `.spec_system/SECURITY-COMPLIANCE.md` - updated controls, gaps, inventory, and review history.
+- `docs/TODO.md` - marked Session 03 implementation active with review/validation pending.
+- `docs/CHANGELOG.md` - added exact Unreleased runtime, test, and security changes.
+
+**Verification**:
+
+- Command/check: targeted posture/claim scan, 1,000-line budget check,
+  `git diff --check`, and ASCII/LF scans over all three documents.
+  - Result: PASS - current claims match source, the security record is 177
+    lines, no later task or Phase 01 work is claimed, and formatting checks pass.
+- BQC: PASS - security documentation names the active trust and failure gates.
+- UI product-surface and craft checks: N/A - no UI changed.
+
+---
+
+Checkpoint 6: implementation and evidence are complete at 17/23 tasks. Next
+task T018 reruns the exact targeted RED/GREEN integration command.
+
+### Task T018 - Run and record targeted integration GREEN
+
+**Started**: 2026-08-04 10:51 IDT
+**Completed**: 2026-08-04 10:51 IDT
+**Duration**: less than 1 minute
+
+**Notes**:
+
+- Reran the exact two-file command used for contract-first RED and recorded the
+  missing-export RED cause, implemented fix, current tool/projection split,
+  and exact GREEN totals.
+
+**Files Changed**:
+
+- `docs/build-log.md` - added Session 03 RED/FIX/GREEN evidence.
+
+**Verification**:
+
+- Command/check: `node --import tsx --test tests/qualification-tool.test.ts
+  tests/pi-agent.test.ts` under Node.js 24.15.0 and npm 12.0.2.
+  - Result: PASS - 18/18 tests passed with 0 failures, cancellations, skips,
+    or todo cases in 1105.572851 ms.
+- BQC: PASS - targeted tests cover the runtime checklist priorities.
+- UI product-surface and craft checks: N/A - no UI changed.
+
+---
+
+Next task: T019 - audit and exercise the complete qualification edge matrix.
+
+### Task T019 - Exercise the complete qualification edge matrix
+
+**Started**: 2026-08-04 10:52 IDT
+**Completed**: 2026-08-04 10:53 IDT
+**Duration**: 1 minute
+
+**Notes**:
+
+- Exercised every required success, refusal, dependency, deadline, repeat, and
+  corrupt-evidence path through the actual wrapper and tool definitions.
+- BQC caught invalid injected timeout configuration appending an attempt before
+  it threw; moved validation before lifecycle start and added a RED/GREEN regression.
+
+**Files Changed**:
+
+- `src/tools.ts` - validates timeout configuration before appending an attempt.
+- `tests/qualification-tool.test.ts` - proves invalid configuration leaves no partial events.
+- `docs/build-log.md` - records the edge-matrix BQC repair and 12-case result.
+
+**Verification**:
+
+- Command/check: `node --import tsx --test tests/qualification-tool.test.ts`
+  and `npm run check` under the required NVM toolchain.
+  - Result: PASS - 12/12 tool tests and strict TypeScript passed; timeout and
+    late-result cases exited without a duplicate terminal event or dangling timer.
+- BQC fix: resource/failure lifecycle - configuration now fails before events.
+- UI product-surface and craft checks: N/A - no UI changed.
+
+---
+
+Next task: T020 - verify vertical-slice and downstream bypass behavior together.
+
+### Task T020 - Verify vertical slice and bypass gates together
+
+**Started**: 2026-08-04 10:53 IDT
+**Completed**: 2026-08-04 10:54 IDT
+**Duration**: 1 minute
+
+**Notes**:
+
+- Separated pre-qualification, exact-lead failure, and cross-lead substitution
+  cases, then exercised them with the known pending-approval slice and failure
+  precedence projections.
+- Added exact-lead post-failure and cross-lead approval-denial assertions.
+
+**Files Changed**:
+
+- `tests/qualification-tool.test.ts` - strengthened distinct downstream bypass coverage.
+- `docs/build-log.md` - recorded the six-case gate and vertical-slice evidence.
+
+**Verification**:
+
+- Command/check: two-file `node --test --test-name-pattern` over the exact
+  vertical, bypass, pending, not-found, and failure-precedence cases.
+  - Result: PASS - 6/6 selected cases; one correlated success sequence ends at
+    `approval_pending`, and all denial paths create no downstream or send event.
+- BQC: PASS - trust enforcement is at the downstream application boundaries.
+- UI product-surface and craft checks: N/A - no UI changed.
+
+---
+
+Checkpoint 7: 20/23 tasks complete. Next task T021 runs full repository verification.
+
+### Task T021 - Run the full repository verification gate
+
+**Started**: 2026-08-04 10:54 IDT
+**Completed**: 2026-08-04 10:55 IDT
+**Duration**: 1 minute
+
+**Notes**:
+
+- Ran the complete strict TypeScript, deterministic test, and eval chain under
+  the repository-pinned Node and npm versions.
+
+**Files Changed**:
+
+- `docs/build-log.md` - recorded the full Session 03 gate and test composition.
+
+**Verification**:
+
+- Command/check: `npm run verify` after `nvm use 24.15.0`, with Node and npm
+  versions printed before execution.
+  - Result: PASS - strict TypeScript, 37/37 tests, and 5/5 evals passed with no
+    failures, cancellations, skips, or todo cases.
+- BQC: PASS - the repository-wide deterministic gate covers all changed behavior.
+- UI product-surface and craft checks: N/A - no UI changed.
+
+---
+
+Next task: T022 - run the production-agent verification and security/safety audit.
+
+### Task T022 - Run production-agent and security verification
+
+**Started**: 2026-08-04 10:55 IDT
+**Completed**: 2026-08-04 11:02 IDT
+**Duration**: 7 minutes
+
+**Notes**:
+
+- Applied the repository verification skill and reviewed the full Session 03 diff.
+- RED regressions exposed cross-lead executor output and noncanonical failure
+  acceptance; repaired wrapper and run projection identity, canonicalized
+  failure data, and added temporary-directory cleanup.
+
+**Files Changed**:
+
+- `src/tools.ts`, `src/pi-agent.ts` - tightened executor and projection trust boundaries.
+- `tests/qualification-tool.test.ts`, `tests/pi-agent.test.ts` - added regressions and cleanup.
+- `docs/build-log.md`, `.spec_system/SECURITY-COMPLIANCE.md` - recorded exact safety evidence.
+
+**Verification**:
+
+- Commands/checks: `npm run check`, `npm test`, `npm run eval`, `npm audit`,
+  base-diff capability/credential/data/Phase 01 scans, exact allowlist import,
+  ASCII/LF byte scan, 51-file link scan, `git diff --check`, and BQC.
+  - Result: PASS - type-check, 39/39 tests, 5/5 evals, 0 vulnerabilities,
+    exact three tools, no new capability/secret/contact/Phase 01 artifact,
+    16/16 ASCII/LF files, 0 broken links, and no whitespace errors.
+- BQC fixes: trust/contract canonicalization and resource cleanup.
+- UI product-surface and craft checks: N/A - no UI changed.
+
+---
+
+Next task: T023 - re-read the full base diff and finalize implementation handoff.
+
+### Task T023 - Complete final diff audit and implementation handoff
+
+**Started**: 2026-08-04 11:02 IDT
+**Completed**: 2026-08-04 11:06 IDT
+**Duration**: 4 minutes
+
+**Notes**:
+
+- Re-read every runtime/test diff and reconciled state, spec, security, TODO,
+  changelog, and Build Log claims against Task `01` and all success criteria.
+- Final RED review caught pre-qualification approval evidence being accepted;
+  stop projection now requires approval after the latest qualification terminal.
+- Confirmed the base diff contains no Phase 01 path or planning artifact.
+
+**Files Changed**:
+
+- `src/pi-agent.ts`, `tests/pi-agent.test.ts` - fail closed on out-of-order approval evidence.
+- Session spec/checklist/notes, security, TODO, changelog, and Build Log - final evidence and handoff.
+
+**Verification**:
+
+- Command/check: complete base diff re-read, targeted order RED/GREEN, final
+  `npm run verify`, capability/credential/data/Phase 01 scans, and documentation checks.
+  - Result: PASS - strict TypeScript, 40/40 tests, and 5/5 evals; no new
+    capability, secret, personal contact, or Phase 01 artifact.
+- BQC fix: state freshness/contract alignment - only post-qualification pending evidence counts.
+- UI product-surface and craft checks: N/A - no UI changed.
+
+---
+
+## Implementation Handoff
+
+All 23 tasks and the completion checklist are complete. Task `01` has direct
+schema, tool, event, failure, test, timed-demo, security, and no-send evidence.
+No implementation blocker remains.
+
+Next command: `creview`
+Reason: implementation is complete and all changes since base commit
+`0071b0fffac70d8d62685eaf9875454f8903fabe` must be reviewed and repaired
+before validation.

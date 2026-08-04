@@ -367,33 +367,33 @@ listed as missing because the approved synthetic `Lead` contract contains
 neither field. Stable application codes, rather than model prose, make the same
 lead data produce a byte-for-byte repeatable result.
 
-This session does not register a Pi tool, change the production allowlist,
-alter a prompt, append qualification events, or change an HTTP response. The
-contract below defines that later integration before implementation; only
-Session 03 may claim the vertical slice is active.
+Session 02 did not register a Pi tool, change the production allowlist, alter a
+prompt, append qualification events, or change an HTTP response. Session 03 now
+activates the contract below without changing the HTTP route or adding an
+external effect.
 
 ### Focused Read-Only Tool Contract
 
-| Property | Contract for Session 03 |
+| Property | Active Session 03 contract |
 |----------|-------------------------|
 | Name | `qualify_lead` |
 | Responsibility | Accept one closed `{ leadId }` input, resolve the exact approved synthetic lead, return the application-produced `QualificationOutcome`, and do nothing else |
 | Permission | `automatic`, read-only; no approval is needed because the operation has no external effect |
 | Authentication boundary | The tool has no credential and no external authentication call. It executes only inside the controlled run boundary; caller authentication and public exposure remain blocked under Task `07` and SC-001 |
 | Data boundary | Read only `src/leads.ts`; never read Pi auth, environment secrets, filesystem paths, a CRM, or real customer data |
-| Timeout | Session 03 must enforce a 1,000 ms application deadline around tool execution; timeout returns structured `qualification_timeout` and records failure |
+| Timeout | The application wrapper enforces a 1,000 ms production deadline; timeout returns structured `qualification_timeout` and records failure |
 | Errors | `missing_lead_id`, `malformed_lead_id`, `invalid_input`, `lead_not_found`, `lead_lookup_failed`, and wrapper-owned `qualification_timeout` |
 | Idempotency | Safe repeat without an idempotency key: same validated input and same fixture snapshot produce the same result and no state change |
 | Evidence | Append one attempt and exactly one completed or failed outcome under the originating `runId`; never persist name, company, stack, problem text, credentials, model prose, or raw thrown errors |
 | Stop behavior | Return the structured result or failure to Pi; never draft, approve, send, or imply the run is complete |
 
-The intended Session 03 production allowlist is exactly `qualify_lead`,
+The active production allowlist is exactly `qualify_lead`,
 `draft_follow_up`, and `request_send_approval`. `qualify_lead` replaces
 `inspect_lead`; it is not a fourth general read capability. The final run still
 must stop at pending human approval and the runtime must retain zero shell,
 filesystem, approval-decision, or send tools.
 
-### Planned Qualification Event Sequence
+### Qualification Event Sequence
 
 ```mermaid
 sequenceDiagram
@@ -441,12 +441,12 @@ failure evidence omit invalid raw objects and caught exception text.
 | Lookup returns a malformed record | Yes | `lead_lookup_failed` | Yes | Do not compute from structurally invalid dependency data |
 | Exact lookup throws | Yes | `lead_lookup_failed` | Yes | Do not expose the caught message or call it success |
 | Tool exceeds 1,000 ms in Session 03 | At most once | `qualification_timeout` | Yes | Do not continue from a late result or claim completion |
-| Generated result violates its schema | Yes | Throw invariant failure | No automatic retry | Session 03 must record tool/run failure; never downgrade a programmer defect to friendly prose |
+| Executor returns an invalid result | Yes | `lead_lookup_failed` | Yes | Do not persist or expose the invalid candidate |
 | Exact known lead and valid result | Yes | `ok: true` with validated value | Safe repeat | Qualification is evidence, not approval or permission to send |
 
-The domain function currently produces the first five structured codes. The
-`qualification_timeout` code is schema-defined for the Session 03 wrapper and
-is not claimed as an active runtime path in Session 02.
+The domain function owns validation, exact lookup, and deterministic result
+construction. The active Session 03 wrapper adds exact run-lead binding,
+redacted invalid-executor handling, and the `qualification_timeout` path.
 
 ### Red/Fix/Green Contract Evidence
 
@@ -588,3 +588,328 @@ deadline, append the minimized correlated attempt/outcome evidence, preserve
 structured failure, and prove that known runs still stop at
 `approval_pending`. No Session 02 source path registers a new tool or performs
 an external effect.
+
+### Session 03 Active Runtime Integration
+
+| Boundary | Active implementation | Enforced result |
+|----------|-----------------------|-----------------|
+| Pi input | `QualificationInputSchema` is the exact closed `qualify_lead` parameter schema | Missing, malformed, inherited-only, and additional-property input cannot become qualification truth |
+| Run binding | `buildTools` closes all three tools over the HTTP-validated requested `leadId` | A valid but different lead is rejected before qualification execution; downstream tools require the exact run lead |
+| Execution | `executeQualification` invokes one application-owned executor through a cleanup-safe deadline race | The production default is exactly 1,000 ms; thrown, rejected, invalid, and timed-out execution returns a closed failure |
+| Evidence | `qualification.attempted` precedes exactly one `qualification.completed` or `qualification.failed` event | The existing envelope owns `eventId`, `runId`, timestamp, and type; qualification data contains only schema-owned fields |
+| Downstream gate | Draft and approval tools project the latest valid terminal qualification event | Missing, failed, corrupt, or cross-lead evidence creates no draft or approval event |
+| Run result | `RunResult` contains the projected `QualificationOutcome` and an event-derived finite stop reason | Failure overrides assistant prose; only matching success plus pending approval yields `approval_pending` |
+| Permission surface | `PRODUCTION_TOOL_NAMES` and the custom-tool tuple contain the same exact three names | `qualify_lead`, `draft_follow_up`, and `request_send_approval`; no shell, filesystem, approval decision, send, credential, or network-writing tool |
+
+The wrapper records an attempted event even when a started-run raw call has
+invalid input. Its attempted data is `{}` unless the input already satisfies
+the closed input schema. A valid cross-lead attempt may record only that
+synthetic identifier, but it never invokes the executor. Completed data is the
+closed qualification result. Failed data is only `code`, stable `message`, and
+`retryable`; caught exceptions and invalid executor candidates are not copied.
+
+### Active Qualification-To-Approval Sequence
+
+```mermaid
+sequenceDiagram
+    participant P as Pi bounded session
+    participant Q as qualify_lead
+    participant E as JSONL event store
+    participant D as draft_follow_up
+    participant A as request_send_approval
+    participant R as run result projection
+
+    P->>Q: exact closed leadId
+    Q->>E: qualification.attempted
+    alt validated success
+        Q->>E: qualification.completed
+        Q-->>P: typed ok result
+        P->>D: exact leadId and angle
+        D->>E: domain.follow_up_drafted
+        D-->>P: deterministic draft
+        P->>A: exact leadId and draft
+        A->>E: approval.requested with pending status
+        A-->>P: pending approval; never send
+        P->>R: project validated events
+        R-->>P: qualification plus approval_pending
+    else structured failure
+        Q->>E: qualification.failed
+        Q-->>P: typed failure
+        P->>R: project validated events
+        R-->>P: not_found or qualification_failed
+    end
+```
+
+### Integration Failure And Stop Matrix
+
+| Scenario | Terminal evidence | Downstream effect | Visible stop |
+|----------|-------------------|-------------------|--------------|
+| Exact known synthetic lead | Valid `qualification.completed` | Draft and one pending approval may be created | `approval_pending` after matching pending evidence; otherwise `completed` |
+| Unknown exact lead | `qualification.failed` with `lead_not_found` | Draft and approval denied | `not_found` |
+| Missing or malformed raw wrapper input | `qualification.failed` with `missing_lead_id` or `malformed_lead_id` | Draft and approval denied | `qualification_failed` |
+| Valid lead other than the run-bound lead | `qualification.failed` with `invalid_input`; executor not called | Draft and approval denied | `qualification_failed` |
+| Throwing, rejecting, or invalid executor | Redacted `qualification.failed` with `lead_lookup_failed` | Draft and approval denied | `qualification_failed` |
+| Deadline winner | One `qualification.failed` with `qualification_timeout` | Late result cannot append a second terminal event; draft and approval denied | `qualification_failed` |
+| Missing or corrupt terminal event | No valid projected outcome | Draft and approval denied; run result fails visibly | `qualification_failed` projection and no successful run result |
+| Failure plus attempted invalid approval evidence | Failure remains authoritative | Invalid approval evidence cannot override failure | Failure-derived `not_found` or `qualification_failed` |
+
+### Deterministic Integration Test Matrix
+
+| Evidence group | Covered cases | Source |
+|----------------|---------------|--------|
+| Tool contract | Exact name tuple, closed input schema, and 1,000 ms default | `tests/qualification-tool.test.ts` |
+| Success evidence | Deterministic outcome, one attempt and completion, minimized event fields, projection | `tests/qualification-tool.test.ts` |
+| Input refusal | Missing, malformed, additional-property schema rejection, and cross-lead execution denial | `tests/qualification-tool.test.ts` |
+| Dependency failure | Unknown lead, synchronous throw, rejected promise, and invalid executor result with redaction | `tests/qualification-tool.test.ts` |
+| Deadline lifecycle | Invalid configuration rejection before events, timeout, timer cleanup through process exit, late-result suppression, and exactly one terminal event | `tests/qualification-tool.test.ts` |
+| Repeat behavior | Same outcome and one event pair for each safe repeated call | `tests/qualification-tool.test.ts` |
+| Downstream enforcement | Pre-qualification, failed, and cross-lead draft/approval denial without downstream events | `tests/qualification-tool.test.ts` |
+| Vertical slice | Actual tool definitions, one `runId`, exact event order, pending approval, and no send | `tests/qualification-tool.test.ts` |
+| Run projection | Exact allowlist; success, no-approval, not-found, other failure, corrupt/cross-lead/out-of-order evidence, and prose override | `tests/pi-agent.test.ts` |
+| Repository evals | Known result, unknown refusal, invented result-code rejection, grounded draft, and pending approval | `src/evals.ts` |
+
+### Provider-Independent Vertical-Slice Demo
+
+Exact named-test command under Node.js 24.15.0:
+
+```bash
+/usr/bin/time -f 'elapsed_seconds=%e' node --import tsx --test --test-name-pattern='known lead completes deterministic qualification-to-approval vertical slice' tests/qualification-tool.test.ts
+```
+
+Result: PASS (exit 0). The actual Pi `ToolDefinition` executors completed in
+1.05 seconds wall time, with 1/1 selected test passing and no failure, skip,
+cancellation, or todo.
+
+A direct actual-tool exercise emitted this stable summary:
+
+```json
+{"toolNames":["qualify_lead","draft_follow_up","request_send_approval"],"eventTypes":["qualification.attempted","qualification.completed","domain.follow_up_drafted","approval.requested"],"qualificationEventKeys":[["leadId"],["confidence","fit","leadId","missingInformation","reasons"]],"qualificationOk":true,"stopReason":"approval_pending","oneRunId":true,"approvalStatus":"pending","noSend":true}
+```
+
+The direct command completed in 1.00 seconds. Both exercises use temporary
+JSONL storage and synthetic fixtures, call no model provider, read no provider
+credential, and perform no network or external business-system write.
+
+### Session 03 Red/Fix/Green Evidence
+
+The contract-first command was identical before and after implementation:
+
+```bash
+node --import tsx --test tests/qualification-tool.test.ts tests/pi-agent.test.ts
+```
+
+RED result: EXPECTED FAIL (exit 1) under Node.js 24.15.0. Before source
+integration, the runner reported two file-level failures and 0 passing cases:
+`src/tools.js` did not export `QUALIFICATION_TIMEOUT_MS`, and
+`src/pi-agent.js` did not export `PRODUCTION_TOOL_NAMES`. Both failures named
+the intended contract boundary rather than a syntax, fixture, or environment
+problem.
+
+FIX: exported the centralized failure factory; added the bounded wrapper,
+focused tool, terminal projection, exact-lead downstream gates, immutable
+allowlist, typed run result, evidence-derived stop reasons, and application-
+owned failure output; then aligned the deterministic evals.
+
+GREEN result: PASS (exit 0) under Node.js 24.15.0 and npm 12.0.2.
+
+```text
+PASS tests 18
+PASS passed 18
+PASS failed 0
+PASS cancelled 0
+PASS skipped 0
+PASS todo 0
+PASS duration_ms 1105.572851
+```
+
+The 18 targeted cases comprise 11 actual qualification-tool/event/gate tests
+and 7 pure allowlist/run-projection tests. The GREEN run requires no provider
+session, credential, network request, or external write.
+
+### Edge-Matrix BQC Repair
+
+A lifecycle review added a regression for an invalid injected deadline. Its
+first run failed as expected because `qualification.attempted` was appended
+before the positive finite timeout check threw. The fix resolves and validates
+the timeout before starting the event lifecycle; invalid internal configuration
+now throws visibly with zero partial qualification events.
+
+```bash
+node --import tsx --test tests/qualification-tool.test.ts
+npm run check
+```
+
+Result: PASS (exit 0). The qualification-tool suite passed 12/12 with zero
+failures, skips, cancellations, or todo cases; strict TypeScript also passed.
+The suite covers success, missing, malformed, cross-lead, unknown, synchronous
+throw, rejected promise, invalid result, timeout, late result, invalid timeout
+configuration, repeated call, downstream denial, vertical slice, and corrupt
+terminal evidence. The process exits normally after the timer cases, and every
+started wrapper call has one attempted plus exactly one terminal event.
+
+### Vertical Slice And Bypass Gate Evidence
+
+```bash
+node --import tsx --test --test-name-pattern='known lead completes|draft and approval deny|known success with pending approval|not-found qualification failure|other qualification failure' tests/qualification-tool.test.ts tests/pi-agent.test.ts
+```
+
+Result: PASS (exit 0), 6/6 selected cases with zero failures, skips,
+cancellations, or todo cases.
+
+| Attempt | Durable event result | Downstream result |
+|---------|----------------------|-------------------|
+| Draft and approval before qualification | No event | Both return `qualification_required`; no draft or approval exists |
+| Exact unknown lead, then exact draft and approval | Only `qualification.attempted` and `qualification.failed` | Both downstream calls deny; stop projects to `not_found` |
+| Cross-lead qualification, draft, and approval | Only the invalid-input qualification event pair | Executor is not called; both downstream calls deny |
+| Exact known lead vertical slice | Attempt, completion, draft, and pending approval under one `runId` | Typed success projects to `approval_pending`; no send event exists |
+| Other structured qualification failure plus approval-shaped evidence | Failure remains authoritative | Stop projects to `qualification_failed`; assistant or invalid approval state cannot override it |
+
+These are application enforcement checks, not prompt-order expectations. The
+actual tool definitions read the latest validated terminal evidence at each
+downstream boundary, bind it to the immutable requested lead, and fail closed.
+
+### Session 03 Full Repository Gate
+
+```bash
+nvm use 24.15.0
+node --version
+npm --version
+npm run verify
+```
+
+Result: PASS (exit 0) with Node.js 24.15.0 and npm 12.0.2.
+
+```text
+PASS tsc --noEmit
+PASS tests 37
+PASS passed 37
+PASS failed 0
+PASS skipped 0
+PASS cancelled 0
+PASS todo 0
+PASS evals 5/5
+```
+
+The 37 deterministic tests comprise 1 event-store case, 3 preserved tool
+baseline cases, 13 qualification-domain cases, 13 qualification-tool/event/gate
+cases, and 7 allowlist/run-projection cases. All five application-owned evals
+pass without creating a Pi provider session or performing an external effect.
+
+### Session 03 Production-Agent Safety Verification
+
+The repository verification skill found and repaired one additional trust
+boundary: a schema-valid injected executor result for a different lead could
+reach terminal projection. The same audit also found that executor-provided
+failure messages and retryability were accepted even when their code was valid.
+Contract-first regressions failed 3/3 before repair. The wrapper now rejects a
+cross-lead success as redacted `lead_lookup_failed`, canonicalizes every failure
+from its application-owned code, and requires the requested run lead during
+terminal event projection. Test temporary directories are removed in an
+`after` hook.
+
+| Verification | Exact command or scope | Result |
+|--------------|------------------------|--------|
+| Strict TypeScript | `npm run check` | PASS |
+| Deterministic tests | `npm test` | PASS - 39/39; 0 failed, skipped, cancelled, or todo |
+| Deterministic evals | `npm run eval` | PASS - 5/5 |
+| Dependency audit | `npm audit` with npm 12.0.2 | PASS - 0 vulnerabilities |
+| Production allowlist | Runtime import plus `src/pi-agent.ts` and `src/tools.ts` inspection | PASS - exact three qualification, draft, and approval-request tools |
+| New capability and side-effect scan | Added `src/` lines since Session 03 base | PASS - no new process, shell, filesystem, network, server, or external-write primitive |
+| Credential scan | 16 changed files, excluding lockfile integrity metadata | PASS - no private-key or common credential-value signature |
+| Personal contact scan | `src/` and `tests/` email-like values | PASS - 0; fixtures remain explicitly synthetic |
+| Qualification minimization | Success, raw-invalid, dependency-failure, timeout, and direct vertical tests | PASS - only schema-owned fields; no caught detail or lead profile text |
+| Run and stop evidence | Wrapper, run projection, and vertical tests | PASS - stable `runId`, terminal qualification, failure precedence, and visible stop |
+| ASCII and LF | Byte scan of all 16 changed files | PASS |
+| Markdown links | Repository scan of 51 tracked Markdown files | PASS - 0 missing relative targets |
+| Whitespace | `git diff --check 0071b0fffac70d8d62685eaf9875454f8903fabe` | PASS |
+| Strict Phase 00 cutoff | Base-diff path scan | PASS - 0 Phase 01 artifacts changed or created |
+
+Relevant BQC categories pass: timers and test directories are released;
+sequential tool definitions and deterministic event pairs prevent duplicate
+terminal writes; schema checks plus exact lead identity enforce trust at the
+wrapper, projection, draft, and approval boundaries; dependency and timeout
+failures are caller-visible and redacted; and event, tool, run-result, and stop
+contracts use the same finite application-owned types.
+
+Remaining risks are unchanged and explicit: approval decisions and durable
+transitions, send authorization/idempotency, run-wide recovery/deadlines,
+public exposure controls, data lifecycle, and operational evidence belong to
+Tasks `02` through `07`. No external send capability or real-data permission
+was introduced.
+
+### Session 03 Implementation Completion Audit And Handoff
+
+The final base-diff review added one last state-ordering regression. Before the
+repair, a pending approval event that appeared before the latest successful
+qualification incorrectly produced `approval_pending`. The expected RED case
+failed 1/1. `deriveRunStopReason` now considers pending approval evidence only
+after the latest qualification terminal, and the targeted case passes.
+
+| Task `01` requirement | Authoritative implementation evidence | Completion proof |
+|-----------------------|---------------------------------------|------------------|
+| Typed deterministic result | Closed schemas and computation in `src/qualification.ts` | Domain schema/determinism tests pass |
+| Focused read-only Pi tool | `createQualificationTool` and exact immutable runtime allowlist | Tool-definition and allowlist tests pass; tool count is three |
+| Exact input and run identity | Closed Pi schema, raw wrapper validation, executor-output identity, requested-lead projection | Missing, malformed, additional, cross-input, cross-output, and corrupt-event tests fail closed |
+| Bounded execution and structured errors | 1,000 ms default, timer cleanup, application failure factory, and canonicalized dependency outcomes | Throw, reject, invalid result, noncanonical failure, timeout, late result, and invalid-config tests pass |
+| Correlated minimized evidence | Attempt plus one terminal event through the existing event envelope | Exact event order, keys, redaction, repeat, and one-`runId` assertions pass |
+| Downstream enforcement | Latest exact-lead success gates both draft and pending approval | Pre-qualification, post-failure, cross-lead, and out-of-order bypass cases pass |
+| Typed run outcome and visible stop | `RunResult.qualification`, requested-lead projection, failure precedence, and post-qualification approval order | `not_found`, `qualification_failed`, `completed`, and `approval_pending` tests pass |
+| Pending approval without send | Existing pending record remains the terminal product boundary | Vertical slice ends at pending, contains no send event, and adds no write capability |
+| Required workshop evidence | Runtime/event/failure/test matrices, RED/FIX/GREEN, safety checks, and timed demo in this log | Named actual-tool slice completes in 1.05 seconds; final repository gate passes |
+
+Final implementation command:
+
+```bash
+nvm use 24.15.0
+node --version
+npm --version
+npm run verify
+```
+
+Result: PASS (exit 0) with Node.js 24.15.0 and npm 12.0.2: strict
+TypeScript, 40/40 deterministic tests, and 5/5 evals pass with zero failed,
+skipped, cancelled, or todo cases. The complete Session 03 diff contains no
+dependency, HTTP route, database, queue, Redis, provider call, deployment,
+external-write, real-data, or fourth-tool change.
+
+Implementation is complete at 23/23 tasks and ready for Apex `creview`. The
+strict cutoff is preserved: no Phase 01 file was created or changed, and no
+Phase 01 PRD, session, task checklist, or implementation plan was produced.
+
+### Session 03 Code Review And Repair
+
+Apex `creview` reviewed the complete 17-file final surface from base commit
+`0071b0fffac70d8d62685eaf9875454f8903fabe`, including checkpoint commit
+`ca77081` and all worktree changes. It found 0 critical, 0 high, 1 medium, and
+1 low issue; both were repaired.
+
+| Severity | Finding | Repair and evidence |
+|----------|---------|---------------------|
+| Medium | The exported allowlist was TypeScript-readonly but mutable at runtime | Wrapped the exact tuple in `Object.freeze`; expected RED failed 1/1 and targeted GREEN passed 1/1 with `Object.isFrozen` |
+| Low | Actual-tool tests did not compare Pi JSON text with typed `details` | Added exact success and failure channel-parity assertions; 2/2 selected cases passed |
+
+Post-repair `npm run verify` passes strict TypeScript, 40/40 tests, and 5/5
+evals under Node.js 24.15.0/npm 12.0.2; `npm audit` reports zero
+vulnerabilities. Linter and formatter checks are N/A because the repository
+configures neither. The full report is in the Session 03 `code-review.md`.
+
+Review is complete with no unresolved finding or blocker. The next Apex
+command is `validate`; no Phase 01 artifact was created or changed.
+
+### Session 03 Validation Gate
+
+Apex `validate` independently verified the resolved review gate, 23/23 tasks,
+10/10 declared deliverables, ASCII/LF, strict TypeScript, 40/40 tests, 5/5
+evals, all 22 success criteria, conventions, security/GDPR, BQC, and the strict
+Phase 00 cutoff. Database/schema alignment and UI product-surface checks are
+N/A with direct base-diff evidence: no DB-layer or UI artifact changed.
+
+Security is PASS with zero finding; GDPR is N/A because the session adds no
+real personal-data processing and uses only documented synthetic fixtures.
+Behavioral quality is PASS with zero violation across the qualification
+domain, tool/wrapper, run projection, and both focused test files.
+
+Validation result: PASS. No validation fix or unresolved blocker remains. The
+next Apex command is `updateprd`; Session 03 remains the current session until
+that command performs completion bookkeeping. No Phase 01 artifact was created
+or changed.

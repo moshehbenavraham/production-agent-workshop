@@ -10,11 +10,11 @@ import { JsonlEventStore, type AgentEvent } from "./event-store.js";
 import type { QualificationOutcome } from "./qualification.js";
 import { buildTools, qualificationOutcomeFromEvents } from "./tools.js";
 
-export const PRODUCTION_TOOL_NAMES = [
+export const PRODUCTION_TOOL_NAMES = Object.freeze([
   "qualify_lead",
   "draft_follow_up",
   "request_send_approval",
-] as const;
+] as const);
 
 const SYSTEM_PROMPT = `You are a bounded lead-operations agent.
 
@@ -79,8 +79,11 @@ export type RunStopReason =
   | "qualification_failed"
   | "completed";
 
-export function deriveRunStopReason(events: readonly AgentEvent[]): RunStopReason {
-  const qualification = qualificationOutcomeFromEvents(events);
+export function deriveRunStopReason(
+  events: readonly AgentEvent[],
+  requestedLeadId: string,
+): RunStopReason {
+  const qualification = qualificationOutcomeFromEvents(events, requestedLeadId);
   if (!qualification) return "qualification_failed";
   if (!qualification.ok) {
     return qualification.error.code === "lead_not_found"
@@ -88,7 +91,15 @@ export function deriveRunStopReason(events: readonly AgentEvent[]): RunStopReaso
       : "qualification_failed";
   }
 
-  const approvalPending = events.some(
+  let qualificationTerminalIndex = -1;
+  for (let index = events.length - 1; index >= 0; index -= 1) {
+    const type = events[index]?.type;
+    if (type === "qualification.completed" || type === "qualification.failed") {
+      qualificationTerminalIndex = index;
+      break;
+    }
+  }
+  const approvalPending = events.slice(qualificationTerminalIndex + 1).some(
     (event) =>
       event.type === "approval.requested" &&
       event.data.status === "pending" &&
@@ -148,11 +159,11 @@ export async function runLeadAgent(leadId: string): Promise<RunResult> {
       `Qualify lead "${leadId}", draft the best first follow-up, request human approval, and stop.`,
     );
     const events = store.readRun(runId);
-    const qualification = qualificationOutcomeFromEvents(events);
+    const qualification = qualificationOutcomeFromEvents(events, leadId);
     if (!qualification) {
       throw new Error("Qualification tool produced no valid terminal evidence.");
     }
-    const stopReason = deriveRunStopReason(events);
+    const stopReason = deriveRunStopReason(events, leadId);
     const output = qualificationRunOutput(
       qualification,
       finalAssistantText(session.agent.state.messages),

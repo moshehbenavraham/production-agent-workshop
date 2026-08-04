@@ -24,7 +24,7 @@ items below.
 
 | Area | Current status |
 |------|----------------|
-| Required workshop evidence | Not started; tasks `00` through `08` remain planned across Phases 00-04 |
+| Required workshop evidence | Tasks `00` and `01` validated; Session 03 completion bookkeeping pending; tasks `02` through `08` remain planned |
 | Public release readiness | Blocked |
 | Real customer data | Prohibited until its lifecycle and access controls are approved |
 | External send capability | Not implemented |
@@ -39,14 +39,21 @@ the verified baseline in `docs/todo/README_todo.md`:
 - `POST /runs` validates the `leadId` shape and rejects request bodies larger
   than 16,384 bytes before starting an agent run.
 - One in-memory Pi session receives exactly three allowlisted custom tools:
-  `inspect_lead`, `draft_follow_up`, and `request_send_approval`.
+  `qualify_lead`, `draft_follow_up`, and `request_send_approval`.
+- `qualify_lead` uses a closed input schema, binds execution to the exact run
+  lead, returns only an application-validated typed outcome, and enforces a
+  1,000 ms application deadline with redacted structured failures.
+- Draft and approval creation require the latest schema-valid qualification
+  success for the exact run lead. Prompt order and assistant prose cannot
+  bypass this application-owned gate.
 - The production session exposes no Pi shell or filesystem tool.
 - No send adapter, send endpoint, approval-decision endpoint, or other
   network-writing application tool exists.
 - A successful known-lead run creates a pending approval record, emits a visible
   `approval_pending` stop reason, and stops without sending.
 - The application appends JSONL events with stable `eventId` and `runId` values;
-  selected Pi lifecycle metadata is minimized before persistence.
+  qualification attempts and terminal outcomes contain only schema-owned data,
+  and selected Pi lifecycle metadata is minimized before persistence.
 - Lead fixtures are synthetic and committed in source. Pi working context is
   in memory, while event evidence is file-backed through `EVENT_LOG_PATH`.
 
@@ -60,7 +67,6 @@ The linked task owns the implementation and acceptance evidence.
 
 | Area | Current gap | Planned owner |
 |------|-------------|---------------|
-| Qualification | Qualification is model-led rather than a typed, application-validated result | [Task 01](../docs/todo/01-qualification-contract.md) |
 | Approvals | Approval facts exist only as event data; decisions and durable transition rules do not exist | [Task 02](../docs/todo/02-durable-approvals.md) |
 | External writes | No adapter exists; approval validation, exact-target resolution, and idempotency are not implemented | [Task 03](../docs/todo/03-idempotent-send.md) |
 | Recovery | There is no event projection, safe resume path, maximum step count, or explicit run deadline | [Task 04](../docs/todo/04-recovery-and-replay.md) |
@@ -101,9 +107,9 @@ The linked task owns the implementation and acceptance evidence.
 
 | Data | Location and lifetime | Current assessment |
 |------|-----------------------|--------------------|
-| Synthetic lead fixtures | Committed in `src/tools.ts` | Test data only; must not be replaced with real leads yet |
+| Synthetic lead fixtures | Committed in `src/leads.ts` | Test data only; must not be replaced with real leads yet |
 | Lead and draft working context | Pi/provider session for one run | In memory locally; provider handling depends on operator configuration |
-| Run and tool evidence | Append-only JSONL at `EVENT_LOG_PATH` | Persists `runId`, lead identifiers, outcomes, and selected lifecycle metadata |
+| Run and tool evidence | Append-only JSONL at `EVENT_LOG_PATH` | Persists `runId`, minimized qualification attempts and outcomes, downstream synthetic artifacts, and selected lifecycle metadata |
 | Draft and pending approval | Full synthetic draft is currently stored in domain and approval events | Acceptable only for synthetic exercises; minimization and lifecycle rules remain open |
 | Provider credentials | External environment or supported Pi auth state | Must never enter repository files or event evidence |
 
@@ -162,7 +168,10 @@ For every material change, verify that it:
 | Date | Scope | Result |
 |------|-------|--------|
 | 2026-08-04 | Reconciled internal posture with source and ordered tasks; ran type-check, 4 tests, and 5 evals | All checks passed; restricted baseline and SC-001 through SC-005 remain open |
+| 2026-08-04 | Implemented, reviewed, validated, and security-verified the typed qualification tool, exact run-lead binding, minimized terminal evidence, deadline, and downstream gates | Type-check, 40 tests, 5 evals, dependency audit, permission/data scans, ASCII/LF, links, BQC, and all 22 success criteria pass; Session 03 completion bookkeeping remains; SC-001 through SC-005 remain open |
 
 ## Resolved Findings
 
-*No findings have been resolved through required workshop task evidence yet.*
+| Task | Finding | Implemented resolution |
+|------|---------|------------------------|
+| `01` | Qualification depended on model judgment and prompt order | Validated application-owned closed schemas, deterministic computation, exact-lead tool binding, event projection, and downstream enforcement now fail closed |

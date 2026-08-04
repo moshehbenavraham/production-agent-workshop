@@ -2,7 +2,7 @@
 
 **Session ID**: `phase00-session03-qualification-tool-integration`
 **Phase**: 00 - Foundation
-**Status**: Not Started
+**Status**: Validated
 **Created**: 2026-08-04
 **Base Commit**: 0071b0fffac70d8d62685eaf9875454f8903fabe
 
@@ -185,67 +185,67 @@ over model prose or an invalid approval sequence, and include the outcome in
 
 ### Functional Requirements
 
-- [ ] `qualify_lead` uses the exact closed input schema, returns only a
+- [x] `qualify_lead` uses the exact closed input schema, returns only a
   schema-valid outcome, and is the sole lead-read tool in the exact three-tool
   production allowlist.
-- [ ] Every executed wrapper call appends one attempted and exactly one
+- [x] Every executed wrapper call appends one attempted and exactly one
   completed or failed event under one `runId`; terminal data validates as a
   qualification result or failure and excludes name, company, stack, problem,
   draft, credential, and raw exception detail.
-- [ ] The production deadline is exactly 1,000 ms, the timer is cleared on
+- [x] The production deadline is exactly 1,000 ms, the timer is cleared on
   success/failure/timeout, rejected or invalid executor results are redacted,
   and a late completion cannot append another terminal event.
-- [ ] Tool input must match the exact requested run lead, and the latest
+- [x] Tool input must match the exact requested run lead, and the latest
   terminal qualification must be a matching success before draft or approval
   work can occur.
-- [ ] Known leads expose deterministic typed qualification in `RunResult` and a
+- [x] Known leads expose deterministic typed qualification in `RunResult` and a
   known vertical slice still ends at `approval_pending` without sending.
-- [ ] Unknown leads return `lead_not_found` and `not_found`; missing,
+- [x] Unknown leads return `lead_not_found` and `not_found`; missing,
   malformed, mismatched, thrown, invalid-result, and timeout paths remain
   structured failures without qualification or friendly success.
-- [ ] Qualification failure takes precedence over assistant prose and any
+- [x] Qualification failure takes precedence over assistant prose and any
   invalid downstream sequence when deriving the visible run stop reason.
-- [ ] The prompt, custom tool definitions, and allowlist expose no shell,
+- [x] The prompt, custom tool definitions, and allowlist expose no shell,
   filesystem, approval-decision, external-send, credential, or network-writing
   capability.
 
 ### Testing Requirements
 
-- [ ] Contract-first RED evidence precedes implementation and the same targeted
+- [x] Contract-first RED evidence precedes implementation and the same targeted
   tool/integration commands pass afterward.
-- [ ] Deterministic tests cover schema closure, success, missing, malformed,
+- [x] Deterministic tests cover schema closure, success, missing, malformed,
   cross-lead mismatch, unknown, thrown executor, invalid executor result,
   timeout, late result, minimized events, downstream bypass, exact allowlist,
   outcome projection, stop precedence, and pending approval.
-- [ ] A provider-independent vertical-slice command completes in under 60
+- [x] A provider-independent vertical-slice command completes in under 60
   seconds and proves qualification, draft, pending approval, correlated events,
   typed result projection, and `approval_pending`.
-- [ ] `npm run verify` and the repository production-agent verification skill
+- [x] `npm run verify` and the repository production-agent verification skill
   pass under Node.js 24.15.0 and npm 12.0.2.
 
 ### Non-Functional Requirements
 
-- [ ] No new dependency, HTTP route, database, queue, Redis, provider call,
+- [x] No new dependency, HTTP route, database, queue, Redis, provider call,
   real data, external write, deployment behavior, or fourth runtime tool is
   introduced.
-- [ ] All new async work releases its timer and produces no dangling task,
+- [x] All new async work releases its timer and produces no dangling task,
   duplicate terminal event, silent failure, or raw caught detail.
-- [ ] Event and response contracts are JSON-serializable, deterministic for a
+- [x] Event and response contracts are JSON-serializable, deterministic for a
   fixed fixture snapshot, and independently testable without model access.
-- [ ] The current pending-approval record remains a no-send boundary; exact
+- [x] The current pending-approval record remains a no-send boundary; exact
   durable approval and write authorization remain explicitly deferred.
 
 ### Quality Gates
 
-- [ ] All files ASCII-encoded with Unix LF line endings.
-- [ ] Strict TypeScript and repository ESM/style conventions pass.
-- [ ] Every source behavior change has deterministic success and failure
+- [x] All files ASCII-encoded with Unix LF line endings.
+- [x] Strict TypeScript and repository ESM/style conventions pass.
+- [x] Every source behavior change has deterministic success and failure
   coverage.
-- [ ] Behavioral quality has no high-severity resource-cleanup, trust-boundary,
+- [x] Behavioral quality has no high-severity resource-cleanup, trust-boundary,
   mutation, failure-path, or contract-alignment violation.
-- [ ] Security review confirms minimized synthetic evidence, exact permission
+- [x] Security review confirms minimized synthetic evidence, exact permission
   preservation, and zero new secret or external-effect surface.
-- [ ] Documentation claims distinguish deterministic application evidence from
+- [x] Documentation claims distinguish deterministic application evidence from
   an optional provider-backed smoke test that is not required or claimed.
 
 ---
