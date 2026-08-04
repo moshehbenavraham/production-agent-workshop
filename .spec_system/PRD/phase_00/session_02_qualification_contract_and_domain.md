@@ -1,6 +1,6 @@
 # Session 02: Qualification Contract and Domain
 
-**Session ID**: `phase00-session02-qualification-contract-domain`
+**Session ID**: `phase00-session02-qualification-contract-and-domain`
 **Status**: Not Started
 **Estimated Tasks**: ~18-22
 **Estimated Duration**: 2-4 hours

@@ -122,7 +122,7 @@ Malformed JSON or an invalid `leadId` is rejected in `src/server.ts` before a Pi
 | Agent harness | Pi integration, `src/pi-agent.ts` | Creates the model runtime, resource loader, in-memory session, prompt, subscription, and final result | Prompt, selected context, and model messages can leave for the configured provider |
 | Domain tools | Application, `src/tools.ts` | Reads synthetic fixtures, creates deterministic drafts, and creates pending approval values | No network call; tool results return to Pi working context |
 | Working state | Pi `SessionManager.inMemory(cwd)` | Holds one run's replaceable conversation context | Process memory only; disposed after the run |
-| Lead fixtures | Application, `src/tools.ts` | Two synthetic lead records committed in source | Git repository; no customer CRM exists |
+| Lead fixtures | Application, `src/leads.ts` | Two synthetic lead records committed in source | Git repository; no customer CRM exists |
 | Event evidence | Application, `src/event-store.ts` | Appends run, Pi lifecycle, domain, approval, and terminal records | JSONL at `EVENT_LOG_PATH`; defaults to `./data/events.jsonl`, container path `/app/data/events.jsonl` |
 | Approval state | Application tools and event evidence | `makeApproval()` creates only `pending`; no decision transition exists | Full synthetic draft and pending approval are currently in the JSONL event data |
 | Infrastructure | Docker and operator, `Dockerfile`, `.env.example` | Node 24 process, port 3000, health path, persistent `/app/data` contract | Coolify configuration and provider credentials remain external to source |
@@ -314,3 +314,266 @@ These checks prove only the current repository surface. They do not treat future
 Session 01 changes only Apex workflow state and artifacts, `docs/build-log.md`, `docs/TODO.md`, and `docs/CHANGELOG.md`. `git diff --check` passes, and a scoped diff over `src/`, `tests/`, dependency manifests, `Dockerfile`, and `.env.example` is empty. The diff introduces no runtime side effect, permission, dependency, secret, real personal data, new persistence, or exposure.
 
 The remaining risks are the eight entries in the production risk register. Most immediately, Session 02 must define typed qualification and enforce deterministic input and output contracts before Session 03 exposes qualification to Pi; the current pending-approval tool's weak cross-tool invariant must not be copied into that design.
+
+---
+
+## Task 01 - Qualification Contract and Domain
+
+**Phase**: 00 - Foundation
+**Session**: `phase00-session02-qualification-contract-and-domain`
+**Date**: 2026-08-04
+**Mode**: AFK domain session; Pi and HTTP integration remain deferred to Session 03
+
+### Schema and Validation Ownership
+
+`src/qualification.ts` is the application-owned qualification boundary. The
+TypeBox schemas are both the static type source and the compiled runtime
+contract; a hand-written parallel result type is not authoritative.
+
+| Contract | Required fields | Runtime constraints | Owner |
+|----------|-----------------|---------------------|-------|
+| Qualification input | `leadId` | Closed object; exact `lead_[a-z0-9_]+` identifier, 6-80 characters | Application validator before lookup |
+| Fit | one value | `strong`, `possible`, or `insufficient` | Deterministic application rules |
+| Qualification result | `leadId`, `fit`, `confidence`, `reasons`, `missingInformation` | Closed object; confidence 0-1; 1-4 unique reasons; 0-4 unique missing-information codes | Application computation plus compiled result validator |
+| Failure | `code`, `message`, `retryable` | Closed object; finite code, bounded redacted message, boolean retryability | Application error mapper |
+| Outcome | `ok` plus `value` or `error` | Closed two-branch discriminated union; mixed or partial branches are invalid | Application return boundary |
+
+The raw entry point accepts `unknown`. It refuses missing, blank, non-string,
+malformed, and additional-property input before lookup. A result-shaped model
+proposal containing `fit`, `confidence`, `reasons`, or `missingInformation` is
+therefore `invalid_input`; none of those proposed fields can reach lookup or
+become validated truth. The application resolves one exact synthetic lead from
+`src/leads.ts`, requires the returned identity to match the requested identity,
+computes every result field, and validates the completed result schema before
+returning `ok: true`.
+
+### Deterministic Qualification Rules
+
+| Application-owned signal | Confidence contribution | Reason code |
+|--------------------------|-------------------------|-------------|
+| `teamSize >= 15` | 0.35 | `team_size_in_scope` |
+| Stack contains Coolify, Postgres, or TypeScript | 0.25 | `auditable_stack_present` |
+| Trimmed problem statement is at least 20 characters | 0.25 | `operational_problem_present` |
+| No signal matched | 0 | `limited_qualification_signals` |
+
+Confidence is the fixed sum of matched contributions and cannot exceed 0.85
+under this baseline. Fit is `strong` at 0.75 or above, `possible` at 0.4 through
+0.74, and `insufficient` below 0.4. `budget` and `decision_timeline` are always
+listed as missing because the approved synthetic `Lead` contract contains
+neither field. Stable application codes, rather than model prose, make the same
+lead data produce a byte-for-byte repeatable result.
+
+This session does not register a Pi tool, change the production allowlist,
+alter a prompt, append qualification events, or change an HTTP response. The
+contract below defines that later integration before implementation; only
+Session 03 may claim the vertical slice is active.
+
+### Focused Read-Only Tool Contract
+
+| Property | Contract for Session 03 |
+|----------|-------------------------|
+| Name | `qualify_lead` |
+| Responsibility | Accept one closed `{ leadId }` input, resolve the exact approved synthetic lead, return the application-produced `QualificationOutcome`, and do nothing else |
+| Permission | `automatic`, read-only; no approval is needed because the operation has no external effect |
+| Authentication boundary | The tool has no credential and no external authentication call. It executes only inside the controlled run boundary; caller authentication and public exposure remain blocked under Task `07` and SC-001 |
+| Data boundary | Read only `src/leads.ts`; never read Pi auth, environment secrets, filesystem paths, a CRM, or real customer data |
+| Timeout | Session 03 must enforce a 1,000 ms application deadline around tool execution; timeout returns structured `qualification_timeout` and records failure |
+| Errors | `missing_lead_id`, `malformed_lead_id`, `invalid_input`, `lead_not_found`, `lead_lookup_failed`, and wrapper-owned `qualification_timeout` |
+| Idempotency | Safe repeat without an idempotency key: same validated input and same fixture snapshot produce the same result and no state change |
+| Evidence | Append one attempt and exactly one completed or failed outcome under the originating `runId`; never persist name, company, stack, problem text, credentials, model prose, or raw thrown errors |
+| Stop behavior | Return the structured result or failure to Pi; never draft, approve, send, or imply the run is complete |
+
+The intended Session 03 production allowlist is exactly `qualify_lead`,
+`draft_follow_up`, and `request_send_approval`. `qualify_lead` replaces
+`inspect_lead`; it is not a fourth general read capability. The final run still
+must stop at pending human approval and the runtime must retain zero shell,
+filesystem, approval-decision, or send tools.
+
+### Planned Qualification Event Sequence
+
+```mermaid
+sequenceDiagram
+    participant P as Pi bounded session
+    participant T as qualify_lead wrapper
+    participant E as JSONL event store
+    participant D as qualification domain
+    participant L as exact synthetic lead lookup
+
+    P->>T: closed leadId input
+    T->>E: qualification.attempted(runId, leadId)
+    T->>D: qualifyLead(input)
+    D->>L: findLead(exact leadId)
+    alt schema-valid known lead
+        L-->>D: matching Lead
+        D-->>T: ok true plus validated result
+        T->>E: qualification.completed(runId, leadId, fit, confidence, reasonCodes, missingCodes)
+        T-->>P: structured success
+    else input, not-found, or lookup failure
+        L-->>D: absent or thrown failure
+        D-->>T: ok false plus redacted failure
+        T->>E: qualification.failed(runId, valid leadId if available, code, retryable)
+        T-->>P: structured failure
+    else 1,000 ms wrapper deadline
+        T->>E: qualification.failed(runId, leadId, qualification_timeout, true)
+        T-->>P: structured timeout failure
+    end
+```
+
+Every event uses the existing application event envelope, which supplies
+`eventId`, `runId`, timestamp, and type. Completion evidence contains only the
+validated identifier, classification, bounded confidence, and stable reason
+and missing-information codes needed to explain the outcome. Attempt and
+failure evidence omit invalid raw objects and caught exception text.
+
+### Failure Matrix
+
+| Scenario | Lookup called | Outcome | Retryable | Forbidden interpretation |
+|----------|---------------|---------|-----------|--------------------------|
+| Input missing, non-object, or no `leadId` | No | `missing_lead_id` | No | No lead or qualification exists |
+| Blank `leadId` | No | `missing_lead_id` | No | Blank is not an unknown lead lookup |
+| Non-string, bad pattern, or out-of-range `leadId` | No | `malformed_lead_id` | No | Do not normalize or guess an identifier |
+| Additional result-shaped or unsupported field | No | `invalid_input` | No | Model-proposed fields are not validated truth |
+| Exact identifier absent | Yes | `lead_not_found` | No | Do not fabricate result fields or continue as qualified |
+| Exact lookup throws | Yes | `lead_lookup_failed` | Yes | Do not expose the caught message or call it success |
+| Tool exceeds 1,000 ms in Session 03 | At most once | `qualification_timeout` | Yes | Do not continue from a late result or claim completion |
+| Generated result violates its schema | Yes | Throw invariant failure | No automatic retry | Session 03 must record tool/run failure; never downgrade a programmer defect to friendly prose |
+| Exact known lead and valid result | Yes | `ok: true` with validated value | Safe repeat | Qualification is evidence, not approval or permission to send |
+
+The domain function currently produces the first five structured codes. The
+`qualification_timeout` code is schema-defined for the Session 03 wrapper and
+is not claimed as an active runtime path in Session 02.
+
+### Red/Fix/Green Contract Evidence
+
+RED command, run before either domain module existed:
+
+```bash
+node --import tsx --test tests/qualification.test.ts
+```
+
+RED result: EXPECTED FAIL (exit 1) under Node.js 24.15.0. The runner reported
+`ERR_MODULE_NOT_FOUND` for `src/qualification.js`, 0 passing cases, and 1
+file-level failure. This proves the tests preceded implementation rather than
+passing against an existing behavior.
+
+FIX: extracted `src/leads.ts`; added closed TypeBox schemas and compiled
+validators in `src/qualification.ts`; implemented deterministic computation,
+exact identity matching, proposal rejection, structured missing/malformed/not
+found/lookup failures, and the reserved timeout contract.
+
+GREEN command:
+
+```bash
+node --import tsx --test tests/qualification.test.ts
+```
+
+GREEN result: PASS (exit 0) under Node.js 24.15.0 and npm 12.0.2.
+
+```text
+PASS known lead produces an application-validated qualification
+PASS same exact lead produces the same result
+PASS result schema rejects confidence outside zero through one
+PASS weak synthetic lead still produces a bounded schema-valid result
+PASS missing leadId returns structured failure before lookup
+PASS malformed leadId returns structured failure before lookup
+PASS unknown lead cannot receive qualification fields
+PASS result-shaped model proposal is rejected before lookup
+PASS lookup failure is redacted and cannot become friendly success
+PASS future tool timeout has a structured retryable failure contract
+PASS outcome validator rejects partial or mixed success and failure
+INFO tests 11
+INFO pass 11
+INFO fail 0
+INFO skipped 0
+```
+
+### Direct Domain Exercise
+
+Command:
+
+```bash
+node --import tsx --input-type=module -e 'import { isQualificationOutcome, qualifyLead } from "./src/qualification.ts"; const outcomes={known:qualifyLead({leadId:"lead_ada"}),missing:qualifyLead({}),malformed:qualifyLead({leadId:"Ada"}),unknown:qualifyLead({leadId:"lead_unknown"}),proposal:qualifyLead({leadId:"lead_ada",fit:"strong",confidence:1}),lookupFailure:qualifyLead({leadId:"lead_ada"},()=>{throw new Error("hidden detail")})}; const allSchemaValid=Object.values(outcomes).every(isQualificationOutcome); console.log(JSON.stringify({allSchemaValid,outcomes})); if(!allSchemaValid) process.exitCode=1;'
+```
+
+Result: PASS (exit 0). All six outcomes satisfy the closed outcome schema.
+
+```json
+{"allSchemaValid":true,"outcomes":{"known":{"ok":true,"value":{"leadId":"lead_ada","fit":"strong","confidence":0.85,"reasons":["team_size_in_scope","auditable_stack_present","operational_problem_present"],"missingInformation":["budget","decision_timeline"]}},"missing":{"ok":false,"error":{"code":"missing_lead_id","message":"A non-empty leadId is required.","retryable":false}},"malformed":{"ok":false,"error":{"code":"malformed_lead_id","message":"leadId must use the lead_<lowercase identifier> format.","retryable":false}},"unknown":{"ok":false,"error":{"code":"lead_not_found","message":"No lead exists for the requested leadId.","retryable":false}},"proposal":{"ok":false,"error":{"code":"invalid_input","message":"Qualification input contains unsupported fields.","retryable":false}},"lookupFailure":{"ok":false,"error":{"code":"lead_lookup_failed","message":"Lead lookup failed.","retryable":true}}}}
+```
+
+The known result contains only application-derived codes and bounded numeric
+evidence. Each refusal has no `value`; the proposal never reaches lookup, and
+the injected text `hidden detail` is absent from the returned failure.
+
+### Complete Verification Evidence
+
+Command:
+
+```bash
+nvm use 24.15.0
+node --version
+npm --version
+npm run verify
+```
+
+The first full command correctly found two strict-TypeScript errors in test
+failure-branch ordering after Node's assertion narrowed `outcome.ok` to true.
+Moving each failure guard before the success assertion repaired the test typing
+without changing production behavior. The exact command was rerun.
+
+Final result: PASS (exit 0) with Node.js 24.15.0 and npm 12.0.2.
+
+```text
+PASS tsc --noEmit
+PASS tests 15
+PASS passed 15
+PASS failed 0
+PASS skipped 0
+PASS cancelled 0
+PASS todo 0
+PASS evals 5/5
+```
+
+The 15 deterministic tests comprise the four preserved baseline cases and 11
+qualification cases. The five provider-independent evals also remain green;
+no Pi session, model request, credential, event write, or network effect was
+required.
+
+### Session 02 Safety and Diff Checks
+
+| Check | Exact scope | Result |
+|-------|-------------|--------|
+| Application boundary imports | `rg -n '^import' src/leads.ts src/qualification.ts src/tools.ts` | PASS - leads has no import; qualification imports only TypeBox and leads; tools preserves its existing Pi, TypeBox, event-store, and lead imports |
+| Runtime integration scope | Base diff over `src/pi-agent.ts`, `src/server.ts`, `src/event-store.ts`, manifests, Dockerfile, and `.env.example` | PASS - no changed file |
+| Production allowlist | Exact `tools:` inspection in `src/pi-agent.ts` | PASS - still `inspect_lead`, `draft_follow_up`, and `request_send_approval` |
+| New capability scan | Source diff scan for process execution, shell, filesystem, HTTP, credentials, and network calls | PASS - no matching capability |
+| Credential-pattern scan | Reviewed Apex, source, tests, docs, README, and manifests | PASS - no private-key marker or common credential value pattern |
+| Dependency audit | `npm audit` under npm 12.0.2 | PASS - 0 vulnerabilities |
+| Encoding and line endings | Byte scan of all changed and untracked Session 02 files | PASS - 10/10 ASCII-only with LF endings |
+| Relative documentation links | Repository Markdown target scan | PASS - 21 Markdown files, no missing relative target |
+| Whitespace | `git diff --check 675d76b4e8960b035edcdd3e21deb1ab86f576e7` | PASS - no whitespace errors |
+
+Behavioral spot-check: raw input is rejected before lookup, lookup identity must
+match, deterministic computation mutates only local arrays, thrown dependency
+details are redacted, result validation fails visibly, failure branches have no
+partial value, and the existing tool/runtime permission surface is unchanged.
+No high-severity trust-boundary, resource, mutation, failure-path, or contract
+alignment issue was found.
+
+### Session 02 Implementation Handoff
+
+Implementation is complete at 20/20 tasks. The base-commit diff adds
+`src/leads.ts`, `src/qualification.ts`, and
+`tests/qualification.test.ts`; changes `src/tools.ts` only to import and
+re-export the extracted lead boundary; appends evidence here; and updates Apex,
+TODO, and changelog tracking. Final implementation verification passes strict
+TypeScript, 15/15 deterministic tests, 5/5 evals, the dependency audit,
+ASCII/LF, relative-link, credential-pattern, permission, and whitespace checks.
+
+The domain contract is ready for code review and validation. Task `01` and the
+Phase 00 vertical slice are not complete yet: Session 03 must replace
+`inspect_lead` with the specified `qualify_lead` wrapper, enforce its 1,000 ms
+deadline, append the minimized correlated attempt/outcome evidence, preserve
+structured failure, and prove that known runs still stop at
+`approval_pending`. No Session 02 source path registers a new tool or performs
+an external effect.

@@ -8,6 +8,16 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ## [Unreleased]
 
+## [0.1.8] - 2026-08-04
+
+### Added
+
+- Checkpointed the implemented, review-pending Session 02 qualification slice with closed TypeBox input, result, failure, and outcome schemas; deterministic application-owned fit and confidence; structured refusal and lookup-failure behavior; and 11 focused contract tests.
+
+### Changed
+
+- Extracted synthetic lead fixtures into a Pi-independent domain module while preserving the existing tool API, tests, evals, and production allowlist.
+
 ## [0.1.7] - 2026-08-04
 
 ### Added
