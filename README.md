@@ -44,6 +44,9 @@ Requirements:
 - npm 12+
 - A provider configured for Pi in `~/.pi/agent/auth.json`, or a supported provider key in the environment
 
+To use a ChatGPT Plus or Pro Codex subscription instead of an API key, follow
+the [Pi OpenAI Codex subscription authentication guide](./docs/openai-codex-subscription-auth.md).
+
 ```bash
 cp .env.example .env
 npm install

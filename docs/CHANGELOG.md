@@ -8,6 +8,13 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ## [Unreleased]
 
+## [0.1.7] - 2026-08-04
+
+### Added
+
+- Added the Task `00` Build Log evidence pack with Mermaid architecture and request traces, a Harness Decision Record, explicit permission and risk tables, deterministic verification, and unknown-lead refusal proof.
+- Added a local operator guide for authenticating Pi through a ChatGPT Plus or Pro Codex subscription without an OpenAI Platform API key; recorded a local operator's successful no-session smoke-test report for `openai-codex/gpt-5.4-mini`.
+
 ## [0.1.6] - 2026-08-04
 
 ### Added
