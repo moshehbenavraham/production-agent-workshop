@@ -128,7 +128,9 @@ const QualificationLeadSchema = Type.Object(
   { additionalProperties: false },
 );
 
-function qualificationFailure(code: QualificationFailureCode): QualificationOutcome {
+export function makeQualificationFailure(
+  code: QualificationFailureCode,
+): QualificationOutcome {
   return {
     ok: false,
     error: {
@@ -201,23 +203,25 @@ export function isQualificationOutcome(value: unknown): value is QualificationOu
 
 function qualificationInputFailure(input: unknown): QualificationOutcome | undefined {
   if (typeof input !== "object" || input === null || Array.isArray(input)) {
-    return qualificationFailure("missing_lead_id");
+    return makeQualificationFailure("missing_lead_id");
   }
 
   const candidate = input as Record<string, unknown>;
   if (!Object.hasOwn(candidate, "leadId")) {
-    return qualificationFailure("missing_lead_id");
+    return makeQualificationFailure("missing_lead_id");
   }
   if (typeof candidate.leadId !== "string") {
-    return qualificationFailure("malformed_lead_id");
+    return makeQualificationFailure("malformed_lead_id");
   }
   if (candidate.leadId.trim().length === 0) {
-    return qualificationFailure("missing_lead_id");
+    return makeQualificationFailure("missing_lead_id");
   }
   if (!isQualificationInput({ leadId: candidate.leadId })) {
-    return qualificationFailure("malformed_lead_id");
+    return makeQualificationFailure("malformed_lead_id");
   }
-  if (!isQualificationInput(input)) return qualificationFailure("invalid_input");
+  if (!isQualificationInput(input)) {
+    return makeQualificationFailure("invalid_input");
+  }
   return undefined;
 }
 
@@ -227,18 +231,20 @@ export function qualifyLead(
 ): QualificationOutcome {
   const inputFailure = qualificationInputFailure(input);
   if (inputFailure) return inputFailure;
-  if (!isQualificationInput(input)) return qualificationFailure("invalid_input");
+  if (!isQualificationInput(input)) {
+    return makeQualificationFailure("invalid_input");
+  }
 
   let lead: unknown;
   try {
     lead = lookup(input.leadId);
   } catch {
-    return qualificationFailure("lead_lookup_failed");
+    return makeQualificationFailure("lead_lookup_failed");
   }
   if (lead === undefined) {
-    return qualificationFailure("lead_not_found");
+    return makeQualificationFailure("lead_not_found");
   }
-  if (!isLead(lead)) return qualificationFailure("lead_lookup_failed");
-  if (lead.id !== input.leadId) return qualificationFailure("lead_not_found");
+  if (!isLead(lead)) return makeQualificationFailure("lead_lookup_failed");
+  if (lead.id !== input.leadId) return makeQualificationFailure("lead_not_found");
   return { ok: true, value: buildQualification(lead) };
 }

@@ -3,7 +3,7 @@
   "project_name": "production-agent-workshop",
   "description": "Build an Agency Lead Operations Agent with Codex, Pi, and Coolify.",
   "current_phase": 0,
-  "current_session": null,
+  "current_session": "phase00-session03-qualification-tool-integration",
   "monorepo": false,
   "phases": {
     "0": {
@@ -51,6 +51,11 @@
       "date": "2026-08-04",
       "session": "phase00-session02-qualification-contract-and-domain",
       "status": "completed"
+    },
+    {
+      "date": "2026-08-04",
+      "session": "phase00-session03-qualification-tool-integration",
+      "status": "planned"
     }
   ]
 }

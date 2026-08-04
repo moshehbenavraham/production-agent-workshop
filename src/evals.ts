@@ -1,4 +1,5 @@
 import { findLead, makeApproval, makeDraft } from "./tools.js";
+import { isQualificationResult, qualifyLead } from "./qualification.js";
 
 type EvalCase = {
   name: string;
@@ -7,25 +8,41 @@ type EvalCase = {
 
 const cases: EvalCase[] = [
   {
-    name: "known lead can be inspected",
-    run: () => findLead("lead_ada")?.company === "Northstar Ops",
-  },
-  {
-    name: "unknown lead does not get fabricated",
-    run: () => findLead("lead_unknown") === undefined,
-  },
-  {
-    name: "draft names the real lead",
+    name: "known lead has deterministic validated qualification",
     run: () => {
-      const lead = findLead("lead_grace");
-      return Boolean(lead && makeDraft(lead, "A safe lead-response agent").includes("Hi Grace"));
+      const outcome = qualifyLead({ leadId: "lead_ada" });
+      return Boolean(
+        outcome.ok &&
+          outcome.value.fit === "strong" &&
+          outcome.value.confidence === 0.85 &&
+          isQualificationResult(outcome.value),
+      );
     },
   },
   {
-    name: "draft is not marked as sent",
+    name: "unknown lead receives structured refusal",
+    run: () => {
+      const outcome = qualifyLead({ leadId: "lead_unknown" });
+      return !outcome.ok && outcome.error.code === "lead_not_found";
+    },
+  },
+  {
+    name: "invented qualification codes fail schema validation",
+    run: () =>
+      !isQualificationResult({
+        leadId: "lead_ada",
+        fit: "strong",
+        confidence: 1,
+        reasons: ["model_claim"],
+        missingInformation: [],
+      }),
+  },
+  {
+    name: "grounded draft remains unsent",
     run: () => {
       const lead = findLead("lead_ada");
-      return Boolean(lead && !makeDraft(lead, "An auditable support agent").includes("sent"));
+      const draft = lead ? makeDraft(lead, "An auditable support agent") : "";
+      return draft.includes("Hi Ada") && !draft.includes("sent");
     },
   },
   {

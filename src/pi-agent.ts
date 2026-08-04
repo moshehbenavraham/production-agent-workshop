@@ -6,19 +6,29 @@ import {
   SessionManager,
 } from "@earendil-works/pi-coding-agent";
 import { resolve } from "node:path";
-import { JsonlEventStore } from "./event-store.js";
-import { buildTools } from "./tools.js";
+import { JsonlEventStore, type AgentEvent } from "./event-store.js";
+import type { QualificationOutcome } from "./qualification.js";
+import { buildTools, qualificationOutcomeFromEvents } from "./tools.js";
+
+export const PRODUCTION_TOOL_NAMES = [
+  "qualify_lead",
+  "draft_follow_up",
+  "request_send_approval",
+] as const;
 
 const SYSTEM_PROMPT = `You are a bounded lead-operations agent.
 
 Your job:
-1. Inspect the exact lead requested.
-2. If the lead exists, draft one relevant follow-up.
-3. Create a pending human approval record.
-4. Stop and report the approval ID.
+1. Call qualify_lead for the exact lead requested.
+2. If qualification returns ok false, stop and report its code and message.
+3. If qualification returns ok true, use only its validated fields and draft one relevant follow-up.
+4. Create a pending human approval record for that exact lead.
+5. Stop and report the approval ID.
 
 Rules:
 - Never invent lead data.
+- Never invent or alter qualification fields.
+- Never draft or request approval without a successful qualification.
 - Never send a message.
 - Never imply that a pending action was completed.
 - Use only the provided tools.
@@ -59,8 +69,40 @@ function finalAssistantText(messages: unknown[]): string {
 export type RunResult = {
   runId: string;
   output: string;
-  stopReason: "approval_pending" | "not_found" | "completed";
+  stopReason: RunStopReason;
+  qualification: QualificationOutcome;
 };
+
+export type RunStopReason =
+  | "approval_pending"
+  | "not_found"
+  | "qualification_failed"
+  | "completed";
+
+export function deriveRunStopReason(events: readonly AgentEvent[]): RunStopReason {
+  const qualification = qualificationOutcomeFromEvents(events);
+  if (!qualification) return "qualification_failed";
+  if (!qualification.ok) {
+    return qualification.error.code === "lead_not_found"
+      ? "not_found"
+      : "qualification_failed";
+  }
+
+  const approvalPending = events.some(
+    (event) =>
+      event.type === "approval.requested" &&
+      event.data.status === "pending" &&
+      event.data.leadId === qualification.value.leadId,
+  );
+  return approvalPending ? "approval_pending" : "completed";
+}
+
+export function qualificationRunOutput(
+  qualification: QualificationOutcome,
+  assistantOutput: string,
+): string {
+  return qualification.ok ? assistantOutput : qualification.error.message;
+}
 
 export async function runLeadAgent(leadId: string): Promise<RunResult> {
   const runId = crypto.randomUUID();
@@ -82,13 +124,13 @@ export async function runLeadAgent(leadId: string): Promise<RunResult> {
   await resourceLoader.reload();
 
   const modelRuntime = await ModelRuntime.create();
-  const tools = buildTools(runId, store);
+  const tools = buildTools(runId, leadId, store);
   const { session } = await createAgentSession({
     cwd,
     modelRuntime,
     resourceLoader,
-    customTools: tools,
-    tools: ["inspect_lead", "draft_follow_up", "request_send_approval"],
+    customTools: [...tools],
+    tools: [...PRODUCTION_TOOL_NAMES],
     sessionManager: SessionManager.inMemory(cwd),
   });
 
@@ -106,22 +148,21 @@ export async function runLeadAgent(leadId: string): Promise<RunResult> {
       `Qualify lead "${leadId}", draft the best first follow-up, request human approval, and stop.`,
     );
     const events = store.readRun(runId);
-    const approvalPending = events.some((event) => event.type === "approval.requested");
-    const found = events.some(
-      (event) => event.type === "domain.lead_inspected" && event.data.found === true,
+    const qualification = qualificationOutcomeFromEvents(events);
+    if (!qualification) {
+      throw new Error("Qualification tool produced no valid terminal evidence.");
+    }
+    const stopReason = deriveRunStopReason(events);
+    const output = qualificationRunOutput(
+      qualification,
+      finalAssistantText(session.agent.state.messages),
     );
-    const stopReason = approvalPending
-      ? "approval_pending"
-      : found
-        ? "completed"
-        : "not_found";
-    const output = finalAssistantText(session.agent.state.messages);
     store.append({
       runId,
       type: "run.completed",
       data: { stopReason },
     });
-    return { runId, output, stopReason };
+    return { runId, output, stopReason, qualification };
   } catch (error) {
     store.append({
       runId,
