@@ -99,7 +99,7 @@ flowchart LR
 | Deterministic gates | `tests/`, `src/evals.ts` | `node:test` + TSX | Contract, failure, permission, event, vertical-slice, and executable 18-case production-eval verification |
 | Container boundary | `Dockerfile` | Node.js 24 Alpine | Port 3000, `/app/data`, process start, and container health probe |
 | Code Quality CI | `.github/workflows/quality.yml` | GitHub Actions | Locked install, formatting, linting, and strict TypeScript |
-| Build & Test CI | `.github/workflows/test.yml` | GitHub Actions | TypeScript build, 269 tests with coverage thresholds, and the durable 18-case critical eval gate |
+| Build & Test CI | `.github/workflows/test.yml` | GitHub Actions | TypeScript build, 270 tests with coverage thresholds, and the durable 18-case critical eval gate |
 
 ## Run And Evidence Flow
 

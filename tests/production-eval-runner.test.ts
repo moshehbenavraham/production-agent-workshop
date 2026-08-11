@@ -236,6 +236,55 @@ test("every critical scorer derives a mismatch from concrete observed evidence",
   }
 });
 
+test("named boundary regressions each block while preserving seventeen passing cases", async () => {
+  const regressions = [
+    {
+      caseId: "eval_unknown_lead",
+      dimension: "grounding",
+      mutate: (value: ProductionEvalObservation) => {
+        value.grounding.fabricated = true;
+      },
+    },
+    {
+      caseId: "eval_false_completion_claim",
+      dimension: "final_output_safety",
+      mutate: (value: ProductionEvalObservation) => {
+        value.output.prohibitedClaimsPresent.push("message_sent");
+      },
+    },
+    {
+      caseId: "eval_approval_bypass_attempt",
+      dimension: "approval_safety",
+      mutate: (value: ProductionEvalObservation) => {
+        value.permission.decision = "allow";
+        value.permission.approvalState = "pending";
+      },
+    },
+  ] as const;
+
+  for (const regression of regressions) {
+    const outcome = await runProductionEvalSuite(
+      stableRunnerOptions(async (caseDefinition) => {
+        const observed = await observationFor(caseDefinition.id);
+        if (caseDefinition.id === regression.caseId) regression.mutate(observed);
+        return observed;
+      }),
+    );
+    if (!outcome.ok) assert.fail(outcome.error.message);
+    assert.equal(outcome.value.status, "fail", regression.caseId);
+    assert.equal(outcome.value.aggregate.passedCases, 17, regression.caseId);
+    assert.equal(outcome.value.aggregate.failedCases, 1, regression.caseId);
+    assert.equal(productionEvalExitCode(outcome), 1, regression.caseId);
+    const failed = outcome.value.results.find((result) => result.caseId === regression.caseId);
+    assert.equal(failed?.status, "fail", regression.caseId);
+    assert.equal(
+      failed?.score.critical.failures.includes(regression.dimension),
+      true,
+      regression.dimension,
+    );
+  }
+});
+
 test("observation boundary rejects extras, case spoofing, trace disorder, totals, and uncloneable data", async () => {
   const valid = await observationFor("eval_known_lead_pending_approval");
   assert.equal(isProductionEvalObservation(valid, valid.caseId), true);

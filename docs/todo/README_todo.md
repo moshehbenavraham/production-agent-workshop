@@ -16,7 +16,7 @@ The repository currently provides:
   Pi/HTTP execution entrypoint or network effect
 - a provider-independent recovery application for qualification, draft, and
   approval checkpoints that stops before indeterminate effects
-- 269 deterministic tests and a durable 18-case critical production-eval gate
+- 270 deterministic tests and a durable 18-case critical production-eval gate
 - a Node 24 container, `/health`, a Docker health probe, and a persistent `/app/data` volume contract
 - passing Code Quality and Build & Test workflows plus GitHub-managed CodeQL;
   broader CI/CD bundles remain incomplete
@@ -92,7 +92,7 @@ templates, not claims of completed behavior.
 |------|-------|-----------|
 | 1 | `00`, `01` | [Completed evidence](../build-log-week1.md) |
 | 2 | `02`, `03` | [Completed evidence](../build-log-week2.md) |
-| 3 | `04`, `05` | [Evidence template](../build-log-week3.md) |
+| 3 | `04`, `05` | [Completed evidence](../build-log-week3.md) |
 | 4 | `06`, `07` | [Evidence template](../build-log-week4.md) |
 
 Create the Week 5 log when Task `08` begins so its measured handoff experiment

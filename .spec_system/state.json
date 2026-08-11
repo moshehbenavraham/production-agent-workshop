@@ -3,7 +3,7 @@
   "project_name": "production-agent-workshop",
   "description": "Build an Agency Lead Operations Agent with Codex, Pi, and Coolify.",
   "current_phase": 2,
-  "current_session": "phase02-session07-boundary-regression-exercises-and-evidence",
+  "current_session": null,
   "monorepo": false,
   "phases": {
     "0": {
@@ -20,7 +20,7 @@
     "2": {
       "name": "Recovery and Evaluation Gates",
       "description": "Build durable run recovery, replay-safe resume, and deployment-blocking production eval gates.",
-      "status": "in_progress",
+      "status": "complete",
       "session_count": 7
     }
   },
@@ -39,25 +39,11 @@
     "phase02-session03-bounded-run-lifecycle",
     "phase02-session04-replay-and-resume-integration",
     "phase02-session05-production-eval-contract-and-golden-set",
-    "phase02-session06-critical-eval-gate-and-scorecard"
+    "phase02-session06-critical-eval-gate-and-scorecard",
+    "phase02-session07-boundary-regression-exercises-and-evidence"
   ],
   "next_session_history": [
     {
-      "date": "2026-08-04",
-      "session": "phase01-session06-safe-write-integration-and-evidence",
-      "status": "validated"
-    },
-    {
-      "date": "2026-08-04",
-      "session": "phase01-session06-safe-write-integration-and-evidence",
-      "status": "completed"
-    },
-    {
-      "date": "2026-08-11",
-      "session": "phase02-session01-durable-run-event-contract-and-store",
-      "status": "planned"
-    },
-    {
       "date": "2026-08-11",
       "session": "phase02-session01-durable-run-event-contract-and-store",
       "status": "validated"
@@ -140,6 +126,21 @@
     {
       "date": "2026-08-11",
       "session": "phase02-session06-critical-eval-gate-and-scorecard",
+      "status": "completed"
+    },
+    {
+      "date": "2026-08-11",
+      "session": "phase02-session07-boundary-regression-exercises-and-evidence",
+      "status": "planned"
+    },
+    {
+      "date": "2026-08-12",
+      "session": "phase02-session07-boundary-regression-exercises-and-evidence",
+      "status": "validated"
+    },
+    {
+      "date": "2026-08-12",
+      "session": "phase02-session07-boundary-regression-exercises-and-evidence",
       "status": "completed"
     }
   ]

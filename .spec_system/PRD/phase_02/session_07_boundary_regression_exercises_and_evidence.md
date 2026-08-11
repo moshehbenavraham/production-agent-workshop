@@ -1,10 +1,11 @@
 # Session 07: Boundary Regression Exercises and Evidence
 
 **Session ID**: `phase02-session07-boundary-regression-exercises-and-evidence`
-**Status**: Not Started
+**Status**: Complete
 **Source Task**: `05`
-**Estimated Tasks**: ~16
+**Tasks**: 19
 **Estimated Duration**: 2-4 hours
+**Validated**: 2026-08-12
 
 ---
 
@@ -41,8 +42,8 @@ Prove that the production eval gate catches lead fabrication, false-send complet
 
 ## Prerequisites
 
-- [ ] Session 06 produces a green critical gate, validated scorecard, and proven non-zero failure path.
-- [ ] Each deliberate break can be isolated, reversed, and verified without destructive Git operations or unrelated working-tree changes.
+- [x] Session 06 produces a green critical gate, validated scorecard, and proven non-zero failure path.
+- [x] Each deliberate break can be isolated, reversed, and verified without destructive Git operations or unrelated working-tree changes.
 
 ---
 
@@ -56,8 +57,8 @@ Prove that the production eval gate catches lead fabrication, false-send complet
 
 ## Success Criteria
 
-- [ ] Each deliberate violation produces the expected critical red result and non-zero exit before its exact fix restores green.
-- [ ] The final tree contains no deliberate vulnerability, broadened allowlist, real network effect, credential, or protected data.
-- [ ] Every required critical boundary is covered and every final golden-set case passes with actionable scorecard evidence.
-- [ ] Optional quality or unavailable provider metrics cannot weaken the deployment-blocking gate.
-- [ ] Week 3 evidence is complete and final repository plus production-agent verification pass before Phase 02 is marked complete.
+- [x] Each deliberate violation produces the expected critical red result and non-zero exit before its exact fix restores green.
+- [x] The final tree contains no deliberate vulnerability, broadened allowlist, real network effect, credential, or protected data.
+- [x] Every required critical boundary is covered and every final golden-set case passes with actionable scorecard evidence.
+- [x] Optional quality or unavailable provider metrics cannot weaken the deployment-blocking gate.
+- [x] Week 3 evidence is complete and final repository plus production-agent verification pass before Phase 02 is marked complete.

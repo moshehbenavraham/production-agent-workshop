@@ -80,5 +80,5 @@ Implement the reproducible eval runner, deterministic critical deployment gate, 
   no unresolved finding, permission expansion, provider/network edge, secret,
   real-data behavior, or dependency vulnerability.
 
-Session 07 remains responsible for the three controlled source-break/revert
-traces. Task `05` and Phase 02 remain incomplete until that session validates.
+Session 07 subsequently completed and validated the three controlled
+source-break/revert traces, closing Task `05` and the Phase 02 implementation.

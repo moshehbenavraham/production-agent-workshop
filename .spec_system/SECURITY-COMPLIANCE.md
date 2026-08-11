@@ -14,8 +14,8 @@ gates. Public vulnerability reporting belongs in the
 
 ### Overall: AT RISK
 
-Phase 02 Session 06 is clean for synthetic data in a local or otherwise
-controlled environment. It is not public-production-ready because caller
+The complete Phase 02 implementation is clean for synthetic data in a local or
+otherwise controlled environment. It is not public-production-ready because caller
 access, public/distributed recovery, real-data lifecycle, distributed effect
 safety, backup, restore, and deployment controls remain open release gates.
 
@@ -25,7 +25,7 @@ safety, backup, restore, and deployment controls remain open release gates.
 | Critical/High | 1 |
 | Medium/Low | 3 |
 | Phases Audited | 3 |
-| Last Clean Phase | P01 |
+| Last Clean Phase | P02 |
 
 ---
 
@@ -132,9 +132,14 @@ They remain open until the stated controls have direct acceptance evidence.
 - [P02] Persisted eval evidence excludes draft bodies, lead profiles,
   transcripts, provider payloads, credentials, stack traces, full approval
   records, and raw dependency messages.
+- [P02] Three serial uncommitted source-boundary exercises proved the gate
+  rejects lead fabrication, false completion, and approval bypass; each source
+  file was explicitly restored to its pre-exercise SHA-256 before continuing.
+- [P02] A permanent regression requires each named boundary failure to retain
+  17 passing cases, expose its critical dimension, and exit non-zero.
 - [P00] Known-lead runs stop at `approval_pending`; visible outcomes derive from
   validated qualification events and durable approval projection, never prose.
-- [P02] Biome formatting/linting, strict TypeScript, 269 deterministic tests,
+- [P02] Biome formatting/linting, strict TypeScript, 270 deterministic tests,
   18 eval cases, coverage gates, npm audit, Code Quality, Build & Test, and CodeQL pass.
 - [P01] Docker health and process/container rate-gate validation pass locally;
   missing production checks remain explicit in `known-issues.md`.
@@ -209,7 +214,7 @@ reviewed overrides and install-script approvals from `package.json`.
 
 | Phase | Sessions | Security | GDPR | Findings Opened | Findings Closed |
 |-------|----------|----------|------|-----------------|-----------------|
-| P02 | 6 of 7 | PASS for controlled synthetic scope through Session 06 | N/A | 0 | 1 |
+| P02 | 7 of 7 | PASS for controlled synthetic scope | N/A | 0 | 1 |
 | P01 | 6 | PASS for controlled synthetic scope | N/A | 1 | 1 |
 | P00 | 3 | PASS for controlled synthetic scope | N/A | 0 | 2 baseline control gaps |
 
@@ -242,16 +247,13 @@ reviewed overrides and install-script approvals from `package.json`.
 
 ## Recommendations
 
-1. [P02] Capture and exactly revert the three controlled Session 07 boundary
-   breaks while proving the durable gate turns red and green without weakening
-   exact identity, authority, event ordering, or indeterminate-effect handling.
-2. [P01] Keep internal fake execution disconnected until both stronger cross-
+1. [P01] Keep internal fake execution disconnected until both stronger cross-
    process ownership and the recorded human permission gate exist.
-3. [P01] Keep all inputs synthetic until automated lifecycle, access, backup,
+2. [P01] Keep all inputs synthetic until automated lifecycle, access, backup,
    restore, and real-data governance controls pass.
-4. [P01] Validate health, edge security, persistence, restore, rollback, and
+3. [P01] Validate health, edge security, persistence, restore, rollback, and
    operator access against the real target only when deployment is authorized.
-5. [P01] Preserve the single-agent baseline and exact three-tool allowlist until
+4. [P01] Preserve the single-agent baseline and exact three-tool allowlist until
    measured evidence justifies a reviewed change.
 
 ---

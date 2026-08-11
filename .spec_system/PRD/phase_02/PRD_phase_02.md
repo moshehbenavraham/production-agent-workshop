@@ -1,10 +1,10 @@
 # PRD Phase 02: Recovery and Evaluation Gates
 
-**Status**: In Progress
+**Status**: Complete
 **Sessions**: 7 (initial estimate)
 **Estimated Duration**: 5-7 workshop days
 
-**Progress**: 6/7 sessions (86%)
+**Progress**: 7/7 sessions (100%)
 
 ---
 
@@ -24,7 +24,7 @@ Week 3 turns the current lightweight event stream into validated durable run evi
 | 04 | Replay and Resume Integration | Complete | 22 | 2026-08-11 |
 | 05 | Production Eval Contract and Golden Set | Complete | 20 | 2026-08-11 |
 | 06 | Critical Eval Gate and Scorecard | Complete | 23 | 2026-08-11 |
-| 07 | Boundary Regression Exercises and Evidence | Not Started | ~16 | - |
+| 07 | Boundary Regression Exercises and Evidence | Complete | 19 | 2026-08-12 |
 
 ---
 
@@ -36,12 +36,7 @@ Week 3 turns the current lightweight event stream into validated durable run evi
 - `phase02-session04-replay-and-resume-integration` - completed and validated 2026-08-11.
 - `phase02-session05-production-eval-contract-and-golden-set` - completed and validated 2026-08-11.
 - `phase02-session06-critical-eval-gate-and-scorecard` - completed and validated 2026-08-11.
-
----
-
-## Upcoming Sessions
-
-- Session 07: Boundary Regression Exercises and Evidence
+- `phase02-session07-boundary-regression-exercises-and-evidence` - completed and validated 2026-08-12.
 
 ---
 
@@ -127,7 +122,7 @@ Week 3 turns the current lightweight event stream into validated durable run evi
 
 Phase complete when:
 
-- [ ] All 7 sessions are completed and validated.
+- [x] All 7 sessions are completed and validated.
 - [x] A closed versioned event envelope and hardened append-only store preserve minimized recovery facts and reject malformed, truncated, duplicated, cross-run, missing, or out-of-order evidence.
 - [x] A deterministic projection rebuilds the same run lifecycle and safe checkpoint from durable events while authorization still comes only from exact approval and fake-result records.
 - [x] Every required tool and run attempt and outcome is correlated, and whole-run deadline and maximum-step exits persist one visible terminal stop reason.
@@ -135,8 +130,8 @@ Phase complete when:
 - [x] The recovery decision table and event lifecycle rules define retry, resume, compensate, escalate, stop, retention, redaction, and deletion behavior for the synthetic scope.
 - [x] A 10-20 case golden set covers happy, ambiguous, malformed, unknown, timeout, permission, credential, downstream, duplicate, restart, invalid-model, adversarial, approval-bypass, false-completion, escalation, and stop behavior.
 - [x] Deterministic critical assertions score schemas, state, tool arguments, event order, permissions, idempotency, recovery, and stop reasons; any critical failure exits non-zero and identifies expected versus observed evidence.
-- [ ] Lead-fabrication, false-send, and approval-bypass red/fix/green exercises are reverted and protected by regression cases.
-- [ ] Week 3 Build Log evidence, `docs/TODO.md`, and `docs/CHANGELOG.md` match the implemented state, and final repository verification and security review pass.
+- [x] Lead-fabrication, false-send, and approval-bypass red/fix/green exercises are reverted and protected by regression cases.
+- [x] Week 3 Build Log evidence, `docs/TODO.md`, and `docs/CHANGELOG.md` match the implemented state, and final repository verification and security review pass.
 
 ---
 

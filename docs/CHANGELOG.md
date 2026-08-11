@@ -10,6 +10,9 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Added
 
+- Added a permanent table-driven production-eval regression for unknown-lead
+  fabrication, false completion, and approval bypass that requires the named
+  critical failure, preserves 17 other passing cases, and returns exit 1.
 - Added a deterministic 18-case production-eval harness that exercises input,
   qualification, tool, lifecycle, approval, fake-write, recovery, and bounded
   output paths through isolated synthetic production-domain boundaries.
@@ -110,6 +113,12 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Changed
 
+- Closed Phase 02 Session 07, Task `05`, and the seven-session Phase 02
+  implementation at version `0.1.29` after three isolated, uncommitted
+  red/fix/green source-boundary exercises restored exact baseline hashes,
+  270/270 deterministic tests and 18/18 eval cases passed, coverage reached
+  97.64% lines/85.43% branches/97.88% functions, and dependency, artifact,
+  residue, permission, secret, security, and final-diff reviews passed.
 - Closed Phase 02 Session 06 at version `0.1.28` after 269/269 deterministic
   tests, an 18/18 durable production-eval pass, 97.64% line/85.35% branch/
   97.88% function coverage, zero dependency vulnerabilities, and complete
