@@ -44,13 +44,55 @@ flowchart LR
 
 ### Complete Incident Timeline
 
-_Add a Mermaid timeline following one synthetic `runId` across the request,
-model, tool, approval, failure, recovery, and terminal evidence._
+Session 02 adds the safe chronological query used by later incident drills. The
+preserved failed-run fixture follows `run_report_fixture` through start,
+qualification attempt, timeout failure, and the exact durable
+`qualification_failed` terminal. Session 04 will extend this section with the
+five complete drill timelines and recovery outcomes.
+
+```mermaid
+sequenceDiagram
+  participant Operator
+  participant Report as Read-only report
+  participant Events as Complete JSONL evidence
+  participant Projection as Semantic projection
+  Operator->>Report: exact run_report_fixture
+  Report->>Events: bounded complete read
+  Events-->>Projection: 4 runtime-valid events
+  Projection-->>Report: stopped / qualification_failed
+  Report-->>Operator: minimized chronological facts
+```
 
 ### Run Query Output
 
-_Record the safe operator command and redacted chronological output for one
-`runId`._
+Command contract:
+
+```text
+npm run report:run -- --run-id <exact-run-id> --event-log <operator-path> --format text|json
+```
+
+The command validates the run ID before filesystem access, accepts only a
+resolved non-root regular file, rejects symlinks and evidence above 64 MiB,
+validates the complete JSONL and semantic run projection, caps one report at
+1,000 events, and never opens a write path. The event-log path is never emitted.
+
+Preserved synthetic example:
+
+```text
+$ npm run report:run -- --run-id run_report_fixture --event-log tests/fixtures/run-report-failed.jsonl --format text
+run=run_report_fixture status=stopped events=4 checkpoint=run_started authority=observed_only terminal=completed:qualification_failed
+metrics elapsed=3000:milliseconds max_retry=1 tokens=0/0/0 cost=0:usd
+001 at=2026-08-12T00:00:00.000Z layer=run event=run.started app=0.1.32 step=- retry=0 duration=unavailable:not_reported outcome=attempted permission=not_applicable effect=none error=- stop=- model=- prompt=- tool=- tokens=unavailable:not_reported cost=unavailable:not_reported
+002 at=2026-08-12T00:00:01.000Z layer=domain event=qualification.attempted app=0.1.32 step=1 retry=0 duration=0:milliseconds outcome=attempted permission=not_applicable effect=none error=- stop=- model=synthetic-model-v1 prompt=synthetic-prompt-v1 tool=- tokens=0/0/0 cost=0:usd
+003 at=2026-08-12T00:00:02.000Z layer=domain event=qualification.failed app=0.1.32 step=1 retry=1 duration=25:milliseconds outcome=failed permission=not_applicable effect=none error=qualification_timeout stop=- model=- prompt=- tool=- tokens=unavailable:not_reported cost=unavailable:not_reported
+004 at=2026-08-12T00:00:03.000Z layer=terminal event=run.completed app=0.1.32 step=- retry=1 duration=30:milliseconds outcome=stopped permission=not_applicable effect=none error=qualification_timeout stop=qualification_failed model=- prompt=- tool=- tokens=unavailable:not_reported cost=unavailable:not_reported
+```
+
+JSON mode returns the same timeline and summary facts under a closed schema.
+The report intentionally omits event IDs, actors, lead and draft identifiers,
+arguments, hashes, receipts, idempotency keys, raw errors, payloads, paths,
+URLs, and infrastructure details. `authority=observed_only` prevents an
+approval or effect observation from being presented as durable authority.
 
 ### Alert Table
 
@@ -99,6 +141,17 @@ Session 01 focused evidence:
 - Exact production Pi allowlist regression: 1/1 pass.
 - `npm run verify`: 293/293 tests and 18/18 production eval cases pass.
 - `npm run test:coverage`: 97.72% lines, 85.60% branches, and 98.04% functions.
+- `npm audit`: zero known vulnerabilities.
+
+Session 02 focused evidence:
+
+- `npx tsc --noEmit`: pass.
+- `npx tsx --test tests/run-report.test.ts`: 23/23 pass.
+- Preserved fixture text and JSON commands: pass with byte-identical input.
+- Malformed, truncated, duplicate, out-of-order, missing-run, symlink, and
+  invalid-input subprocess cases: fail visibly with no partial stdout.
+- `npm run verify`: 316/316 tests and 18/18 production eval cases pass.
+- `npm run test:coverage`: 97.65% lines, 85.74% branches, and 98.17% functions.
 - `npm audit`: zero known vulnerabilities.
 
 The final Task `06` verification result will be recorded after Sessions 02

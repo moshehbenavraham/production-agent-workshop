@@ -69,7 +69,10 @@ Tasks `04` and `05` and the Phase 02 implementation are complete.
     - [x] Implement closed four-layer observation contracts and bounded service collection.
     - [x] Add deterministic availability, correlation, timeout, failure, and redaction tests.
     - [x] Complete Apex review, validation, and PRD closeout.
-  - [ ] Session 02 - Run Timeline Query and Redaction
+  - [x] Session 02 - Run Timeline Query and Redaction
+    - [x] Implement a closed exact-`runId` report with projection-before-rendering validation.
+    - [x] Add bounded read-only JSON/text CLI output and a preserved synthetic fixture.
+    - [x] Complete Apex review, validation, and PRD closeout.
   - [ ] Session 03 - Alerts and Incident Runbook
   - [ ] Session 04 - Incident Drills and Operational Baseline
   - [ ] Session 05 - Controlled Release Security and Operator Contract
@@ -83,9 +86,11 @@ Phase 03 is sourced only from Tasks
 controlled exposure, synthetic-only data, the exact three-tool Pi allowlist,
 and operator-owned deployment actions.
 Session 01 is complete with closed service, run, model, and tool observation
-contracts plus a controlled service snapshot collector. Task `06` remains
-incomplete until Sessions 02 through 04 prove reporting, alerts, runbooks, and
-incident drills.
+contracts plus a controlled service snapshot collector. Session 02 is complete
+with a bounded read-only exact-`runId` report, JSON/text parity, complete-history
+validation, and default protected-field omission.
+Task `06` remains incomplete until Sessions 03 and 04 prove alerts, runbooks,
+and incident drills.
 
 ## Phase 00 Transition (Complete)
 

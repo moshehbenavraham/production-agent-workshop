@@ -10,6 +10,10 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Added
 
+- Added a closed read-only exact-`runId` report with semantic projection before
+  rendering, stable chronological JSON/text forms, explicit unavailable model
+  metrics, observed-only approval/effect labels, 1,000-event and 64 MiB bounds,
+  safe path preflight, protected-field omission, and 23 focused tests.
 - Added closed, immutable service, run, model, and tool observation contracts
   with exact run correlation, tagged metric availability, finite operational
   vocabularies, and canonical semantic validation.

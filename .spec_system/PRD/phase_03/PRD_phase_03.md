@@ -4,7 +4,7 @@
 **Sessions**: 8 (initial estimate)
 **Estimated Duration**: 6-8 workshop days
 
-**Progress**: 1/8 sessions (12.5%)
+**Progress**: 2/8 sessions (25%)
 
 ---
 
@@ -19,7 +19,7 @@ Week 4 turns the validated recovery and eval baseline into an operator-facing sy
 | Session | Name | Status | Est. Tasks | Validated |
 |---------|------|--------|------------|-----------|
 | 01 | Observability Contract and Service Health | Complete | 18 | 2026-08-12 |
-| 02 | Run Timeline Query and Redaction | Not Started | ~18 | - |
+| 02 | Run Timeline Query and Redaction | Complete | 18 | 2026-08-12 |
 | 03 | Alerts and Incident Runbook | Not Started | ~17 | - |
 | 04 | Incident Drills and Operational Baseline | Not Started | ~20 | - |
 | 05 | Controlled Release Security and Operator Contract | Not Started | ~18 | - |
@@ -32,12 +32,13 @@ Week 4 turns the validated recovery and eval baseline into an operator-facing sy
 ## Completed Sessions
 
 - Session 01: Observability Contract and Service Health - completed 2026-08-12
+- Session 02: Run Timeline Query and Redaction - completed 2026-08-12
 
 ---
 
 ## Upcoming Sessions
 
-- Session 02: Run Timeline Query and Redaction
+- Session 03: Alerts and Incident Runbook
 
 ---
 
