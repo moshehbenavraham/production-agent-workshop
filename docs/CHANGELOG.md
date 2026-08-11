@@ -10,6 +10,10 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Added
 
+- Added the eight-session Phase 03 Apex plan for four-layer observability,
+  exact-`runId` reporting, alerts, incident drills, controlled Coolify release,
+  persistent restart, off-server restore, rollback, parity, and operator
+  handoff sourced only from Tasks `06` and `07`.
 - Added a fail-closed offline JSONL snapshot/restore CLI with explicit
   stopped-writer confirmation, strict path and record validation, private
   permissions, closed SHA-256 manifests, durable staged writes, atomic snapshot
@@ -125,6 +129,11 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Changed
 
+- Corrected the Task `07` baseline to recognize the existing process-wide
+  `/runs` capacity gate while keeping authentication, tenant isolation, shared
+  principal-aware rate state, and deployed WAF controls explicitly open.
+- Advanced spec workflow tracking to Phase 03 and synchronized the master PRD
+  and project TODO with the bounded Week 4 session split.
 - Reconciled the Week 3 Build Log directly with Tasks `04` and `05`: added
   acceptance-to-evidence maps, corrected focused test counts and application
   version metadata, normalized variable scorecard fields, and refreshed the

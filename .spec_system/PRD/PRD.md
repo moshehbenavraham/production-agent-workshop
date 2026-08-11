@@ -221,7 +221,7 @@ One phase corresponds to exactly one workshop week. Each phase is implemented th
 | 00 | 1 | Foundation | `00`, `01` | 3 | Complete |
 | 01 | 2 | Durable Approval and Safe Write | `02`, `03` | 6 | Complete |
 | 02 | 3 | Recovery and Evaluation Gates | `04`, `05` | 7 | Complete |
-| 03 | 4 | Operations and Coolify Release | `06`, `07` | TBD after Phase 02 | Planned |
+| 03 | 4 | Operations and Coolify Release | `06`, `07` | 8 | Not Started |
 | 04 | 5 | Typed Handoff Decision | `08` | TBD after Phase 03 and the entry gate | Planned and Required |
 
 ### Required Task Map
@@ -321,9 +321,18 @@ Phase 02 must be complete.
 1. Make service health, agent decisions, model usage, tool effects, failures, cost, latency, alerts, and recovery operable by `runId`.
 2. Harden and deploy the verified service through Coolify with security gates, persistence, restore, rollback, and operator handoff evidence.
 
-### Sessions (To Be Defined)
+### Sessions
 
-After Phase 02 completion and transition work, `phasebuild` defines Phase 03 session stubs under `.spec_system/PRD/phase_03/`.
+| Session | Objective | Source task |
+|---------|-----------|-------------|
+| 01 | Define and implement minimized four-layer observability contracts and bounded service health evidence | `06` |
+| 02 | Implement a safe exact-`runId` chronological query with bounded redacted output | `06` |
+| 03 | Define actionable alert policy and the canonical agent incident runbook | `06` |
+| 04 | Exercise five incident paths, close revealed gaps, and establish the operational baseline | `06` |
+| 05 | Define the controlled release security gates and redacted operator-owned infrastructure contract | `07` |
+| 06 | Deploy a verified Coolify image and prove HTTPS health, synthetic smoke, observability, and persistent restart | `07` |
+| 07 | Prove private off-server restore activation and rollback from one reversible failure | `07` |
+| 08 | Prove local/deployed parity, validate operator handoff, and close release evidence | `07` |
 
 ## Phase 04: Typed Handoff Decision
 
@@ -411,8 +420,9 @@ The completed five-week path must leave one reviewable portfolio containing:
 - The repository is a single package rather than a monorepo: deterministic analysis found no workspace indicators or packages, and the root contains one `package.json`, so package-scoped planning is unnecessary.
 - Phases map one-to-one to workshop weeks: Phase 00 owns Week 1 tasks `00`-`01`, Phase 01 owns Week 2 tasks `02`-`03`, Phase 02 owns Week 3 tasks `04`-`05`, Phase 03 owns Week 4 tasks `06`-`07`, and Phase 04 owns required Week 5 task `08`; the user supplied this phase boundary directly, so no unrelated integration phase may be inserted.
 - Project state registers completed Phases 00 through 02 with all seven Phase 02
-  sessions validated. Phases 03 and 04 remain PRD-planned future phases and
-  gain session state sequentially through `phasebuild`, never in advance.
+  sessions validated and Phase 03 with eight not-started session stubs. Phase
+  04 remains PRD-planned and gains session state only after the Phase 03 entry
+  conditions for later work are satisfied.
 - Production CRM, company research, real send, and Postgres work remain unscheduled deferred requirements: they appear in future-looking repository material but not in the ordered todo path, so aligning the PRD does not authorize or schedule them.
 
 ### Conflict Resolutions

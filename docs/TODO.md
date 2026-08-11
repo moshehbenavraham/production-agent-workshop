@@ -62,10 +62,23 @@ session-close verification. The transition backup regressions bring the current
 repository gate to 273 tests while preserving the same 18-case critical suite.
 Tasks `04` and `05` and the Phase 02 implementation are complete.
 
-## Next Phase
+## Active Planned Phase
 
-Phase 03 - Operations and Coolify Release (Week 4) remains planned. No Phase 03
-sessions have been created; its `phasebuild` workflow has not started.
+- [ ] Phase 03 - Operations and Coolify Release (Week 4)
+  - [ ] Session 01 - Observability Contract and Service Health
+  - [ ] Session 02 - Run Timeline Query and Redaction
+  - [ ] Session 03 - Alerts and Incident Runbook
+  - [ ] Session 04 - Incident Drills and Operational Baseline
+  - [ ] Session 05 - Controlled Release Security and Operator Contract
+  - [ ] Session 06 - Coolify Deployment Health and Persistence
+  - [ ] Session 07 - Off-Server Restore and Rollback
+  - [ ] Session 08 - Operator Handoff, Parity, and Release Evidence
+
+Phase 03 is sourced only from Tasks
+[`06`](todo/06-observability-and-incidents.md) and
+[`07`](todo/07-coolify-release.md). Its eight bounded session stubs preserve
+controlled exposure, synthetic-only data, the exact three-tool Pi allowlist,
+and operator-owned deployment actions. Implementation has not started.
 
 ## Phase 00 Transition (Complete)
 

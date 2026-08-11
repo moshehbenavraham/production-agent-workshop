@@ -10,7 +10,7 @@ Harden and deploy the verified agent through Coolify, then prove health, securit
 
 ## Verified Repository Contract
 
-The current `Dockerfile` uses Node 24, installs npm 12.0.2, runs `npm ci` and `npm run check`, exposes port `3000`, stores events at `/app/data/events.jsonl`, and declares `/app/data` as a volume. The service exposes `/health` and `/runs`; `/runs` is not yet authenticated or rate-limited.
+The current `Dockerfile` uses Node 24, installs npm 12.0.2, runs `npm ci` and `npm run check`, exposes port `3000`, stores events at `/app/data/events.jsonl`, and declares `/app/data` as a volume. The service exposes `/health` and `/runs`; `/runs` has a process-wide fixed-window capacity gate but is not authenticated, tenant-isolated, protected by shared principal-aware rate state, or validated behind a deployed WAF.
 
 ## Infrastructure Prerequisites
 
