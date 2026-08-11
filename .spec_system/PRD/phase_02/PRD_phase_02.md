@@ -4,7 +4,7 @@
 **Sessions**: 7 (initial estimate)
 **Estimated Duration**: 5-7 workshop days
 
-**Progress**: 3/7 sessions (43%)
+**Progress**: 4/7 sessions (57%)
 
 ---
 
@@ -21,7 +21,7 @@ Week 3 turns the current lightweight event stream into validated durable run evi
 | 01 | Durable Run Event Contract and Store | Complete | 18 | 2026-08-11 |
 | 02 | Run Projection and Corruption Refusal | Complete | 18 | 2026-08-11 |
 | 03 | Bounded Run Lifecycle | Complete | 19 | 2026-08-11 |
-| 04 | Replay and Resume Integration | Not Started | ~22 | - |
+| 04 | Replay and Resume Integration | Complete | 22 | 2026-08-11 |
 | 05 | Production Eval Contract and Golden Set | Not Started | ~18 | - |
 | 06 | Critical Eval Gate and Scorecard | Not Started | ~20 | - |
 | 07 | Boundary Regression Exercises and Evidence | Not Started | ~16 | - |
@@ -33,12 +33,13 @@ Week 3 turns the current lightweight event stream into validated durable run evi
 - `phase02-session01-durable-run-event-contract-and-store` - completed and validated 2026-08-11.
 - `phase02-session02-run-projection-and-corruption-refusal` - completed and validated 2026-08-11.
 - `phase02-session03-bounded-run-lifecycle` - completed and validated 2026-08-11.
+- `phase02-session04-replay-and-resume-integration` - completed and validated 2026-08-11.
 
 ---
 
 ## Upcoming Sessions
 
-- Session 04: Replay and Resume Integration
+- Session 05: Production Eval Contract and Golden Set
 
 ---
 
@@ -125,11 +126,11 @@ Week 3 turns the current lightweight event stream into validated durable run evi
 Phase complete when:
 
 - [ ] All 7 sessions are completed and validated.
-- [ ] A closed versioned event envelope and hardened append-only store preserve minimized recovery facts and reject malformed, truncated, duplicated, cross-run, missing, or out-of-order evidence.
-- [ ] A deterministic projection rebuilds the same run lifecycle and safe checkpoint from durable events while authorization still comes only from exact approval and fake-result records.
-- [ ] Every required tool and run attempt and outcome is correlated, and whole-run deadline and maximum-step exits persist one visible terminal stop reason.
-- [ ] Restart tests resume after qualification, draft creation, and approval request under the same `runId` with zero duplicate approvals or fake effects and no manual durable-record edits.
-- [ ] The recovery decision table and event lifecycle rules define retry, resume, compensate, escalate, stop, retention, redaction, and deletion behavior for the synthetic scope.
+- [x] A closed versioned event envelope and hardened append-only store preserve minimized recovery facts and reject malformed, truncated, duplicated, cross-run, missing, or out-of-order evidence.
+- [x] A deterministic projection rebuilds the same run lifecycle and safe checkpoint from durable events while authorization still comes only from exact approval and fake-result records.
+- [x] Every required tool and run attempt and outcome is correlated, and whole-run deadline and maximum-step exits persist one visible terminal stop reason.
+- [x] Restart tests resume after qualification, draft creation, and approval request under the same `runId` with zero duplicate approvals or fake effects and no manual durable-record edits.
+- [x] The recovery decision table and event lifecycle rules define retry, resume, compensate, escalate, stop, retention, redaction, and deletion behavior for the synthetic scope.
 - [ ] A 10-20 case golden set covers happy, ambiguous, malformed, unknown, timeout, permission, credential, downstream, duplicate, restart, invalid-model, adversarial, approval-bypass, false-completion, escalation, and stop behavior.
 - [ ] Deterministic critical assertions score schemas, state, tool arguments, event order, permissions, idempotency, recovery, and stop reasons; any critical failure exits non-zero and identifies expected versus observed evidence.
 - [ ] Lead-fabrication, false-send, and approval-bypass red/fix/green exercises are reverted and protected by regression cases.

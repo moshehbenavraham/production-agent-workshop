@@ -14,9 +14,9 @@ gates. Public vulnerability reporting belongs in the
 
 ### Overall: AT RISK
 
-Phase 02 Session 03 is clean for synthetic data in a local or otherwise
+Phase 02 Session 04 is clean for synthetic data in a local or otherwise
 controlled environment. It is not public-production-ready because caller
-access, recovery, real-data lifecycle, distributed effect safety, backup,
+access, public/distributed recovery, real-data lifecycle, distributed effect safety, backup,
 restore, and deployment controls remain open release gates.
 
 | Metric | Value |
@@ -115,9 +115,13 @@ They remain open until the stated controls have direct acceptance evidence.
 - [P02] Whole-run bounds validate before runtime construction, count only model
   turns and tool starts, abort once, persist one terminal, close open tool
   attempts, and ignore late provider settlement.
+- [P02] Internal recovery validates complete event, approval, and fake-result
+  evidence before mutation; hash-verifies replaceable drafts; requests at most
+  one pending approval; and escalates any reservation-only state without an
+  effect adapter.
 - [P00] Known-lead runs stop at `approval_pending`; visible outcomes derive from
   validated qualification events and durable approval projection, never prose.
-- [P02] Biome formatting/linting, strict TypeScript, 221 deterministic tests,
+- [P02] Biome formatting/linting, strict TypeScript, 238 deterministic tests,
   five evals, coverage gates, npm audit, Code Quality, Build & Test, and CodeQL pass.
 - [P01] Docker health and process/container rate-gate validation pass locally;
   missing production checks remain explicit in `known-issues.md`.
@@ -128,7 +132,7 @@ They remain open until the stated controls have direct acceptance evidence.
 
 ### Overall: N/A
 
-No real personal data is collected or processed in the validated Phase 01
+No real personal data is collected or processed in the validated Phase 02
 scope. Leads, drafts, actor IDs, approvals, results, receipts, and evidence are
 explicit synthetic fixtures or generated synthetic values. GDPR compliance for
 real data is not claimed.
@@ -142,7 +146,7 @@ No real personal data collected or processed.
 | Data Element | Source | Storage | Purpose | Current Constraint | Since |
 |--------------|--------|---------|---------|--------------------|-------|
 | Synthetic lead fixtures | `src/leads.ts` | Git repository | Deterministic exercises | Never replace with real leads | P00 |
-| Synthetic run/tool evidence | Application | JSONL at `EVENT_LOG_PATH` | Correlation and audit | Minimized; manual lifecycle only | P00 |
+| Synthetic run/tool evidence | Application | JSONL at `EVENT_LOG_PATH` | Correlation, audit, and recovery checkpoint | Minimized; manual coordinated lifecycle only | P00 |
 | Synthetic approval record | Approval service | JSONL at `APPROVAL_LOG_PATH` | Exact authorization truth | Contains full draft; private file; 30-day-or-teardown rule | P01 |
 | Synthetic fake result | Internal fake service | Injected JSONL path | Idempotency truth | Internal tests/library only; no runtime route | P01 |
 | Synthetic actor IDs | Internal policy | Approval records and minimized events | Decision/execution authorization tests | Not real authentication | P01 |
@@ -191,7 +195,7 @@ reviewed overrides and install-script approvals from `package.json`.
 
 | Phase | Sessions | Security | GDPR | Findings Opened | Findings Closed |
 |-------|----------|----------|------|-----------------|-----------------|
-| P02 | 3 of 7 | PASS for controlled synthetic scope through Session 03 | N/A | 0 | 1 |
+| P02 | 4 of 7 | PASS for controlled synthetic scope through Session 04 | N/A | 0 | 1 |
 | P01 | 6 | PASS for controlled synthetic scope | N/A | 1 | 1 |
 | P00 | 3 | PASS for controlled synthetic scope | N/A | 0 | 2 baseline control gaps |
 
@@ -224,8 +228,9 @@ reviewed overrides and install-script approvals from `package.json`.
 
 ## Recommendations
 
-1. [P01] Add whole-run bounds and recovery without weakening exact identity,
-   event ordering, durable approval truth, or indeterminate-effect handling.
+1. [P02] Add deterministic production eval gates without weakening exact
+   identity, event ordering, durable approval truth, or indeterminate-effect
+   handling.
 2. [P01] Keep internal fake execution disconnected until both stronger cross-
    process ownership and the recorded human permission gate exist.
 3. [P01] Keep all inputs synthetic until automated lifecycle, access, backup,

@@ -19,8 +19,6 @@ Items requiring attention in upcoming work. Review before each session.
 
 ### Technical Debt
 
-- [P01] **Whole-run recovery**: Approval and fake-result projections survive
-  restart, but the complete Pi run still lacks replay, resume, and bounded retry rules.
 - [P01] **Single-process persistence**: Approval, event, and result JSONL files
   are separate logs with no OS/distributed lock or transaction; reservation-only
   fake state requires manual inspection and must never retry automatically.
@@ -54,8 +52,8 @@ Items requiring attention in upcoming work. Review before each session.
 - [P01] **Single-agent baseline**: Keep one bounded Pi session until measured
   success, safety, latency, or cost evidence justifies a typed handoff.
 - [P01] **Recovery scope boundary**: Preserve exact ordered evidence for future
-  recovery without inferring success, expiring indeterminate effects, or silently
-  repairing corrupt logs.
+  public/distributed recovery without inferring success, expiring indeterminate
+  effects, or silently repairing corrupt logs.
 
 ---
 
@@ -91,6 +89,12 @@ Proven patterns and anti-patterns. Reference during implementation.
 - [P01] **Provider-independent vertical slices**: Directly exercise actual
   tools and internal composition to prove event order, permission, restart,
   duplicate, timeout, and zero-network behavior.
+- [P02] **Hash-anchored replaceable context**: Durable draft identity/hash can
+  safely anchor post-restart content without placing the full draft in
+  operational events; mismatched or missing content must escalate.
+- [P02] **Project before and after recovery writes**: Load all authority before
+  mutation, repair only a known-safe missing terminal, and reproject before
+  returning a recovered outcome.
 
 ### What to Avoid
 
@@ -130,6 +134,7 @@ Recently closed items (buffer - rotates out after 2 phases).
 
 | Phase | Item | Resolution |
 |-------|------|------------|
+| P02 | Internal whole-run replay and resume | A closed provider-independent recovery application resumes qualification, draft, and approval checkpoints under the same run identity, reuses exact approval authority, and escalates any indeterminate effect without an adapter. |
 | P02 | Unbounded whole Pi run | Validated deadline and model/tool step bounds now abort once, persist one bounded terminal, and ignore late settlement through injected provider-independent boundaries. |
 | P01 | Event-only pending approval | Closed records, one-way transitions, private durable projection, exact draft linkage, internal decisions, and restart proof now own approval truth. |
 | P00 | Model-owned qualification | Closed schemas, deterministic computation, and application validation now own the outcome. |

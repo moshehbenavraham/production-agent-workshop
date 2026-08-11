@@ -3,15 +3,17 @@
 ## Current Scope
 
 This runbook covers the implemented local or otherwise controlled synthetic-
-data service and its internal fake-write test boundary. It does not claim a
-production on-call rotation, response-time SLA, automated pause, whole-run
-replay, restore, or rollback capability.
+data service and its internal fake-write and recovery test boundaries. It does
+not claim a production on-call rotation, response-time SLA, automated pause,
+public or distributed recovery, restore, or rollback capability.
 
 ## First Response
 
 1. Stop new `/runs` requests by restricting access or stopping the process or
    container. There is no application pause endpoint.
-2. Do not retry a failed run automatically; replay and resume are not implemented.
+2. Do not retry a failed run automatically. The internal recovery library may
+   be invoked only after preserving all files and confirming a supported exact
+   checkpoint; there is no HTTP/Pi/operator transport or background worker.
 3. Preserve the configured event and approval files, any injected fake-result
    file, and the reported `runId` before changing runtime state. Do not manually
    edit durable records.
@@ -71,18 +73,23 @@ treated as a visible failure, never repaired by inference.
 | Approval remains pending | Human decision is required | Do not send; no decision endpoint exists |
 | Internal fake execution returns `execution_in_progress` | A durable reservation exists and the effect state may be indeterminate | Preserve approval, event, and result files; do not retry automatically; escalate for human inspection |
 | Internal fake completion storage fails | The in-process adapter may have run but no durable terminal result proves its outcome | Stop; preserve all three files; do not delete the reservation or claim completion |
+| Recovery returns `draft_required` or `draft_mismatch` | Replaceable content is absent or does not match the durable draft SHA-256 | Preserve evidence; supply only the exact known synthetic draft or escalate; never substitute content |
+| Recovery returns `effect_indeterminate` | Same-run reservation-only or ambiguous effect evidence exists | Escalate; do not request another approval, execute, retry, compensate, or edit records |
+| Recovery returns `effect_completed` | Dedicated result truth proves the fake action already completed | Stop; return to the exact result/approval evidence and never execute again |
+| Recovery returns structural/authority mismatch | Complete stores do not agree on identity, order, or state | Preserve the coordinated files and escalate; do not repair by inference |
 | Event file is malformed or truncated | Durable truth is unreliable | Preserve the file and escalate; do not edit or replay manually |
 | Credential may be exposed | Potential security incident | Stop use, preserve minimal evidence, rotate through the provider, report privately |
 
 ## Recovery Limits
 
-The HTTP/Pi service cannot accept approval decisions or safely resume a whole
-run. Internal library calls can persist synthetic approval decisions and fake
-results, but there is no authenticated operator transport, distributed lock,
-backup restore, automatic retry for an indeterminate reservation, or
-compensation path. The fake adapter performs no network effect and no effect
-tool is registered or allowlisted. Escalate rather than inventing recovery
-state or manually editing JSONL.
+The HTTP/Pi service cannot accept approval decisions or invoke recovery. The
+internal recovery library can resume only a trusted qualification, draft, or
+approval-request prefix to the pending human gate; it never decides approval or
+calls an effect adapter. There is no authenticated operator transport,
+distributed lock, backup restore, automatic retry for an indeterminate
+reservation, or compensation path. The fake adapter performs no network effect
+and no effect tool is registered or allowlisted. Escalate rather than inventing
+recovery state or manually editing JSONL.
 
 ## Escalation And Reporting
 

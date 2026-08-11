@@ -1,7 +1,7 @@
 # Session 04: Replay and Resume Integration
 
 **Session ID**: `phase02-session04-replay-and-resume-integration`
-**Status**: Not Started
+**Status**: Complete
 **Source Task**: `04`
 **Estimated Tasks**: ~22
 **Estimated Duration**: 2-4 hours
@@ -44,8 +44,8 @@ Complete the recovery vertical slice by replaying and resuming the three require
 
 ## Prerequisites
 
-- [ ] Session 03 bounds every run and produces trusted lifecycle, checkpoint, attempt, outcome, and terminal evidence.
-- [ ] Phase 01 approval and fake-result duplicate protections remain green across fresh service instances.
+- [x] Session 03 bounds every run and produces trusted lifecycle, checkpoint, attempt, outcome, and terminal evidence.
+- [x] Phase 01 approval and fake-result duplicate protections remain green across fresh service instances.
 
 ---
 
@@ -59,8 +59,8 @@ Complete the recovery vertical slice by replaying and resuming the three require
 
 ## Success Criteria
 
-- [ ] Qualification, draft, and approval-request interruptions resume from durable evidence and produce the same safe outcome after restart.
-- [ ] Replaying the same event or request creates no duplicate approval and invokes no duplicate fake effect.
-- [ ] Indeterminate effect state always stops for explicit inspection or escalation and is never retried automatically.
-- [ ] Corrupt, incomplete, missing, cross-run, or out-of-order evidence fails visibly with a defined operator action.
-- [ ] Task `04` evidence is complete and repository verification passes without expanding Pi, HTTP, data, or network permissions.
+- [x] Qualification, draft, and approval-request interruptions resume from durable evidence and produce the same safe outcome after restart.
+- [x] Replaying the same event or request creates no duplicate approval and invokes no duplicate fake effect.
+- [x] Indeterminate effect state always stops for explicit inspection or escalation and is never retried automatically.
+- [x] Corrupt, incomplete, missing, cross-run, or out-of-order evidence fails visibly with a defined operator action.
+- [x] Task `04` evidence is complete and repository verification passes without expanding Pi, HTTP, data, or network permissions.

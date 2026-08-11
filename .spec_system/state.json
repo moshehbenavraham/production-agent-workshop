@@ -36,26 +36,12 @@
     "phase01-session06-safe-write-integration-and-evidence",
     "phase02-session01-durable-run-event-contract-and-store",
     "phase02-session02-run-projection-and-corruption-refusal",
-    "phase02-session03-bounded-run-lifecycle"
+    "phase02-session03-bounded-run-lifecycle",
+    "phase02-session04-replay-and-resume-integration"
   ],
   "next_session_history": [
     {
       "date": "2026-08-04",
-      "session": "phase01-session03-durable-approval-integration",
-      "status": "validated"
-    },
-    {
-      "date": "2026-08-04",
-      "session": "phase01-session03-durable-approval-integration",
-      "status": "completed"
-    },
-    {
-      "date": "2026-08-04",
-      "session": "phase01-session04-fake-send-contract-and-authorization",
-      "status": "planned"
-    },
-    {
-      "date": "2026-08-04",
       "session": "phase01-session04-fake-send-contract-and-authorization",
       "status": "validated"
     },
@@ -137,6 +123,21 @@
     {
       "date": "2026-08-11",
       "session": "phase02-session03-bounded-run-lifecycle",
+      "status": "completed"
+    },
+    {
+      "date": "2026-08-11",
+      "session": "phase02-session04-replay-and-resume-integration",
+      "status": "planned"
+    },
+    {
+      "date": "2026-08-11",
+      "session": "phase02-session04-replay-and-resume-integration",
+      "status": "validated"
+    },
+    {
+      "date": "2026-08-11",
+      "session": "phase02-session04-replay-and-resume-integration",
       "status": "completed"
     }
   ]

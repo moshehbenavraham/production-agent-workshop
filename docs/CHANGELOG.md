@@ -10,6 +10,14 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Added
 
+- Added an internal provider-independent recovery application with closed
+  retry/resume/compensate/escalate/stop policy, exact cross-store authority,
+  hash-anchored draft recovery, stable pending-approval replay, and no effect
+  adapter.
+- Added 17 deterministic recovery cases covering three fresh-instance
+  interruption points, exact replays, pending/approved/declined authority,
+  hidden and observed reservations, completed fake results, partial terminal
+  repair, damaged histories, and hostile replaceable boundaries.
 - Added application-owned whole-run deadline and maximum-step coordination with
   fail-fast bounded environment configuration, explicit step classification,
   abort-once cancellation, terminal-once persistence, and late-settlement
@@ -82,6 +90,12 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Changed
 
+- Completed the Task `04` recovery evidence pack with the five-action decision
+  table, three Mermaid restart timelines, replay-idempotency proof, coordinated
+  synthetic retention/deletion rules, and exercised reservation escalation.
+- Reconciled the internal recovery boundary across architecture, development,
+  environment, incident, considerations, and security guidance while keeping
+  HTTP/Pi, public, distributed, real-data, and effect permissions unchanged.
 - Advanced the closed run-event envelope to schema version 2 so every new
   record carries explicit step availability and bounded terminals cannot be
   confused with successful completion; earlier event files fail visibly and
@@ -95,6 +109,10 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 - Made the lifecycle coordinator's persisted terminal decision the only
   returned stop-reason authority, removing a redundant completion payload field
   that could disagree with durable evidence at a replaceable boundary.
+- Closed Phase 02 Session 04 and Task `04` at version `0.1.26` after 238/238
+  deterministic tests, 5/5 evals, 97.17% line/85.87% branch/97.41% function
+  coverage, zero dependency vulnerabilities, and complete recovery, security,
+  and production-boundary validation.
 - Closed Phase 02 Session 03 at version `0.1.25` after 221/221 deterministic
   tests, 5/5 evals, 96.96% line/85.71% branch/97.47% function coverage, zero
   dependency vulnerabilities, and complete security and production-boundary

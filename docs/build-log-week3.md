@@ -15,9 +15,11 @@ Task contract: [04 - Recover and Replay](todo/04-recovery-and-replay.md)
 
 ### Goal and Boundary
 
-Sessions 01-03 establish trusted durable run history, deterministic projection,
-and application-owned whole-run bounds. Replay and resume remain assigned to
-Session 04 and are not claimed here.
+Sessions 01-04 establish trusted durable run history, deterministic projection,
+application-owned whole-run bounds, and an internal recovery application for
+the three required checkpoints. Recovery is provider-independent and has no Pi
+tool, HTTP route, approval-decision authority, fake-effect adapter, or real
+network capability.
 
 Operational events own recorded run history. They do not authorize an approval
 or prove a fake effect: the dedicated approval and fake-result stores remain
@@ -225,23 +227,137 @@ schema version refusal, terminal compatibility, and late-core refusal.
 
 ### Recovery Decision Table
 
-_Map each interruption or failure to retry, resume, compensate, escalate, or
-stop, including the evidence required before the action._
+`src/recovery-application.ts` owns a frozen five-action policy. Calling the
+internal entrypoint is explicit; there is no background retry worker.
+
+| Action | Required evidence | Automatic in invoked recovery | Current behavior |
+|--------|-------------------|-------------------------------|------------------|
+| `retry` | Canonical transient storage failure or `run.started` with no qualification attempt; no known effect | No | Return a retryable refusal; the bounded qualification path or caller decides whether to invoke again |
+| `resume` | Trusted qualification, draft, or approval checkpoint; exact run/lead identity; matching approval/result authority; no terminal or effect ambiguity | Yes | Generate or hash-verify one draft, request at most one approval, append at most one missing run terminal, and return the exact durable approval |
+| `compensate` | Verified completed effect plus an explicit operator-owned compensation plan | No | Unsupported. The fake result records `manual_review_required`; recovery never compensates automatically |
+| `escalate` | Open qualification attempt, damaged/ambiguous evidence, authority mismatch, missing draft content, or any reservation-only effect | Yes, as a refusal | Preserve all three files, return a canonical redacted category, and perform no mutation |
+| `stop` | Failed or incompatible terminal, failed qualification, invalid/cross-lead request, or verified completed effect | Yes | Return without reopening the run, requesting approval, or retrying an effect |
+
+Every successful resume projects before mutation, reprojects after approval,
+appends only a compatible missing terminal, and projects once more before
+return. A storage failure returns no partial projection or approval.
 
 ### Three Restart Timelines
 
-_Add three Mermaid timelines for interruption after qualification, draft, and
-approval request, with the observed resumed outcome._
+#### Interruption After Qualification
+
+```mermaid
+sequenceDiagram
+    participant Old as Interrupted process
+    participant Event as Event JSONL
+    participant New as Fresh RecoveryApplication
+    participant Approval as Approval JSONL
+    Old->>Event: run.started + qualification attempt/outcome
+    Note over Old: process ends before draft
+    New->>Event: load and project exact runId
+    New->>New: derive synthetic draft and stable run/lead/hash draftId
+    New->>Event: domain.follow_up_drafted
+    New->>Approval: append one pending request
+    New->>Event: approval.requested + run.completed/approval_pending
+    New-->>New: frozen exact recovery outcome
+```
+
+Observed result: the completed qualification is not repeated. The first
+recovery produces six run events, one approval record, zero result records, and
+one `approval_pending` terminal under the original `runId`.
+
+#### Interruption After Draft
+
+```mermaid
+sequenceDiagram
+    participant Old as Interrupted process
+    participant Event as Event JSONL
+    participant New as Fresh RecoveryApplication
+    participant Approval as Approval JSONL
+    Old->>Event: qualification success + draftId + SHA-256
+    Note over Old: full draft remains replaceable
+    New->>Event: load trusted draft checkpoint
+    New->>New: hash candidate or deterministically regenerated content
+    alt hash and draftId match
+        New->>Approval: append one exact pending request
+        New->>Event: approval.requested + run.completed
+    else mismatch or content missing
+        New-->>New: escalate with zero writes
+    end
+```
+
+Observed result: exact content resumes with the original durable draft ID and
+hash. Substituted content returns `draft_mismatch`; event and approval line
+counts do not change.
+
+#### Interruption After Approval Request
+
+```mermaid
+sequenceDiagram
+    participant Old as Interrupted process
+    participant Event as Event JSONL
+    participant Approval as Approval JSONL
+    participant New as Fresh RecoveryApplication
+    Old->>Approval: durable pending approval
+    Old->>Event: approval.requested
+    Note over Old: process ends before run terminal
+    New->>Event: load approval checkpoint
+    New->>Approval: read exact same-run record
+    New->>Event: append only run.completed/approval_pending
+    New-->>New: return exact pending approval
+```
+
+Observed result: approval lines remain unchanged, exactly one terminal is
+added, and later approved or declined authority is replayed exactly without
+changing the original agent stop reason.
 
 ### Replay-Idempotency Proof
 
-_Record exact replay commands and evidence that repeated events or requests do
-not duplicate approvals or external effects._
+Focused command:
+
+```bash
+npx tsx --test tests/recovery-application.test.ts
+```
+
+The 17-case recovery matrix creates every checkpoint through event, tool, and
+approval APIs, then constructs fresh store/service instances. Repeating the
+same qualification recovery request returns a deeply equal frozen outcome with
+the original terminal event and approval. Counts remain six events, one
+approval record, and zero fake-result records. Draft recovery retains one draft
+event; approval recovery retains one approval request. A simulated first
+terminal append failure is repaired by the same generate request without a
+second qualification, draft, approval, or terminal.
+
+Recovery imports no fake-send service or adapter, so its effect-call count is
+structurally zero. Existing fake execution duplicate tests remain green. A
+same-run hidden or observed reservation returns `effect_indeterminate`; a
+completed fake result returns `effect_completed`. Repeating either refusal
+changes no event, approval, or result line.
 
 ### Retention Decision
 
-_Record event retention, redaction, deletion, compaction, and audit rules before
-using real customer data._
+- **Scope**: only synthetic event, approval, and injected fake-result JSONL
+  files. Real customer data remains prohibited.
+- **Retention**: retain the coordinated three-file environment for at most 30
+  days or until teardown, whichever comes first. An active incident hold pauses
+  deletion until the preserved copy is handed to the responsible operator.
+- **Redaction**: operational events retain bounded identities, hashes, codes,
+  steps, timing, version, and optional usage/cost only. Full synthetic draft
+  content exists only in the exact approval record or transient hash-verified
+  recovery input. Raw transcript, provider payload, arguments/results, stack,
+  credential, and dependency prose are excluded.
+- **Export**: stop all service and internal harness writers, then make a
+  controlled offline copy of the exact coordinated files. There is no public
+  export endpoint or per-run export guarantee.
+- **Deletion**: after stopping all writers and resolving any incident hold,
+  delete the whole coordinated synthetic environment and verify all selected
+  files are absent. Never edit or remove individual append-only records because
+  that destroys ordering, authority, and recovery evidence.
+- **Compaction**: compact only replaceable in-memory working context. Durable
+  source events and dedicated authority records are never compacted away.
+- **Real-data gate**: automated retention, scoped export/erasure, access,
+  purpose/lawful basis, backup/restore, tenant, subprocessor, and data-location
+  controls must pass before any real personal data is introduced.
 
 ### Exercised Failure and Recovery
 
@@ -251,17 +367,23 @@ cleanup, and an immutable non-success result. Resolving the prompt and emitting
 an agent event afterward produces no event or result change. The maximum-step
 case starts one model turn under a limit of two, then observes a tool start at
 step two; it records the attempt, a synthetic stopped outcome for that exact
-call ID, and one `step_limit_exceeded` terminal. Session 04 still owns recovery
-or resume from the projected checkpoint.
+call ID, and one `step_limit_exceeded` terminal.
+
+The recovery failure exercise writes a valid pending approval and terminal,
+then records a same-run fake reservation and attempted event through their
+application stores. Fresh recovery returns frozen `effect_indeterminate` with
+action `escalate`. Repeating it preserves identical event, approval, and result
+counts. A completed accepted fake result instead returns `effect_completed`
+with action `stop`. No recovery path constructs or calls an effect adapter.
 
 ### Verification Output
 
-Session 03 implementation verification:
+Task `04` implementation verification:
 
 | Command | Result |
 |---------|--------|
-| `npm run verify` | PASS - formatting, linting, strict types, 221/221 tests, and 5/5 evals |
-| `npm run test:coverage` | PASS - 97.02% lines, 85.70% branches, and 97.46% functions against 95/85/95 gates |
+| `npm run verify` | PASS - format, lint, strict types, 238/238 tests, and 5/5 evals |
+| `npm run test:coverage` | PASS - 97.17% lines, 85.87% branches, and 97.41% functions against 95/85/95 gates |
 | `npm run build` | PASS |
 | `npm audit --omit=dev` | PASS - zero vulnerabilities |
 
@@ -272,13 +394,15 @@ capability to Pi or HTTP.
 
 ### Final Diff Review and Remaining Risk
 
-Session 03 diff review found no credential, real customer data, raw Pi payload,
-new network dependency, real effect, permission expansion, public cancellation,
-replay, or resume path. Event schema version 2 is intentionally incompatible
-with earlier synthetic files; an operator must reset or explicitly migrate
-them rather than accepting mixed history. Session 04 still owns replay/resume,
-recovery action classification, three restart timelines, and duplicate-effect
-proof.
+The Session 04 implementation surface adds one internal file-backed recovery
+module and deterministic tests. It adds no credential, real customer data, raw
+Pi payload, runtime environment variable, dependency, HTTP route, Pi tool,
+approval decision, fake service/adapter import, network client, shell/process,
+or deployed behavior. Event schema version 2 remains intentionally
+incompatible with earlier synthetic files; an operator must reset or explicitly
+migrate them rather than accepting mixed history. Public/distributed recovery,
+automatic scheduling, real-data lifecycle, backup/restore, and deployment
+evidence remain open release gates.
 
 ## Task 05 - Add Production Eval Gates
 

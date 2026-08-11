@@ -26,6 +26,7 @@
 | `npm test` | Run all deterministic `node:test` cases through TSX |
 | `npm run test:coverage` | Run tests with 95% line, 85% branch, and 95% function minimums |
 | `npx tsx --test tests/safe-write-application.test.ts` | Run the internal file-backed Task `03` vertical-slice matrix |
+| `npx tsx --test tests/recovery-application.test.ts` | Run the internal Task `04` three-checkpoint restart and replay matrix |
 | `npm run eval` | Run the five deterministic eval cases |
 | `npm run verify` | Run formatting, linting, types, tests, and evals in one gate |
 | `npm audit --audit-level=low` | Check the effective npm 12 dependency tree |
@@ -49,6 +50,10 @@ are not needed for it.
 - Keep approval-to-fake wiring in `src/safe-write-application.ts`. It is an
   internal synthetic-operator harness, not an authenticated transport or Pi
   tool; actor sets must be snapshotted when the application is constructed.
+- Keep replay/resume policy and composition in `src/recovery-application.ts`.
+  It is an internal synthetic harness with explicit paths, no Pi/HTTP route,
+  no approval-decision authority, and no fake-effect adapter. Project all three
+  stores before mutation and escalate reservation-only state.
 - Keep deterministic qualification independent of Pi and HTTP in
   `src/qualification.ts`.
 - Keep operational append-only evidence behind `src/event-store.ts`.
@@ -87,6 +92,8 @@ operational events do not.
 Internal safe-write tests inject temporary approval, event, and fake-result
 JSONL paths; the server does not import the composition or configure/open a
 fake-result file.
+Internal recovery tests construct checkpoints only through application/store
+APIs, then use fresh instances; they never manually edit durable records.
 Use only synthetic fixtures and follow the manual 30-day-or-teardown whole-file
 retention/deletion rule in [Environments](./environments.md).
 

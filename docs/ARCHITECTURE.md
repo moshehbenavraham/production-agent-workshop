@@ -9,7 +9,9 @@ evidence, event ordering, and visible stop reasons. The run stops at a pending
 human approval and has no exposed external-write capability. A separate
 Pi-independent `SafeWriteApplication` composes durable approval and an in-
 process fake action with durable idempotency, but it is not composed into the
-server or agent runtime.
+server or agent runtime. A second internal `RecoveryApplication` rebuilds exact
+run/approval/result state and resumes only qualification, draft, or approval
+checkpoints to the pending human gate; it has no effect adapter or transport.
 
 ```mermaid
 flowchart LR
@@ -28,6 +30,10 @@ flowchart LR
     Events --> EventLog[(JSONL at EVENT_LOG_PATH)]
     Tools --> ApprovalService[src/approval-service.ts]
     Internal[Internal synthetic operator] --> SafeWrite[src/safe-write-application.ts]
+    RecoveryCaller[Internal recovery harness] --> Recovery[src/recovery-application.ts]
+    Recovery --> Events
+    Recovery --> ApprovalService
+    ApprovalStore --> Recovery
     SafeWrite --> ApprovalService
     ApprovalService --> ApprovalStore[src/approval-store.ts]
     ApprovalService --> Events
@@ -45,10 +51,14 @@ flowchart LR
     FakeAuth --> ApprovalStore
     FakeAuth --> FakeService[src/fake-send-service.ts]
     FakeService --> FakeStore[(Injected fake-result JSONL path)]
+    FakeStore --> Recovery
     FakeService --> FakeAdapter[Deterministic in-process fake adapter]
     FakeService --> Events
     Server -. no route .- FakeService
     Agent -. no tool .- FakeService
+    Server -. no route .- Recovery
+    Agent -. no tool .- Recovery
+    Recovery -. no adapter call .- FakeAdapter
 ```
 
 ## Components
@@ -64,6 +74,7 @@ flowchart LR
 | Approval domain/service | `src/approval.ts`, `src/approval-service.ts` | TypeBox + TypeScript | Closed state, actor policy, durable request/decision operations, minimized events |
 | Approval store | `src/approval-store.ts` | Append-only JSONL projection | Authoritative pending/terminal records at configured path |
 | Safe-write composition | `src/safe-write-application.ts` | Internal TypeScript application boundary | Shares approval/event truth, snapshots actor permissions, and delegates fake execution without a transport |
+| Recovery composition | `src/recovery-application.ts` | Internal TypeBox + TypeScript boundary | Cross-checks event/approval/result truth, hash-verifies replaceable draft content, resumes three checkpoints, and stops before effects |
 | Fake authorization/execution | `src/fake-send.ts`, `src/fake-send-service.ts`, `src/fake-send-adapter.ts` | TypeBox + TypeScript | Internal exact-action authorization, reservation-first orchestration, timeout, and deterministic fake outcome |
 | Fake result store | `src/fake-send-result.ts`, `src/fake-send-store.ts`, `src/fake-send-execution.ts` | Append-only JSONL projection | Internal reservation/result contracts, restart projection, and duplicate original-result replay |
 | Synthetic lead source | `src/leads.ts` | In-memory TypeScript data | Exact lookup for classroom fixtures only |
@@ -91,8 +102,12 @@ flowchart LR
    approval state from the durable projection, and appends one
    `run.completed`; deadline, step-limit, or dependency stops append one
    `run.stopped`. Late provider settlement cannot replace that decision.
-7. Terminal event-storage failure maps to a 503 response. Whole-run replay and
-   resume are not implemented.
+7. Terminal event-storage failure maps to a 503 response. The HTTP/Pi boundary
+   exposes no recovery route.
+8. An internal caller may construct `RecoveryApplication` with explicit
+   event, approval, and result paths. It projects all three stores before
+   mutation, resumes one safe checkpoint, requests at most one pending approval,
+   and appends at most one missing compatible terminal.
 
 ## Trust And Permission Boundaries
 
@@ -108,6 +123,7 @@ flowchart LR
 | Approval request | Exact current draft delegates to durable application state; Pi never decides or sends |
 | Approval decision | Internal application service validates exact identity and synthetic actor policy |
 | Internal fake write | `SafeWriteApplication` snapshots synthetic actor sets, then delegates exact durable authorization and reservation-first execution |
+| Internal recovery | Require trusted checkpoint plus exact same-run approval/result authority; hash-verify replaceable draft content; escalate any reservation-only effect |
 | External write | Runtime-forbidden: permission decision keeps fake execution unregistered/unallowlisted; no Pi/HTTP entrypoint or real adapter exists |
 
 The production tool names are frozen at runtime. Pi has no shell, filesystem,
@@ -124,11 +140,15 @@ credential, deployment, approval-decision, or network-writing tool.
 - The internal safe-write application accepts explicitly injected approval,
   event, and fake-result JSONL paths. It is exercised only by tests/library
   callers and has no server runtime path or environment-variable composition.
+- The internal recovery application accepts the same three explicit path kinds,
+  reads complete validated stores, and may add a draft, pending approval, and
+  run terminal. It has no server/Pi composition or fake-effect dependency.
 - Qualification events exclude lead profile text and caught dependency detail.
 - Draft and approval events exclude full content; approval records retain exact
   synthetic draft content/hash under the documented manual lifecycle rule.
 - There is no database, queue, cache, backup, per-record erasure, distributed
-  lock, or whole-run replay/resume engine.
+  lock, public recovery endpoint, background retry worker, or automatic
+  compensation. Recovery is a controlled single-process library boundary.
 
 ## Deployment Topology
 
@@ -147,6 +167,8 @@ restore, or rollback has been validated.
   a repository maintainer performs the separately required human review; the
   current decision is to leave it unregistered and unallowlisted.
 - Use append-only events as evidence and rebuild typed projections from them.
+- Resume only from a trusted durable checkpoint; treat supplied draft content
+  as replaceable and require its exact durable hash before approval.
 - Keep the required workshop path synthetic and no-send.
 
 Detailed rationale and Mermaid traces are in the

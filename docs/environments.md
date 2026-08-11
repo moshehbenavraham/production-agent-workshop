@@ -42,20 +42,31 @@ images, documentation, or screenshots.
   result paths from a library caller. Tests inject temporary paths; no runtime
   environment variable, Pi tool, HTTP route, or server composition selects a
   fake-result path.
+- The internal recovery application also takes those three explicit path kinds.
+  It is a library/test boundary only; no environment variable, HTTP route, Pi
+  tool, scheduled worker, or effect adapter invokes it.
 - The image sets both paths under `/app/data` and declares that directory as a
   volume. Approval files are created with mode `0600`.
-- Synthetic approval files are retained for at most 30 days or until the
-  environment is torn down, whichever occurs first. This is a manual operator
-  rule; no automated expiry exists.
+- Treat the synthetic event, approval, and any injected fake-result files as
+  one coordinated environment. Retain the set for at most 30 days or until
+  teardown, whichever occurs first. This is a manual operator rule; no
+  automated expiry exists. A preserved incident copy delays deletion until
+  operator handoff is complete.
 - Operational fake-send events exclude full drafts and target lead IDs.
   Approval request records retain the
   exact synthetic target, draft ID/hash/content, and request time; decision
   records retain actor, decision, and time.
-- Export is a controlled offline copy of the exact configured files while the
-  service is stopped. There is no public export endpoint.
-- Deletion is a whole-file synthetic environment reset after the service stops;
-  append-only records are never edited in place. Per-record erasure, backup,
-  restore, data location, and subprocessors are not approved for real data.
+- Export is a controlled offline copy of the exact coordinated files while all
+  service and internal harness writers are stopped. There is no public export
+  endpoint.
+- Deletion is a whole-environment synthetic reset after all writers stop;
+  verify each selected file is absent. Append-only records are never edited or
+  deleted individually because that invalidates ordering, authority, and
+  recovery evidence. Per-record erasure, backup, restore, data location, and
+  subprocessors are not approved for real data.
+- Context compaction applies only to replaceable in-memory projections. It
+  never deletes durable event, approval, or result records needed for audit or
+  recovery.
 - `/runs` must remain private or otherwise controlled. Its process-wide rate
   gate protects bounded capacity but is not authentication, authorization,
   tenant isolation, distributed rate state, or an edge WAF.
