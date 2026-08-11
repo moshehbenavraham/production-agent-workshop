@@ -30,7 +30,7 @@ fake-only, synthetic-data, no-real-network boundary.
   - [x] Session 02 - Run Projection and Corruption Refusal
   - [x] Session 03 - Bounded Run Lifecycle
   - [x] Session 04 - Replay and Resume Integration
-  - [ ] Session 05 - Production Eval Contract and Golden Set
+  - [x] Session 05 - Production Eval Contract and Golden Set
   - [ ] Session 06 - Critical Eval Gate and Scorecard
   - [ ] Session 07 - Boundary Regression Exercises and Evidence
 
@@ -51,8 +51,9 @@ validated. Session 04 now implements internal provider-independent recovery at
 qualification, draft, and approval checkpoints with exact cross-store
 authority, stable replay, hash-anchored draft content, and mandatory escalation
 for indeterminate effects. Session 04 is validated, Task `04` is complete, and
-the boundary cannot invoke an effect. Session 05 is next and begins Task `05`
-with a closed production-eval contract and synthetic golden set.
+the boundary cannot invoke an effect. Session 05 is validated with closed
+production-eval contracts and an immutable 18-case synthetic golden set;
+Session 06 is next and owns execution, scorecards, and deployment blocking.
 
 ## Phase 00 Transition (Complete)
 

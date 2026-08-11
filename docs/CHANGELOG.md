@@ -10,6 +10,17 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Added
 
+- Added closed production-eval case, fixture, expectation, rubric, trace,
+  result, version, latency, token, cost, score, and suite-validation contracts
+  with canonical semantic failures and deeply frozen validated output.
+- Added a predeclared 18-case synthetic golden set spanning every Task `05`
+  behavior category and 15 critical client boundaries while keeping model
+  grading restricted to non-blocking draft quality.
+- Added 17 deterministic eval-contract and inventory cases covering closed
+  shapes, explicit unavailable metrics, result consistency, category/boundary
+  completeness, hostile values, unsafe rubric authority, legacy mappings, and
+  zero executable capability.
+
 - Added an internal provider-independent recovery application with closed
   retry/resume/compensate/escalate/stop policy, exact cross-store authority,
   hash-anchored draft recovery, stable pending-approval replay, and no effect
@@ -90,6 +101,14 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Changed
 
+- Closed Phase 02 Session 05 at version `0.1.27` after 255/255 deterministic
+  tests, 5/5 legacy evals, 97.73% line/85.54% branch/97.70% function coverage,
+  zero dependency vulnerabilities, and complete definition-boundary, security,
+  permission, and documentation validation. Task `05` remains in progress until
+  Sessions 06 and 07 add execution, deployment gating, and red/fix/green proof.
+- Mapped the five legacy eval intentions into named golden cases while keeping
+  the existing five-case command as the active runner until Session 06 adds
+  execution, persistence, scorecards, and non-zero critical gating.
 - Completed the Task `04` recovery evidence pack with the five-action decision
   table, three Mermaid restart timelines, replay-idempotency proof, coordinated
   synthetic retention/deletion rules, and exercised reservation escalation.

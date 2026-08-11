@@ -14,10 +14,10 @@ gates. Public vulnerability reporting belongs in the
 
 ### Overall: AT RISK
 
-Phase 02 Session 04 is clean for synthetic data in a local or otherwise
+Phase 02 Session 05 is clean for synthetic data in a local or otherwise
 controlled environment. It is not public-production-ready because caller
-access, public/distributed recovery, real-data lifecycle, distributed effect safety, backup,
-restore, and deployment controls remain open release gates.
+access, public/distributed recovery, real-data lifecycle, distributed effect
+safety, backup, restore, and deployment controls remain open release gates.
 
 | Metric | Value |
 |--------|-------|
@@ -119,9 +119,13 @@ They remain open until the stated controls have direct acceptance evidence.
   evidence before mutation; hash-verifies replaceable drafts; requests at most
   one pending approval; and escalates any reservation-only state without an
   effect adapter.
+- [P02] Production-eval definitions validate and freeze 18 synthetic cases with
+  deterministic critical dimensions, exact tool/event/authority expectations,
+  explicit metric availability, and model grading restricted to non-blocking
+  draft quality. The definitions contain no executable callback or runtime edge.
 - [P00] Known-lead runs stop at `approval_pending`; visible outcomes derive from
   validated qualification events and durable approval projection, never prose.
-- [P02] Biome formatting/linting, strict TypeScript, 238 deterministic tests,
+- [P02] Biome formatting/linting, strict TypeScript, 255 deterministic tests,
   five evals, coverage gates, npm audit, Code Quality, Build & Test, and CodeQL pass.
 - [P01] Docker health and process/container rate-gate validation pass locally;
   missing production checks remain explicit in `known-issues.md`.
@@ -195,7 +199,7 @@ reviewed overrides and install-script approvals from `package.json`.
 
 | Phase | Sessions | Security | GDPR | Findings Opened | Findings Closed |
 |-------|----------|----------|------|-----------------|-----------------|
-| P02 | 4 of 7 | PASS for controlled synthetic scope through Session 04 | N/A | 0 | 1 |
+| P02 | 5 of 7 | PASS for controlled synthetic scope through Session 05 | N/A | 0 | 1 |
 | P01 | 6 | PASS for controlled synthetic scope | N/A | 1 | 1 |
 | P00 | 3 | PASS for controlled synthetic scope | N/A | 0 | 2 baseline control gaps |
 
@@ -228,9 +232,9 @@ reviewed overrides and install-script approvals from `package.json`.
 
 ## Recommendations
 
-1. [P02] Add deterministic production eval gates without weakening exact
-   identity, event ordering, durable approval truth, or indeterminate-effect
-   handling.
+1. [P02] Execute and persist the validated golden set, then make every critical
+   failure block the documented deployment path without weakening exact
+   identity, authority, event ordering, or indeterminate-effect handling.
 2. [P01] Keep internal fake execution disconnected until both stronger cross-
    process ownership and the recorded human permission gate exist.
 3. [P01] Keep all inputs synthetic until automated lifecycle, access, backup,

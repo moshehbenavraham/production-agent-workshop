@@ -12,6 +12,8 @@ process fake action with durable idempotency, but it is not composed into the
 server or agent runtime. A second internal `RecoveryApplication` rebuilds exact
 run/approval/result state and resumes only qualification, draft, or approval
 checkpoints to the pending human gate; it has no effect adapter or transport.
+An independent production-eval definition layer freezes an 18-case synthetic
+inventory for later execution and has no runtime edge into the service.
 
 ```mermaid
 flowchart LR
@@ -31,6 +33,8 @@ flowchart LR
     Tools --> ApprovalService[src/approval-service.ts]
     Internal[Internal synthetic operator] --> SafeWrite[src/safe-write-application.ts]
     RecoveryCaller[Internal recovery harness] --> Recovery[src/recovery-application.ts]
+    GoldenSet[src/production-eval-golden-set.ts] --> EvalContract[src/production-eval.ts]
+    EvalContract -. Session 06 execution .-> FutureGate[Future result gate and scorecard]
     Recovery --> Events
     Recovery --> ApprovalService
     ApprovalStore --> Recovery
@@ -59,6 +63,7 @@ flowchart LR
     Server -. no route .- Recovery
     Agent -. no tool .- Recovery
     Recovery -. no adapter call .- FakeAdapter
+    EvalContract -. definitions only; no runtime edge .- Agent
 ```
 
 ## Components
@@ -75,14 +80,15 @@ flowchart LR
 | Approval store | `src/approval-store.ts` | Append-only JSONL projection | Authoritative pending/terminal records at configured path |
 | Safe-write composition | `src/safe-write-application.ts` | Internal TypeScript application boundary | Shares approval/event truth, snapshots actor permissions, and delegates fake execution without a transport |
 | Recovery composition | `src/recovery-application.ts` | Internal TypeBox + TypeScript boundary | Cross-checks event/approval/result truth, hash-verifies replaceable draft content, resumes three checkpoints, and stops before effects |
+| Production eval definitions | `src/production-eval.ts`, `src/production-eval-golden-set.ts` | TypeBox + immutable TypeScript data | Closed case/result/rubric contracts and a validated 18-case synthetic inventory; no runner or deployment exit gate yet |
 | Fake authorization/execution | `src/fake-send.ts`, `src/fake-send-service.ts`, `src/fake-send-adapter.ts` | TypeBox + TypeScript | Internal exact-action authorization, reservation-first orchestration, timeout, and deterministic fake outcome |
 | Fake result store | `src/fake-send-result.ts`, `src/fake-send-store.ts`, `src/fake-send-execution.ts` | Append-only JSONL projection | Internal reservation/result contracts, restart projection, and duplicate original-result replay |
 | Synthetic lead source | `src/leads.ts` | In-memory TypeScript data | Exact lookup for classroom fixtures only |
 | Event store | `src/event-store.ts` | Append-only JSONL | Correlated durable evidence by `runId` |
-| Deterministic gates | `tests/`, `src/evals.ts` | `node:test` + TSX | Contract, failure, permission, event, and vertical-slice verification |
+| Deterministic gates | `tests/`, `src/evals.ts` | `node:test` + TSX | Contract, failure, permission, event, vertical-slice, and eval-inventory verification |
 | Container boundary | `Dockerfile` | Node.js 24 Alpine | Port 3000, `/app/data`, process start, and container health probe |
 | Code Quality CI | `.github/workflows/quality.yml` | GitHub Actions | Locked install, formatting, linting, and strict TypeScript |
-| Build & Test CI | `.github/workflows/test.yml` | GitHub Actions | TypeScript build, 221 tests with coverage thresholds, and five evals |
+| Build & Test CI | `.github/workflows/test.yml` | GitHub Actions | TypeScript build, 255 tests with coverage thresholds, and five legacy evals |
 
 ## Run And Evidence Flow
 
@@ -108,6 +114,10 @@ flowchart LR
    event, approval, and result paths. It projects all three stores before
    mutation, resumes one safe checkpoint, requests at most one pending approval,
    and appends at most one missing compatible terminal.
+9. Separately, the production-eval module validates and freezes 18 synthetic
+   case definitions with predeclared tools, arguments, event order, authority,
+   recovery, terminal, output, versions, and metric availability. Session 05
+   does not execute those definitions or change deployment exit behavior.
 
 ## Trust And Permission Boundaries
 
@@ -124,6 +134,7 @@ flowchart LR
 | Approval decision | Internal application service validates exact identity and synthetic actor policy |
 | Internal fake write | `SafeWriteApplication` snapshots synthetic actor sets, then delegates exact durable authorization and reservation-first execution |
 | Internal recovery | Require trusted checkpoint plus exact same-run approval/result authority; hash-verify replaceable draft content; escalate any reservation-only effect |
+| Eval definition | Critical safety dimensions are deterministic; optional model grading is quality-only and cannot alter critical status |
 | External write | Runtime-forbidden: permission decision keeps fake execution unregistered/unallowlisted; no Pi/HTTP entrypoint or real adapter exists |
 
 The production tool names are frozen at runtime. Pi has no shell, filesystem,
@@ -143,6 +154,9 @@ credential, deployment, approval-decision, or network-writing tool.
 - The internal recovery application accepts the same three explicit path kinds,
   reads complete validated stores, and may add a draft, pending approval, and
   run terminal. It has no server/Pi composition or fake-effect dependency.
+- The golden set stores bounded synthetic selectors and expected minimized
+  evidence in source. It stores no executable callback, prompt transcript,
+  provider payload, credential, customer record, or result file.
 - Qualification events exclude lead profile text and caught dependency detail.
 - Draft and approval events exclude full content; approval records retain exact
   synthetic draft content/hash under the documented manual lifecycle rule.
@@ -169,6 +183,8 @@ restore, or rollback has been validated.
 - Use append-only events as evidence and rebuild typed projections from them.
 - Resume only from a trusted durable checkpoint; treat supplied draft content
   as replaceable and require its exact durable hash before approval.
+- Define critical eval behavior before execution and represent unavailable
+  provider latency, tokens, and cost explicitly rather than as measured zero.
 - Keep the required workshop path synthetic and no-send.
 
 Detailed rationale and Mermaid traces are in the

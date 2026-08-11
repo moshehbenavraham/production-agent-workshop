@@ -8,7 +8,7 @@ The product prioritizes clarity, observability, and safe recovery over autonomy.
 
 ## Current Baseline and Scope Status
 
-The baseline verified by [`docs/todo/README_todo.md`](../../docs/todo/README_todo.md) now includes completed Phases 00 and 01 plus the first four validated Phase 02 sessions while remaining deliberately smaller than the full production-hardening scope:
+The baseline verified by [`docs/todo/README_todo.md`](../../docs/todo/README_todo.md) now includes completed Phases 00 and 01 plus the first five validated Phase 02 sessions while remaining deliberately smaller than the full production-hardening scope:
 
 - `GET /health` and a rate-limited, body-limited, validated `POST /runs` are implemented.
 - One in-memory Pi session uses a frozen allowlist containing exactly `qualify_lead`, `draft_follow_up`, and `request_send_approval`.
@@ -17,8 +17,11 @@ The baseline verified by [`docs/todo/README_todo.md`](../../docs/todo/README_tod
   run projections, and restart-safe approval projections preserve minimized
   evidence. An internal recovery application resumes the three Task `04`
   checkpoints with exact cross-store authority and no effect capability.
+- Closed production-eval and result contracts plus a frozen validated 18-case
+  synthetic golden set predeclare deterministic critical evidence. Execution,
+  scorecards, deployment blocking, and deliberate break traces remain pending.
 - A Pi-independent internal application composes exact approved-state authorization, durable fake-result idempotency, and a deterministic in-process fake adapter. It has no Pi/HTTP entrypoint and performs no network write.
-- Biome formatting and linting, strict TypeScript, 238 deterministic tests, and five deterministic eval cases pass through `npm run verify`.
+- Biome formatting and linting, strict TypeScript, 255 deterministic tests, and five deterministic legacy eval cases pass through `npm run verify`.
 - The Node 24 container exposes port 3000, provides `/health`, declares `/app/data` for persistent event storage, and has a locally validated Docker health probe.
 - Least-privilege GitHub Actions Code Quality and Build & Test workflows plus GitHub-managed CodeQL pass on the Phase 01 transition commits.
 - `/runs` has process-wide capacity plus application-owned whole-run deadline
@@ -211,7 +214,7 @@ One phase corresponds to exactly one workshop week. Each phase is implemented th
 |-------|------|------|--------------|----------|--------|
 | 00 | 1 | Foundation | `00`, `01` | 3 | Complete |
 | 01 | 2 | Durable Approval and Safe Write | `02`, `03` | 6 | Complete |
-| 02 | 3 | Recovery and Evaluation Gates | `04`, `05` | 7 | In Progress (4/7) |
+| 02 | 3 | Recovery and Evaluation Gates | `04`, `05` | 7 | In Progress (5/7) |
 | 03 | 4 | Operations and Coolify Release | `06`, `07` | TBD after Phase 02 | Planned |
 | 04 | 5 | Typed Handoff Decision | `08` | TBD after Phase 03 and the entry gate | Planned and Required |
 
@@ -397,7 +400,7 @@ The completed five-week path must leave one reviewable portfolio containing:
 - The repository is a single package rather than a monorepo: deterministic analysis found no workspace indicators or packages, and the root contains one `package.json`, so package-scoped planning is unnecessary.
 - Phases map one-to-one to workshop weeks: Phase 00 owns Week 1 tasks `00`-`01`, Phase 01 owns Week 2 tasks `02`-`03`, Phase 02 owns Week 3 tasks `04`-`05`, Phase 03 owns Week 4 tasks `06`-`07`, and Phase 04 owns required Week 5 task `08`; the user supplied this phase boundary directly, so no unrelated integration phase may be inserted.
 - Project state registers completed Phases 00 and 01 and current in-progress
-  Phase 02 at 4/7 sessions: Phases 03 and 04 remain PRD-planned future phases
+  Phase 02 at 5/7 sessions: Phases 03 and 04 remain PRD-planned future phases
   and gain session state sequentially through `phasebuild`, never in advance.
 - Production CRM, company research, real send, and Postgres work remain unscheduled deferred requirements: they appear in future-looking repository material but not in the ordered todo path, so aligning the PRD does not authorize or schedule them.
 
@@ -405,8 +408,9 @@ The completed five-week path must leave one reviewable portfolio containing:
 
 - The root README calls the repository a runnable reference while the task
   index distinguishes completed and planned hardening: treat Phases 00-01 and
-  tasks `00`-`04` as verified, Phase 02 Sessions 01-04 as complete Task `04`
-  evidence, and keep tasks `05`-`08` incomplete until their full acceptance
+  tasks `00`-`04` as verified, Phase 02 Sessions 01-05 as complete Task `04`
+  evidence plus the Task `05` definition milestone, and keep tasks `05`-`08`
+  incomplete until their full acceptance
   evidence exists.
 - Older assignment material labels task `08` as optional, while the project owner requires it: treat the experiment and decision as mandatory Week 5 work, preserve its evidence entry gate, and allow only the added orchestration component itself to be removed when the comparison does not justify it.
 - The former root README student-extension list mixed required workshop work with deferred integrations: use the todo index as the delivery authority, keep CRM, company research, a real send provider, Postgres, and model grading unscheduled, and place required task `08` in Phase 04 after the four foundational weeks.

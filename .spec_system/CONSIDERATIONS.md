@@ -22,6 +22,9 @@ Items requiring attention in upcoming work. Review before each session.
 - [P01] **Single-process persistence**: Approval, event, and result JSONL files
   are separate logs with no OS/distributed lock or transaction; reservation-only
   fake state requires manual inspection and must never retry automatically.
+- [P02] **Eval execution gate pending**: The closed 18-case inventory and result
+  contracts exist, but Session 06 must execute, persist, score, and return
+  non-zero on every critical failure before deployment blocking is real.
 
 ### External Dependencies
 
@@ -95,6 +98,12 @@ Proven patterns and anti-patterns. Reference during implementation.
 - [P02] **Project before and after recovery writes**: Load all authority before
   mutation, repair only a known-safe missing terminal, and reproject before
   returning a recovered outcome.
+- [P02] **Predeclare eval evidence**: Case definitions name tools, arguments,
+  event order, authority, effects, recovery, terminal, and output claims before
+  execution, which prevents scorecards from redefining success after a run.
+- [P02] **Tagged metric availability**: An unavailable latency, token, or cost
+  value is a finite reason plus `null`, while measured zero remains an explicit
+  available value; pending thresholds never masquerade as passing zeros.
 
 ### What to Avoid
 
@@ -112,6 +121,8 @@ Proven patterns and anti-patterns. Reference during implementation.
   it never satisfies a maintainer-only write-capability gate.
 - [P01] **Checkpoint as completion**: A pushed implementation is not complete
   until review, validation, PRD closeout, and transition evidence pass.
+- [P02] **Averages as safety gates**: One critical boundary failure must remain
+  visible regardless of quality averages or optional model grading.
 
 ### Tool/Library Notes
 

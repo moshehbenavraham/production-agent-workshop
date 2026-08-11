@@ -27,6 +27,7 @@
 | `npm run test:coverage` | Run tests with 95% line, 85% branch, and 95% function minimums |
 | `npx tsx --test tests/safe-write-application.test.ts` | Run the internal file-backed Task `03` vertical-slice matrix |
 | `npx tsx --test tests/recovery-application.test.ts` | Run the internal Task `04` three-checkpoint restart and replay matrix |
+| `npx tsx --test tests/production-eval.test.ts` | Validate the Task `05` closed eval contracts and 18-case golden-set inventory |
 | `npm run eval` | Run the five deterministic eval cases |
 | `npm run verify` | Run formatting, linting, types, tests, and evals in one gate |
 | `npm audit --audit-level=low` | Check the effective npm 12 dependency tree |
@@ -56,6 +57,10 @@ are not needed for it.
   stores before mutation and escalate reservation-only state.
 - Keep deterministic qualification independent of Pi and HTTP in
   `src/qualification.ts`.
+- Keep reusable eval contracts and semantic validation in
+  `src/production-eval.ts`; keep only the frozen declarative inventory in
+  `src/production-eval-golden-set.ts`. Session 05 definitions must not import
+  Pi execution, an effect service, HTTP, persistence, or deployment code.
 - Keep operational append-only evidence behind `src/event-store.ts`.
 
 Local imports use `.js` specifiers for NodeNext ESM. Treat all external input,
@@ -78,6 +83,9 @@ lint failure, then rerun `npm run verify`.
 - Important bugs require regression coverage.
 - Critical permission, state, event, identity, and stop assertions must remain
   deterministic; model grading is not a safety gate.
+- The five-case `src/evals.ts` command remains the active execution gate until
+  Session 06 implements the 18-case runner. Golden cases predeclare exact
+  behavioral evidence now; do not report them as executed results.
 - Temporary event stores must be cleaned after tests.
 
 ## Runtime Data

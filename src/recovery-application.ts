@@ -33,12 +33,6 @@ const LeadIdSchema = Type.String({
   pattern: "^lead_[a-z0-9_]+$",
 });
 
-const Sha256Schema = Type.String({
-  minLength: 64,
-  maxLength: 64,
-  pattern: "^[0-9a-f]{64}$",
-});
-
 const EventIdSchema = Type.String({
   minLength: 8,
   maxLength: 120,
@@ -460,8 +454,7 @@ function draftContent(
 function successfulRecovery(projection: RunProjection, approval: ApprovalRecord): RecoveryOutcome {
   const terminal = projection.terminalOutcome;
   if (
-    !terminal ||
-    terminal.kind !== "completed" ||
+    terminal?.kind !== "completed" ||
     (terminal.stopReason !== "approval_pending" && terminal.stopReason !== "completed")
   ) {
     return failure("terminal_run", projection.runId);

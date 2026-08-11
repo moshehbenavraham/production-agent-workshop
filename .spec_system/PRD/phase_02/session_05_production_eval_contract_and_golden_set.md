@@ -1,9 +1,9 @@
 # Session 05: Production Eval Contract and Golden Set
 
 **Session ID**: `phase02-session05-production-eval-contract-and-golden-set`
-**Status**: Not Started
+**Status**: Complete
 **Source Task**: `05`
-**Estimated Tasks**: ~18
+**Estimated Tasks**: 20
 **Estimated Duration**: 2-4 hours
 
 ---
@@ -41,8 +41,8 @@ Define the closed production-eval contracts and a 10-20 case synthetic golden se
 
 ## Prerequisites
 
-- [ ] Session 04 completes Task `04` recovery behavior and exposes deterministic injected boundaries for restart and replay cases.
-- [ ] The current five eval cases and all client-brief safety boundaries are mapped before replacement.
+- [x] Session 04 completes Task `04` recovery behavior and exposes deterministic injected boundaries for restart and replay cases.
+- [x] The current five eval cases and all client-brief safety boundaries are mapped before replacement.
 
 ---
 
@@ -56,8 +56,8 @@ Define the closed production-eval contracts and a 10-20 case synthetic golden se
 
 ## Success Criteria
 
-- [ ] The inventory contains 10-20 unique reproducible synthetic cases spanning every required behavior category.
-- [ ] Every client-brief boundary maps to at least one critical deterministic expectation.
-- [ ] Expected tools, arguments, events, permissions, recovery behavior, and stop reason exist before case execution.
-- [ ] Version, trace, latency, token, and cost fields have explicit validated meanings, including unavailable values.
-- [ ] Optional model grading is separate and cannot change a deterministic critical pass or failure.
+- [x] The inventory contains 10-20 unique reproducible synthetic cases spanning every required behavior category.
+- [x] Every client-brief boundary maps to at least one critical deterministic expectation.
+- [x] Expected tools, arguments, events, permissions, recovery behavior, and stop reason exist before case execution.
+- [x] Version, trace, latency, token, and cost fields have explicit validated meanings, including unavailable values.
+- [x] Optional model grading is separate and cannot change a deterministic critical pass or failure.

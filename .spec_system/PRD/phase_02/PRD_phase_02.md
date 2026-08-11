@@ -4,7 +4,7 @@
 **Sessions**: 7 (initial estimate)
 **Estimated Duration**: 5-7 workshop days
 
-**Progress**: 4/7 sessions (57%)
+**Progress**: 5/7 sessions (71%)
 
 ---
 
@@ -22,7 +22,7 @@ Week 3 turns the current lightweight event stream into validated durable run evi
 | 02 | Run Projection and Corruption Refusal | Complete | 18 | 2026-08-11 |
 | 03 | Bounded Run Lifecycle | Complete | 19 | 2026-08-11 |
 | 04 | Replay and Resume Integration | Complete | 22 | 2026-08-11 |
-| 05 | Production Eval Contract and Golden Set | Not Started | ~18 | - |
+| 05 | Production Eval Contract and Golden Set | Complete | 20 | 2026-08-11 |
 | 06 | Critical Eval Gate and Scorecard | Not Started | ~20 | - |
 | 07 | Boundary Regression Exercises and Evidence | Not Started | ~16 | - |
 
@@ -34,12 +34,13 @@ Week 3 turns the current lightweight event stream into validated durable run evi
 - `phase02-session02-run-projection-and-corruption-refusal` - completed and validated 2026-08-11.
 - `phase02-session03-bounded-run-lifecycle` - completed and validated 2026-08-11.
 - `phase02-session04-replay-and-resume-integration` - completed and validated 2026-08-11.
+- `phase02-session05-production-eval-contract-and-golden-set` - completed and validated 2026-08-11.
 
 ---
 
 ## Upcoming Sessions
 
-- Session 05: Production Eval Contract and Golden Set
+- Session 06: Critical Eval Gate and Scorecard
 
 ---
 
@@ -131,7 +132,7 @@ Phase complete when:
 - [x] Every required tool and run attempt and outcome is correlated, and whole-run deadline and maximum-step exits persist one visible terminal stop reason.
 - [x] Restart tests resume after qualification, draft creation, and approval request under the same `runId` with zero duplicate approvals or fake effects and no manual durable-record edits.
 - [x] The recovery decision table and event lifecycle rules define retry, resume, compensate, escalate, stop, retention, redaction, and deletion behavior for the synthetic scope.
-- [ ] A 10-20 case golden set covers happy, ambiguous, malformed, unknown, timeout, permission, credential, downstream, duplicate, restart, invalid-model, adversarial, approval-bypass, false-completion, escalation, and stop behavior.
+- [x] A 10-20 case golden set covers happy, ambiguous, malformed, unknown, timeout, permission, credential, downstream, duplicate, restart, invalid-model, adversarial, approval-bypass, false-completion, escalation, and stop behavior.
 - [ ] Deterministic critical assertions score schemas, state, tool arguments, event order, permissions, idempotency, recovery, and stop reasons; any critical failure exits non-zero and identifies expected versus observed evidence.
 - [ ] Lead-fabrication, false-send, and approval-bypass red/fix/green exercises are reverted and protected by regression cases.
 - [ ] Week 3 Build Log evidence, `docs/TODO.md`, and `docs/CHANGELOG.md` match the implemented state, and final repository verification and security review pass.
