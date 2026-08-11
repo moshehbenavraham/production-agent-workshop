@@ -10,6 +10,13 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Added
 
+- Added a fail-closed offline JSONL snapshot/restore CLI with explicit
+  stopped-writer confirmation, strict path and record validation, private
+  permissions, closed SHA-256 manifests, durable staged writes, atomic snapshot
+  activation, and non-destructive absent-destination restore.
+- Added three subprocess-level backup regressions covering exact byte restore,
+  stopped-writer and truncation refusal, checksum-tamper refusal, and private
+  destination modes; validated the commands against the current Docker image.
 - Added a least-privilege Security workflow with immutable action pins,
   full-history Gitleaks, high-severity dependency review, and locked-tree npm
   audit alongside managed CodeQL and secret scanning.
@@ -118,6 +125,13 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Changed
 
+- Revalidated the Phase 02 Health and Security infrastructure bundles locally
+  and in Docker, selected Backup as the one missing infrastructure bundle, and
+  retained off-server storage, scheduling, production restore activation, and
+  deployment as explicit Task `07` gates.
+- Scoped the existing 95% line, 85% branch, and 95% function coverage metrics
+  explicitly to application source while continuing to execute the operator
+  snapshot CLI end-to-end in the same 273-test suite.
 - Closed Phase 02 Session 07, Task `05`, and the seven-session Phase 02
   implementation at version `0.1.29` after three isolated, uncommitted
   red/fix/green source-boundary exercises restored exact baseline hashes,

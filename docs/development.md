@@ -25,7 +25,9 @@
 | `npm run check` | Run strict TypeScript with no emit |
 | `npm run precommit` | Run lint-staged Biome checks for staged TypeScript and root JSON |
 | `npm test` | Run all deterministic `node:test` cases through TSX |
-| `npm run test:coverage` | Run tests with 95% line, 85% branch, and 95% function minimums |
+| `npm run test:coverage` | Run all tests with 95% line, 85% branch, and 95% function minimums scoped explicitly to application source |
+| `CONFIRM_WRITERS_STOPPED=true npm run backup:data -- <source> <backup-root>` | Create a private, checksummed offline snapshot of direct JSONL files |
+| `CONFIRM_WRITERS_STOPPED=true npm run restore:data -- <snapshot> <absent-destination>` | Verify and restore a snapshot without replacing an existing directory |
 | `npx tsx --test tests/safe-write-application.test.ts` | Run the internal file-backed Task `03` vertical-slice matrix |
 | `npx tsx --test tests/recovery-application.test.ts` | Run the internal Task `04` three-checkpoint restart and replay matrix |
 | `npx tsx --test tests/production-eval.test.ts` | Validate the Task `05` closed eval contracts and 18-case golden-set inventory |
@@ -75,8 +77,9 @@ model output, tool arguments, dependency records, and persisted events as
 
 ## Formatting, Linting, And Types
 
-Biome 2.5.6 formats `src/**/*.ts`, `tests/**/*.ts`, and root JSON according to
-`biome.json` and checks the same scope with its recommended lint rules.
+Biome 2.5.6 formats `src/**/*.ts`, `tests/**/*.ts`, `scripts/**/*.ts`, and root
+JSON according to `biome.json` and checks the same scope with its recommended
+lint rules.
 TypeScript remains strict with `noUncheckedIndexedAccess`.
 
 Run `npm run format` after a formatting failure or `npm run lint:fix` after a
@@ -113,6 +116,14 @@ Internal recovery tests construct checkpoints only through application/store
 APIs, then use fresh instances; they never manually edit durable records.
 Use only synthetic fixtures and follow the manual 30-day-or-teardown whole-file
 retention/deletion rule in [Environments](./environments.md).
+
+The offline snapshot CLI accepts only a real, non-symlink source directory and
+direct `*.jsonl` files containing complete LF-terminated JSON objects. It
+requires all writers to be stopped, writes private `0700`/`0600` snapshot
+artifacts with a closed SHA-256 manifest, and restores only into an absent
+directory after exact verification. The commands do not schedule backups,
+transfer them off-server, activate a restored directory, or authorize real
+data.
 
 ## CI
 

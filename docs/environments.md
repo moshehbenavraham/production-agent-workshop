@@ -63,13 +63,24 @@ images, documentation, or screenshots.
   exact synthetic target, draft ID/hash/content, and request time; decision
   records retain actor, decision, and time.
 - Export is a controlled offline copy of the exact coordinated files while all
-  service and internal harness writers are stopped. There is no public export
-  endpoint.
+  service and internal harness writers are stopped. For a directory containing
+  only the coordinated direct JSONL files, use
+  `CONFIRM_WRITERS_STOPPED=true npm run backup:data -- <source> <backup-root>`.
+  The source and backup root must be separate real directories. There is no
+  public export endpoint.
+- The snapshot command rejects malformed, truncated, blank, non-object, or
+  oversized JSONL, persists private copies plus a closed SHA-256 manifest, and
+  verifies the staged snapshot before atomic activation. Restore uses
+  `CONFIRM_WRITERS_STOPPED=true npm run restore:data -- <snapshot>
+  <absent-destination>` and refuses an existing destination or checksum
+  mismatch. It does not perform an in-place replacement.
 - Deletion is a whole-environment synthetic reset after all writers stop;
   verify each selected file is absent. Append-only records are never edited or
   deleted individually because that invalidates ordering, authority, and
-  recovery evidence. Per-record erasure, backup, restore, data location, and
-  subprocessors are not approved for real data.
+  recovery evidence. The locally validated snapshot/restore mechanism is not a
+  configured off-server destination, schedule, production restore drill, or
+  per-record erasure process; data location and subprocessors are not approved
+  for real data.
 - Context compaction applies only to replaceable in-memory projections. It
   never deletes durable event, approval, or result records needed for audit or
   recovery.

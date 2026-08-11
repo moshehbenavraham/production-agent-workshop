@@ -52,6 +52,10 @@ flowchart LR
     ApprovalService --> ApprovalStore[src/approval-store.ts]
     ApprovalService --> Events
     ApprovalStore --> ApprovalLog[(JSONL at APPROVAL_LOG_PATH)]
+    EventLog -. writers stopped .-> SnapshotCLI[scripts/data-snapshot.ts]
+    ApprovalLog -. writers stopped .-> SnapshotCLI
+    SnapshotCLI --> SnapshotArtifact[(Private JSONL copies plus SHA-256 manifest)]
+    SnapshotArtifact -->|verified absent destination| RestoreDirectory[(Private restored JSONL directory)]
     Events --> QualificationProjection[Qualification projection]
     ApprovalStore --> ApprovalProjection[Approval projection]
     QualificationProjection --> Agent
@@ -96,10 +100,11 @@ flowchart LR
 | Fake result store | `src/fake-send-result.ts`, `src/fake-send-store.ts`, `src/fake-send-execution.ts` | Append-only JSONL projection | Internal reservation/result contracts, restart projection, and duplicate original-result replay |
 | Synthetic lead source | `src/leads.ts` | In-memory TypeScript data | Exact lookup for classroom fixtures only |
 | Event store | `src/event-store.ts` | Append-only JSONL | Correlated durable evidence by `runId` |
+| Offline snapshot/restore | `scripts/data-snapshot.ts` | Node.js filesystem and SHA-256 | Validates stopped-writer JSONL, persists private closed-manifest snapshots, and restores exact files only into an absent directory |
 | Deterministic gates | `tests/`, `src/evals.ts` | `node:test` + TSX | Contract, failure, permission, event, vertical-slice, and executable 18-case production-eval verification |
 | Container boundary | `Dockerfile` | Node.js 24 Alpine | Port 3000, `/app/data`, process start, and container health probe |
 | Code Quality CI | `.github/workflows/quality.yml` | GitHub Actions | Locked install, formatting, linting, and strict TypeScript |
-| Build & Test CI | `.github/workflows/test.yml` | GitHub Actions | TypeScript build, 270 tests with coverage thresholds, and the durable 18-case critical eval gate |
+| Build & Test CI | `.github/workflows/test.yml` | GitHub Actions | TypeScript build, 273 tests with application-source coverage thresholds, and the durable 18-case critical eval gate |
 | Security CI | `.github/workflows/security.yml` plus managed repository security | GitHub Actions | Full-history Gitleaks, pull-request dependency review, locked-tree audit, CodeQL, secret scanning, and push protection |
 
 ## Run And Evidence Flow
@@ -177,20 +182,27 @@ credential, deployment, approval-decision, or network-writing tool.
   `PRODUCTION_EVAL_LOG_PATH`, defaulting to
   `./data/production-evals.jsonl`; artifacts exclude draft bodies, lead
   profiles, transcripts, provider payloads, credentials, and raw errors.
+- The offline snapshot command copies only direct, complete JSONL files from a
+  real directory while all writers are stopped. It writes private files plus a
+  closed SHA-256 manifest, verifies before activation, and restores only to an
+  absent private directory. No schedule, off-server destination, production
+  activation, or real-data policy is configured.
 - Qualification events exclude lead profile text and caught dependency detail.
 - Draft and approval events exclude full content; approval records retain exact
   synthetic draft content/hash under the documented manual lifecycle rule.
-- There is no database, queue, cache, backup, per-record erasure, distributed
-  lock, public recovery endpoint, background retry worker, or automatic
-  compensation. Recovery is a controlled single-process library boundary.
+- There is no database, queue, cache, scheduled/off-server backup, per-record
+  erasure, distributed lock, public recovery endpoint, background retry worker,
+  or automatic compensation. Recovery is a controlled single-process library
+  boundary.
 
 ## Deployment Topology
 
 The locally validated image contains one Node.js process, port 3000, a declared
-`/app/data` volume, a Docker `HEALTHCHECK` for `/health`, and a process-wide
-fixed-window `/runs` gate. Coolify is the intended hosting boundary, but no
-production URL, WAF, caller identity, shared limiter, persistence proof,
-restore, or rollback has been validated.
+`/app/data` volume, a Docker `HEALTHCHECK` for `/health`, a process-wide
+fixed-window `/runs` gate, and the offline snapshot/restore CLI. Coolify is the
+intended hosting boundary, but no production URL, WAF, caller identity, shared
+limiter, persistent restart, off-server backup, platform restore, or rollback
+has been validated.
 
 ## Key Decisions
 

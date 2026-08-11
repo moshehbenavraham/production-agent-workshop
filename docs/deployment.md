@@ -2,11 +2,12 @@
 
 ## Current Status
 
-The Node.js 24 Docker image, health probe, and process-wide `/runs` rate gate
-pass local validation. No production Coolify URL, WAF, caller-access boundary,
-persistent restart, backup restore, rollback, or operator-access path has been
-validated. The repository is not ready for public exposure or real customer
-data.
+The Node.js 24 Docker image, health probe, process-wide `/runs` rate gate, and
+offline JSONL snapshot/restore commands pass local and container validation.
+No production Coolify URL, WAF, caller-access boundary, persistent restart,
+off-server backup schedule, platform restore, rollback, or operator-access
+path has been validated. The repository is not ready for public exposure or
+real customer data.
 
 ## Local Service Check
 
@@ -55,9 +56,11 @@ with coverage thresholds, and executes the durable 18-case critical eval gate.
 Both run on pushes to `main` and pull requests. GitHub-managed CodeQL and
 Dependabot are enabled.
 
-Security, Integration, Operations, release tagging, deploy, and post-deploy
-smoke workflow bundles are not configured. Run this full gate locally before
-treating a revision as verified:
+Integration, Operations, release tagging, deploy, and post-deploy smoke
+workflow bundles are not configured. A least-privilege Security workflow runs
+full-history secret detection, pull-request dependency review, and locked-tree
+audit alongside managed CodeQL. Run this full gate locally before treating a
+revision as verified:
 
 ```bash
 npm run verify
@@ -91,6 +94,9 @@ When deployment is separately authorized, the repository evidence requires:
 9. Keep `/runs` controlled until authentication, authorization, tenant,
    shared rate-limit, edge-WAF, and data-lifecycle gates match the intended
    exposure.
+10. Mount a private off-server backup destination outside `/app/data`, define
+    stopped-writer ownership and a schedule, then validate a snapshot and
+    restore into an absent staging destination before activation.
 
 Region, sizing, DNS, HTTPS ownership, access policy, secret rotation, backup
 destination, retention, recovery ownership, and monitoring require operator
@@ -108,11 +114,27 @@ the deployment-owned WAF and shared per-principal policy before public access.
 
 ## Persistence And Backup
 
-The container declares `/app/data`, but a volume declaration is not backup or
-restore evidence. The only current retention/deletion control is the manual
-synthetic 30-day-or-teardown whole-file rule. There is no configured backup
-schedule, external storage, restore drill, or per-record real-data erasure path.
-Keep data synthetic until those controls are implemented and validated.
+The container declares `/app/data`, and the repository now provides a bounded
+offline snapshot/restore command for its direct JSONL files:
+
+```bash
+CONFIRM_WRITERS_STOPPED=true npm run backup:data -- /app/data /mounted/private-backups
+CONFIRM_WRITERS_STOPPED=true npm run restore:data -- \
+  /mounted/private-backups/snapshot-<timestamp>-<id> /app/restore-staging
+```
+
+Both operations require every writer to be stopped. Backup validates complete
+LF-terminated object records, creates private copies plus a SHA-256 manifest,
+and verifies the staged directory before activation. Restore revalidates the
+closed manifest and every file, writes `0600` files under a new `0700`
+directory, and refuses an existing destination. It deliberately does not swap
+the restored directory into service.
+
+A volume declaration and an in-container copy are not off-server backup
+evidence. No destination, schedule, retention automation, production restore
+drill, activation procedure, or per-record real-data erasure path is
+configured. Keep data synthetic until those controls are implemented and
+validated.
 
 ## Release And Rollback
 

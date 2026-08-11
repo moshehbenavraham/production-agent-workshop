@@ -77,6 +77,10 @@
 - Build run and approval projections deterministically from durable records; working context remains replaceable.
 - Treat malformed, truncated, missing, or out-of-order records as visible errors, never as permission to invent state.
 - Keep file-backed stores behind replaceable interfaces and persist Coolify runtime state under `/app/data`.
+- Snapshot coordinated JSONL only while every writer is stopped. Require an
+  explicit operator confirmation, validate every complete record and manifest
+  checksum, restore only to an absent destination, and never treat an in-image
+  copy as an off-server backup.
 
 ## Error Handling
 
@@ -186,7 +190,7 @@ Managed features do not, by themselves, mark Operations configured.
 | Hosting target | Coolify | Docker image, port 3000, and `/app/data`; production target not deployed yet |
 | Persistence | Append-only JSONL | `EVENT_LOG_PATH=/app/data/events.jsonl` on the declared `/app/data` volume |
 | Security | Node.js application gate | Process-wide `/runs` fixed-window limit; default 10 requests per 60 seconds; local HTTP/container validation only |
-| Backup | not configured | Persistent JSONL backup and restore policy remain later-phase work |
+| Backup | Offline Node.js CLI | `npm run backup:data` and `npm run restore:data`; stopped-writer confirmation, private files, SHA-256 manifest, exact re-read, and absent-destination restore validated locally and in Docker |
 | Deploy | not configured | Coolify Git integration or deploy trigger remains later-phase work |
 
 ## When In Doubt

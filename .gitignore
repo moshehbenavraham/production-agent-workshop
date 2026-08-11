@@ -23,6 +23,7 @@ junit.xml
 ## Runtime data, databases, and process state
 data/*
 !data/.gitkeep
+backups/
 logs/
 *.log
 *.pid

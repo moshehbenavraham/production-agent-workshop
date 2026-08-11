@@ -3,9 +3,10 @@
 ## Current Scope
 
 This runbook covers the implemented local or otherwise controlled synthetic-
-data service and its internal fake-write and recovery test boundaries. It does
-not claim a production on-call rotation, response-time SLA, automated pause,
-public or distributed recovery, restore, or rollback capability.
+data service, its internal fake-write and recovery test boundaries, and its
+offline JSONL snapshot/restore command. It does not claim a production on-call
+rotation, response-time SLA, automated pause, public or distributed recovery,
+off-server backup schedule, platform restore, or rollback capability.
 
 ## First Response
 
@@ -19,6 +20,9 @@ public or distributed recovery, restore, or rollback capability.
    edit durable records.
 4. Keep credentials, provider auth state, and full event contents out of chat,
    tickets, screenshots, and public logs.
+5. If a controlled snapshot is required, stop every service and harness writer
+   first and use the repository command with explicit stopped-writer
+   confirmation. Never snapshot a live append-only file.
 
 ## Triage
 
@@ -78,6 +82,7 @@ treated as a visible failure, never repaired by inference.
 | Recovery returns `effect_completed` | Dedicated result truth proves the fake action already completed | Stop; return to the exact result/approval evidence and never execute again |
 | Recovery returns structural/authority mismatch | Complete stores do not agree on identity, order, or state | Preserve the coordinated files and escalate; do not repair by inference |
 | Event file is malformed or truncated | Durable truth is unreliable | Preserve the file and escalate; do not edit or replay manually |
+| Snapshot or restore reports a manifest/checksum mismatch | Backup evidence is untrusted or damaged | Preserve source and snapshot separately; do not activate, overwrite, or repair either by inference |
 | Credential may be exposed | Potential security incident | Stop use, preserve minimal evidence, rotate through the provider, report privately |
 
 ## Recovery Limits
@@ -86,10 +91,12 @@ The HTTP/Pi service cannot accept approval decisions or invoke recovery. The
 internal recovery library can resume only a trusted qualification, draft, or
 approval-request prefix to the pending human gate; it never decides approval or
 calls an effect adapter. There is no authenticated operator transport,
-distributed lock, backup restore, automatic retry for an indeterminate
-reservation, or compensation path. The fake adapter performs no network effect
-and no effect tool is registered or allowlisted. Escalate rather than inventing
-recovery state or manually editing JSONL.
+distributed lock, automatic retry for an indeterminate reservation, or
+compensation path. The offline restore command verifies bytes into an absent
+directory only; it is not a production restore or activation workflow. The
+fake adapter performs no network effect and no effect tool is registered or
+allowlisted. Escalate rather than inventing recovery state or manually editing
+JSONL.
 
 ## Escalation And Reporting
 

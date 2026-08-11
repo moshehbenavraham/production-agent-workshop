@@ -11,6 +11,8 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "start": "tsx src/server.ts",
+    "backup:data": "tsx scripts/data-snapshot.ts backup",
+    "restore:data": "tsx scripts/data-snapshot.ts restore",
     "demo": "tsx src/demo.ts",
     "eval": "tsx src/evals.ts",
     "build": "tsc",
@@ -22,7 +24,7 @@
     "prepare": "husky",
     "precommit": "lint-staged",
     "test": "tsx --test tests/*.test.ts",
-    "test:coverage": "tsx --test --experimental-test-coverage --test-coverage-lines=95 --test-coverage-branches=85 --test-coverage-functions=95 tests/*.test.ts",
+    "test:coverage": "tsx --test --experimental-test-coverage --test-coverage-include=src/**/*.ts --test-coverage-lines=95 --test-coverage-branches=85 --test-coverage-functions=95 tests/*.test.ts",
     "verify": "npm run format:check && npm run lint && npm run check && npm test && npm run eval"
   },
   "dependencies": {
