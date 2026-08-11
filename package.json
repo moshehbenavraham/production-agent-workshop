@@ -19,6 +19,8 @@
     "lint": "biome lint .",
     "lint:fix": "biome lint --write .",
     "check": "tsc --noEmit",
+    "prepare": "husky",
+    "precommit": "lint-staged",
     "test": "tsx --test tests/*.test.ts",
     "test:coverage": "tsx --test --experimental-test-coverage --test-coverage-lines=95 --test-coverage-branches=85 --test-coverage-functions=95 tests/*.test.ts",
     "verify": "npm run format:check && npm run lint && npm run check && npm test && npm run eval"
@@ -30,6 +32,8 @@
   "devDependencies": {
     "@biomejs/biome": "^2.5.6",
     "@types/node": "^24.13.3",
+    "husky": "9.1.7",
+    "lint-staged": "17.3.0",
     "tsx": "^4.23.5",
     "typescript": "^7.0.2"
   },
@@ -42,5 +46,8 @@
     "@google/genai@1.52.0": true,
     "protobufjs@7.6.5": true,
     "esbuild@0.28.1": true
+  },
+  "lint-staged": {
+    "*.{ts,json}": "biome check --write --no-errors-on-unmatched"
   }
 }

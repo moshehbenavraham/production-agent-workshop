@@ -157,9 +157,10 @@ For a non-trivial change:
 | Full Verification | npm scripts | `npm run verify` |
 | Formatter | Biome 2.5.6 | `npm run format`, `npm run format:check`, `biome.json` |
 | Linter | Biome 2.5.6 recommended rules | `npm run lint`, `npm run lint:fix`, `biome.json` |
+| Git Hooks | Husky 9.1.7 + lint-staged 17.3.0 | `.husky/pre-commit`, `npm run precommit`, staged TypeScript/JSON Biome checks |
 | Observability | Append-only JSONL events | `EVENT_LOG_PATH` |
 | Deployment | Docker + Coolify | `Dockerfile`, `/health`, `/app/data` |
-| Database | Not configured | File-backed interfaces only |
+| Database | N/A - no database signal | File-backed interfaces only |
 
 ## CI/CD
 

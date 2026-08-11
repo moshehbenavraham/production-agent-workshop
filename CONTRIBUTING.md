@@ -44,7 +44,9 @@ npm audit --audit-level=low
 
 `npm run verify` checks formatting, Biome recommended lint rules, strict
 TypeScript, all deterministic tests, and all deterministic evals. Add a
-regression test or eval for every material failure behavior or bug.
+regression test or eval for every material failure behavior or bug. The Husky
+pre-commit hook runs lint-staged Biome checks for staged TypeScript and root
+JSON; it supplements rather than replaces the complete verification gate.
 
 ## Pull Request Expectations
 

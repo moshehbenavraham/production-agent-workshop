@@ -23,6 +23,7 @@
 | `npm run lint` | Check scoped TypeScript and root JSON with Biome recommended rules |
 | `npm run lint:fix` | Apply Biome safe lint fixes |
 | `npm run check` | Run strict TypeScript with no emit |
+| `npm run precommit` | Run lint-staged Biome checks for staged TypeScript and root JSON |
 | `npm test` | Run all deterministic `node:test` cases through TSX |
 | `npm run test:coverage` | Run tests with 95% line, 85% branch, and 95% function minimums |
 | `npx tsx --test tests/safe-write-application.test.ts` | Run the internal file-backed Task `03` vertical-slice matrix |
@@ -34,7 +35,8 @@
 | `npm audit --audit-level=low` | Check the effective npm 12 dependency tree |
 
 `npm run verify` is the required one-command local gate. Provider credentials
-are not needed for it.
+are not needed for it. `npm ci` runs the Husky prepare script, and the tracked
+pre-commit hook applies the same Biome checks to staged TypeScript and root JSON.
 
 ## Source Boundaries
 
