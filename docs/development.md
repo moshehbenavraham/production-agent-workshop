@@ -119,9 +119,12 @@ retention/deletion rule in [Environments](./environments.md).
 `.github/workflows/quality.yml` runs locked-install formatting, linting, and
 strict-type checks. `.github/workflows/test.yml` compiles the repository, runs
 all deterministic tests with built-in coverage thresholds, and runs the
-18-case durable critical eval gate. Both workflows run on pushes to `main` and
-pull requests. GitHub-managed CodeQL and Dependabot remain enabled; local
-`npm run verify` is still mandatory before review.
+18-case durable critical eval gate. `.github/workflows/security.yml` scans full
+history with Gitleaks, reviews pull-request dependency changes at high severity,
+and audits the locked dependency tree. GitHub-managed CodeQL, secret scanning
+with push protection, and Dependabot remain enabled. Repository workflows run
+on pushes to `main` and pull requests; local `npm run verify` is still mandatory
+before review.
 
 ## Change Handoff
 

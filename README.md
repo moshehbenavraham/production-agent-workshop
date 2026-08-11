@@ -99,7 +99,7 @@ real customer data.
 
 ```text
 .
-|-- .github/workflows/       # Code Quality and Build & Test CI
+|-- .github/workflows/       # Code Quality, Build & Test, and Security CI
 |-- .spec_system/            # PRD, workflow state, governance, and evidence
 |-- docs/                    # Architecture, operations, workshop, and task docs
 |-- src/                     # HTTP, Pi orchestration, tools, schemas, and events

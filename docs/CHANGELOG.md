@@ -10,6 +10,9 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Added
 
+- Added a least-privilege Security workflow with immutable action pins,
+  full-history Gitleaks, high-severity dependency review, and locked-tree npm
+  audit alongside managed CodeQL and secret scanning.
 - Added pinned Husky and lint-staged pre-commit tooling that applies Biome to
   staged TypeScript and root JSON while preserving the full verification gate.
 - Added a permanent table-driven production-eval regression for unknown-lead

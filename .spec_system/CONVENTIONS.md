@@ -168,13 +168,14 @@ For a non-trivial change:
 |--------|--------|----------|
 | Code Quality | configured | `.github/workflows/quality.yml` |
 | Build & Test | configured | `.github/workflows/test.yml` |
-| Security | not configured | - |
+| Security | configured | `.github/workflows/security.yml` plus GitHub-managed CodeQL and secret scanning |
 | Integration | not configured | - |
 | Operations | not configured | - |
 
-GitHub-managed CodeQL default setup and Dependabot Updates are enabled. They
-are validated alongside repository workflows but do not, by themselves, mark
-the broader Security or Operations bundles configured.
+GitHub-managed CodeQL default setup, secret scanning with push protection, and
+Dependabot Updates are enabled. The repository Security workflow adds
+history-wide Gitleaks, pull-request dependency review, and locked-tree audit.
+Managed features do not, by themselves, mark Operations configured.
 
 ## Infrastructure
 
