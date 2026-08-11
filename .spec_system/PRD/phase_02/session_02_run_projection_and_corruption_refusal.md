@@ -1,10 +1,11 @@
 # Session 02: Run Projection and Corruption Refusal
 
 **Session ID**: `phase02-session02-run-projection-and-corruption-refusal`
-**Status**: Not Started
+**Status**: Complete
 **Source Task**: `04`
-**Estimated Tasks**: ~18
+**Tasks**: 18
 **Estimated Duration**: 2-4 hours
+**Validated**: 2026-08-11
 
 ---
 
@@ -40,8 +41,8 @@ Implement a deterministic run projection that derives lifecycle state and the la
 
 ## Prerequisites
 
-- [ ] Session 01 event contracts, validators, and hardened store pass all restart and damaged-record tests.
-- [ ] Phase 01 approval and fake-result schemas remain the exact authority for permission and effect identity.
+- [x] Session 01 event contracts, validators, and hardened store pass all restart and damaged-record tests.
+- [x] Phase 01 approval and fake-result schemas remain the exact authority for permission and effect identity.
 
 ---
 
@@ -55,8 +56,8 @@ Implement a deterministic run projection that derives lifecycle state and the la
 
 ## Success Criteria
 
-- [ ] Rebuilding from the same durable events returns the same lifecycle state, checkpoint, and terminal outcome after restart.
-- [ ] Projection requires no raw assistant transcript and compaction removes no durable evidence.
-- [ ] Missing, duplicated, cross-run, malformed, corrupt, or out-of-order records produce an actionable failure and no inferred success.
-- [ ] Observable approval and result facts cannot grant authorization without exact dedicated-store truth.
-- [ ] Qualification, draft, and approval-request checkpoints are explicit and independently tested.
+- [x] Rebuilding from the same durable events returns the same lifecycle state, checkpoint, and terminal outcome after restart.
+- [x] Projection requires no raw assistant transcript and compaction removes no durable evidence.
+- [x] Missing, duplicated, cross-run, malformed, corrupt, or out-of-order records produce an actionable failure and no inferred success.
+- [x] Observable approval and result facts cannot grant authorization without exact dedicated-store truth.
+- [x] Qualification, draft, and approval-request checkpoints are explicit and independently tested.

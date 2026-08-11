@@ -2,8 +2,10 @@
 
 **Session ID**: `phase02-session01-durable-run-event-contract-and-store`
 **Phase**: 02 - Recovery and Evaluation Gates
-**Status**: Not Started
+**Status**: Complete
 **Created**: 2026-08-11
+**Completed**: 2026-08-11
+**Validated**: 2026-08-11
 **Base Commit**: 5c5de157c86fc8267d0b3db60f9039a47bcf53ac
 
 ---
@@ -162,38 +164,38 @@ evidence and cannot grant permission.
 
 ### Functional Requirements
 
-- [ ] Every appended event has a closed versioned envelope, valid identity,
+- [x] Every appended event has a closed versioned envelope, valid identity,
   valid timestamp, matching type/payload discriminants, and minimized data.
-- [ ] Optional operational metadata distinguishes unavailable values from zero
+- [x] Optional operational metadata distinguishes unavailable values from zero
   and rejects invalid, negative, or undocumented values.
-- [ ] The file adapter returns success only after one complete private record is
+- [x] The file adapter returns success only after one complete private record is
   flushed, closed, re-read, and matched exactly.
-- [ ] Missing files produce an empty valid history, while malformed, truncated,
+- [x] Missing files produce an empty valid history, while malformed, truncated,
   duplicate-ID, invalid-namespace, or invalid-order evidence fails visibly.
-- [ ] Existing run, qualification, draft, approval, and fake-send producers and
+- [x] Existing run, qualification, draft, approval, and fake-send producers and
   consumers use the closed contract without changing runtime permissions.
 
 ### Testing Requirements
 
-- [ ] Contract-first tests cover every public variant and semantic guard.
-- [ ] Store tests cover append, restart, private mode, corruption, truncation,
+- [x] Contract-first tests cover every public variant and semantic guard.
+- [x] Store tests cover append, restart, private mode, corruption, truncation,
   duplicate identity, unrelated domains, no-op writes, and injected I/O failure.
-- [ ] Existing focused integration suites and `npm run verify` pass.
+- [x] Existing focused integration suites and `npm run verify` pass.
 
 ### Non-Functional Requirements
 
-- [ ] Persisted operational evidence excludes credentials, full drafts,
+- [x] Persisted operational evidence excludes credentials, full drafts,
   unnecessary lead content, raw dependency details, and arbitrary SDK objects.
-- [ ] The production Pi allowlist remains exactly three tools and internal fake
+- [x] The production Pi allowlist remains exactly three tools and internal fake
   execution remains unreachable from Pi and HTTP.
-- [ ] The adapter is synchronous and deterministic within the current
+- [x] The adapter is synchronous and deterministic within the current
   single-process boundary; no distributed-safety claim is introduced.
 
 ### Quality Gates
 
-- [ ] All files are ASCII-encoded with Unix LF line endings.
-- [ ] Code follows strict TypeScript, ESM, naming, and testing conventions.
-- [ ] Behavioral quality trust, persistence, failure, and contract checks pass.
+- [x] All files are ASCII-encoded with Unix LF line endings.
+- [x] Code follows strict TypeScript, ESM, naming, and testing conventions.
+- [x] Behavioral quality trust, persistence, failure, and contract checks pass.
 
 ---
 

@@ -3,8 +3,9 @@
 **Session ID**: `phase02-session04-replay-and-resume-integration`
 **Status**: Complete
 **Source Task**: `04`
-**Estimated Tasks**: ~22
+**Tasks**: 22
 **Estimated Duration**: 2-4 hours
+**Validated**: 2026-08-11
 
 ---
 

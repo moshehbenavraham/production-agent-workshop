@@ -2,8 +2,10 @@
 
 **Session ID**: `phase02-session02-run-projection-and-corruption-refusal`
 **Phase**: 02 - Recovery and Evaluation Gates
-**Status**: Not Started
+**Status**: Complete
 **Created**: 2026-08-11
+**Completed**: 2026-08-11
+**Validated**: 2026-08-11
 **Base Commit**: 918bc4c2970711751296f3c015ce185ae87acfd4
 
 ---
@@ -191,47 +193,47 @@ SDK payloads, credentials, and arbitrary errors never enter working context.
 
 ### Functional Requirements
 
-- [ ] The same complete event history produces the same frozen lifecycle,
+- [x] The same complete event history produces the same frozen lifecycle,
   checkpoint, terminal outcome, and working context after restart.
-- [ ] Qualification, draft, and approval-request checkpoints are explicit and
+- [x] Qualification, draft, and approval-request checkpoints are explicit and
   require all exact prerequisite identities.
-- [ ] Missing start or prerequisite, cross-run identity, invalid timestamp or
+- [x] Missing start or prerequisite, cross-run identity, invalid timestamp or
   order, duplicate or conflicting evidence, incompatible terminal, illegal
   core evidence after terminal, and invalid post-run operational evidence
   return canonical failure with no projection value.
-- [ ] Approval or fake-send events alone never grant authorization or prove an
+- [x] Approval or fake-send events alone never grant authorization or prove an
   effect; supplied dedicated records must validate and match exactly.
-- [ ] The projection contains no transcript, full draft, credential, raw SDK
+- [x] The projection contains no transcript, full draft, credential, raw SDK
   payload, arbitrary dependency message, or invented fact.
 
 ### Testing Requirements
 
-- [ ] Contract-first tests cover every public schema, guard, failure, frozen
+- [x] Contract-first tests cover every public schema, guard, failure, frozen
   outcome, and caller-mutation boundary.
-- [ ] Legal-order tests cover start, qualification success/failure, draft,
+- [x] Legal-order tests cover start, qualification success/failure, draft,
   approval observation, fake-result observation, completion, and failure.
-- [ ] Refusal tests cover empty, malformed, cross-run, missing, duplicate,
+- [x] Refusal tests cover empty, malformed, cross-run, missing, duplicate,
   conflicting, out-of-order, post-terminal, and mismatched authority evidence.
-- [ ] A real private JSONL fixture rebuilt through fresh store and projector
+- [x] A real private JSONL fixture rebuilt through fresh store and projector
   instances produces deep-equal projections.
-- [ ] Existing event, approval, fake-send, permission, and full verification
+- [x] Existing event, approval, fake-send, permission, and full verification
   suites remain green.
 
 ### Non-Functional Requirements
 
-- [ ] The projector performs no write, effect, permission transition, model
+- [x] The projector performs no write, effect, permission transition, model
   invocation, or network operation.
-- [ ] Failure messages are bounded and canonical; optional location fields are
+- [x] Failure messages are bounded and canonical; optional location fields are
   identifiers or indexes only.
-- [ ] Inputs and returned outputs are defensively copied and deeply frozen.
-- [ ] The production Pi allowlist remains exactly three tools and fake execution
+- [x] Inputs and returned outputs are defensively copied and deeply frozen.
+- [x] The production Pi allowlist remains exactly three tools and fake execution
   remains unreachable from Pi and HTTP.
 
 ### Quality Gates
 
-- [ ] All files are ASCII-encoded with Unix LF line endings.
-- [ ] Code follows strict TypeScript, ESM, naming, and testing conventions.
-- [ ] Behavioral quality trust, permission, recovery, persistence, failure, and
+- [x] All files are ASCII-encoded with Unix LF line endings.
+- [x] Code follows strict TypeScript, ESM, naming, and testing conventions.
+- [x] Behavioral quality trust, permission, recovery, persistence, failure, and
   contract checks pass.
 
 ---
@@ -326,14 +328,14 @@ SDK payloads, credentials, and arbitrary errors never enter working context.
 
 ## 10. Definition Of Done
 
-- [ ] All 18 tasks complete with evidence in `implementation-notes.md`.
-- [ ] Projection and authority contracts are closed, runtime validated, and
+- [x] All 18 tasks complete with evidence in `implementation-notes.md`.
+- [x] Projection and authority contracts are closed, runtime validated, and
   documented.
-- [ ] Restart equivalence and the full corruption/refusal matrix pass.
-- [ ] Approval and fake-result authority remain unchanged and separately
+- [x] Restart equivalence and the full corruption/refusal matrix pass.
+- [x] Approval and fake-result authority remain unchanged and separately
   evidenced.
-- [ ] Documentation, TODO, and changelog match implemented behavior.
-- [ ] Review, security/compliance validation, and full verification pass.
+- [x] Documentation, TODO, and changelog match implemented behavior.
+- [x] Review, security/compliance validation, and full verification pass.
 
 ---
 

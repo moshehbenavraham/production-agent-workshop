@@ -1,10 +1,11 @@
 # Session 03: Bounded Run Lifecycle
 
 **Session ID**: `phase02-session03-bounded-run-lifecycle`
-**Status**: Not Started
+**Status**: Complete
 **Source Task**: `04`
-**Estimated Tasks**: ~19
+**Tasks**: 19
 **Estimated Duration**: 2-4 hours
+**Validated**: 2026-08-11
 
 ---
 
@@ -41,8 +42,8 @@ Enforce one application-owned whole-run deadline and maximum step count while re
 
 ## Prerequisites
 
-- [ ] Session 02 produces trusted lifecycle projections and closed terminal invariants.
-- [ ] Existing qualification timeout and fake-adapter timeout behavior remains independently green.
+- [x] Session 02 produces trusted lifecycle projections and closed terminal invariants.
+- [x] Existing qualification timeout and fake-adapter timeout behavior remains independently green.
 
 ---
 
@@ -56,8 +57,8 @@ Enforce one application-owned whole-run deadline and maximum step count while re
 
 ## Success Criteria
 
-- [ ] Every whole run ends within the configured deadline and step budget or records the exact bounded failure.
-- [ ] Deadline and maximum-step paths append one visible terminal event and return one non-success stop reason.
-- [ ] Every required tool attempt and outcome carries the originating `runId` and minimized structured evidence.
-- [ ] Late completion cannot append a second terminal outcome or change the returned run result.
-- [ ] Invalid bounds fail before creating runtime files, sessions, timers, or listeners.
+- [x] Every whole run ends within the configured deadline and step budget or records the exact bounded failure.
+- [x] Deadline and maximum-step paths append one visible terminal event and return one non-success stop reason.
+- [x] Every required tool attempt and outcome carries the originating `runId` and minimized structured evidence.
+- [x] Late completion cannot append a second terminal outcome or change the returned run result.
+- [x] Invalid bounds fail before creating runtime files, sessions, timers, or listeners.

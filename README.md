@@ -21,21 +21,31 @@ deterministic in-process fake action with durable idempotency. It is not
 composed into the HTTP/Pi runtime, has no public or tool entrypoint, and
 performs no network write.
 
+A second internal application reconstructs exact run, approval, and fake-
+result state and resumes only the three proven safe checkpoints. The repository
+also runs a deterministic 18-case critical eval gate and provides an offline,
+stopped-writer JSONL snapshot/restore command. Neither boundary adds a public
+route or a real external effect.
+
 ```mermaid
 flowchart LR
     Caller[Controlled caller] -->|POST /runs| HTTP[Node HTTP boundary]
-    HTTP --> Pi[Bounded Pi session]
-    Pi --> Q[qualify_lead]
-    Q -->|validated success| D[draft_follow_up]
-    D --> A[request_send_approval]
-    A --> Service[Approval service]
-    Service --> Approvals[(Approval JSONL projection)]
-    Q --> Events[(Append-only JSONL events)]
-    D --> Events
-    Service --> Events
-    Events --> Result[RunResult with qualification and stopReason]
+    HTTP --> Rate[Process-wide rate gate]
+    Rate --> Pi[Bounded Pi session]
+    Pi --> Lifecycle[Deadline, steps, one terminal]
+    Lifecycle --> Tools[Three frozen tools]
+    Tools --> Events[(Schema-v2 event JSONL)]
+    Tools --> Approvals[(Approval JSONL truth)]
+    Events --> Result[Application-owned RunResult]
     Approvals --> Result
-    Service -->|pending only| Stop[Human stop - no send]
+    Result --> Stop[Human stop - no send]
+    Recovery[Internal recovery application] --> Events
+    Recovery --> Approvals
+    Golden[18-case synthetic golden set] --> Eval[Critical eval runner]
+    Eval --> Events
+    Eval --> EvalArtifact[(Minimized eval JSONL)]
+    Events -. writers stopped .-> Snapshot[Checksummed offline snapshot]
+    Approvals -. writers stopped .-> Snapshot
 ```
 
 The frozen production allowlist contains exactly:
@@ -57,8 +67,8 @@ Requirements:
 - Git
 
 Install the locked dependencies, then run the one command that checks
-formatting, linting, strict types, all 156 deterministic tests, and all five
-evals:
+formatting, linting, strict types, all 273 deterministic tests, and all 18
+critical eval cases:
 
 ```bash
 npm ci
@@ -102,6 +112,7 @@ real customer data.
 |-- .github/workflows/       # Code Quality, Build & Test, and Security CI
 |-- .spec_system/            # PRD, workflow state, governance, and evidence
 |-- docs/                    # Architecture, operations, workshop, and task docs
+|-- scripts/                 # Offline JSONL snapshot and restore tooling
 |-- src/                     # HTTP, Pi orchestration, tools, schemas, and events
 |-- tests/                   # Deterministic contract and integration tests
 |-- biome.json               # Formatting scope and style
@@ -140,15 +151,20 @@ map.
 
 ## Project Status And Safety
 
-Phase 00 and all six Phase 01 sessions are complete. Durable approval and the
-internal idempotent fake-write composition are validated with consolidated
-Task `03` evidence. In particular:
+Phases 00 through 02 are complete: all 16 sessions and Tasks `00` through `05`
+are validated. Durable approval, fake idempotency, run recovery, and the
+critical eval gate all have deterministic evidence. In particular:
 
 - approval decisions are internal only; there is no public authenticated
   decision endpoint;
 - an internal deterministic fake adapter/result store exists for tests and
   later integration, but no Pi/HTTP entrypoint or real external-write adapter exists;
-- whole-run recovery, production eval gates, and incident operations remain open;
+- whole-run deadline/step bounds, schema-v2 projection, three internal recovery
+  checkpoints, and the durable 18-case critical gate pass;
+- three controlled source breaks proved unknown-lead fabrication, false
+  completion, and approval bypass each fail the gate before exact restoration;
+- Phase 03 incident operations and Coolify release work, and Phase 04's typed-
+  handoff comparison, remain planned and unbuilt;
 - `/runs` has a bounded process-wide capacity gate but no caller
   authentication, authorization, tenant isolation, distributed limiter, or
   deployed WAF, so it must remain private or otherwise controlled;
@@ -161,8 +177,10 @@ The cumulative source of truth is the
 
 The Docker image exposes port 3000, stores event and approval files under
 `/app/data`, and has a container health probe for `/health`. The image, probe,
-and process-wide `/runs` rate gate pass local validation; production Coolify
-health, edge security, persistence, restore, and rollback remain unproved.
+process-wide `/runs` rate gate, and offline checksummed snapshot/restore command
+pass local and container validation. No off-server destination or schedule is
+configured; production Coolify health, edge security, persistent restart,
+restore activation, and rollback remain unproved.
 Use the [deployment guide](./docs/deployment.md) for the verified local boundary
 and the remaining external decisions.
 
@@ -186,7 +204,7 @@ These require separate authorization after the ordered workshop path:
 
 Releases follow [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 and the repository [versioning policy](./docs/VERSIONING.md). The project is
-currently version 0.1.22; user-visible changes are recorded in the
+currently version 0.1.30; user-visible changes are recorded in the
 [changelog](./docs/CHANGELOG.md).
 
 ## Official Pi References

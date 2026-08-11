@@ -125,6 +125,12 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Changed
 
+- Reconciled the master PRD, all seven Phase 02 session records, root README,
+  onboarding, architecture, operator guidance, workshop index, and
+  documentation audit with the verified Phase 02 implementation and transition
+  controls; Phases 03-04 remain planned and unbuilt.
+- Advanced the documentation-transition patch version to `0.1.30` and kept the
+  production-eval application version synchronized with package metadata.
 - Re-synthesized Phase 02 institutional memory and cumulative security posture
   from all seven session summaries, implementation trails, security reports,
   transition exceptions, and current controls while preserving four explicit

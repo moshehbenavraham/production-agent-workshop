@@ -152,7 +152,7 @@ They remain open until the stated controls have direct acceptance evidence.
 - [P00] Known-lead runs stop at `approval_pending`; visible outcomes derive from
   validated qualification events and durable approval projection, never prose.
 - [P02] Biome formatting/linting, strict TypeScript, 273 deterministic tests,
-  18 eval cases, 97.64/85.55/97.86 application coverage, npm audit, staged
+  18 eval cases, 97.64/85.46/97.86 application coverage, npm audit, staged
   Biome hooks, Code Quality, Build & Test, Security, and CodeQL pass.
 - [P02] Docker health, process/container rate gating, and byte-exact offline
   snapshot/restore pass locally; production exceptions remain explicit in

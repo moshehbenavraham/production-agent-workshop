@@ -24,9 +24,12 @@ The baseline verified by [`docs/todo/README_todo.md`](../../docs/todo/README_tod
   false completion, and approval bypass turn the gate red before exact safe
   restoration returns it green.
 - A Pi-independent internal application composes exact approved-state authorization, durable fake-result idempotency, and a deterministic in-process fake adapter. It has no Pi/HTTP entrypoint and performs no network write.
-- Biome formatting and linting, strict TypeScript, 270 deterministic tests, and all 18 durable production-eval cases pass through `npm run verify`.
+- Biome formatting and linting, strict TypeScript, 273 deterministic tests, and all 18 durable production-eval cases pass through `npm run verify`.
 - The Node 24 container exposes port 3000, provides `/health`, declares `/app/data` for persistent event storage, and has a locally validated Docker health probe.
-- Least-privilege GitHub Actions Code Quality and Build & Test workflows plus GitHub-managed CodeQL pass on the Phase 01 transition commits.
+- Least-privilege GitHub Actions Code Quality, Build & Test, and Security workflows plus GitHub-managed CodeQL pass on current Phase 02 revisions.
+- A stopped-writer offline CLI validates direct JSONL records, writes private
+  SHA-256-manifested snapshots, and restores exact files only into an absent
+  destination. Off-server scheduling and production activation remain Task `07`.
 - `/runs` has process-wide capacity plus application-owned whole-run deadline
   and model/tool step gates, but no authentication, authorization, tenant
   isolation, shared rate state, or deployed WAF and must remain private or
@@ -350,8 +353,13 @@ After Phase 03 completion, transition work, and the measurement entry gate, `pha
   fake-result evidence behind replaceable interfaces; closed run projection is
   implemented and internal replay/resume is validated at all three Task `04`
   checkpoints.
+- **Offline JSONL snapshot/restore** - Stopped-writer, private, checksummed
+  repository tooling with exact absent-destination restore; off-server storage
+  and production activation remain unconfigured.
 - **Biome 2.5.6, Node.js test runner, TSX, and deterministic eval runner** - Formatting and provider-independent verification gates.
-- **GitHub Actions and CodeQL** - Current formatting/lint/type and build/test/eval/coverage CI plus managed static analysis; Security, Integration, Operations, deploy, and post-deploy bundles remain incomplete.
+- **GitHub Actions and CodeQL** - Current formatting/lint/type,
+  build/test/eval/coverage, secret, dependency-review, and audit CI plus managed
+  static analysis; Integration, Operations, deploy, and post-deploy bundles remain incomplete.
 - **Docker and Coolify** - Reproducible container build, secrets, health checks, persistent storage, deployment, and rollback.
 
 ## Success Criteria
@@ -416,7 +424,9 @@ The completed five-week path must leave one reviewable portfolio containing:
 - Older assignment material labels task `08` as optional, while the project owner requires it: treat the experiment and decision as mandatory Week 5 work, preserve its evidence entry gate, and allow only the added orchestration component itself to be removed when the comparison does not justify it.
 - The former root README student-extension list mixed required workshop work with deferred integrations: use the todo index as the delivery authority, keep CRM, company research, a real send provider, Postgres, and model grading unscheduled, and place required task `08` in Phase 04 after the four foundational weeks.
 - Task `03` is named as a send boundary while the core path prohibits real sending: implement only the deterministic fake adapter and keep any real network provider and network-writing Pi tool deferred.
-- The root README distinguishes passing Code Quality, Build & Test, and CodeQL checks from unconfigured Security, Integration, Operations, deploy, and post-deploy bundles; CI success does not imply production deployment readiness.
+- The root README distinguishes passing Code Quality, Build & Test, Security,
+  and CodeQL checks from unconfigured Integration, Operations, deploy, and
+  post-deploy bundles; CI success does not imply production deployment readiness.
 
 ## Open Decisions
 

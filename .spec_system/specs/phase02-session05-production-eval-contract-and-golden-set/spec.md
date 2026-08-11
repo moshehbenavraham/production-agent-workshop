@@ -2,8 +2,10 @@
 
 **Session ID**: `phase02-session05-production-eval-contract-and-golden-set`
 **Phase**: 02 - Recovery and Evaluation Gates
-**Status**: Not Started
+**Status**: Complete
 **Created**: 2026-08-11
+**Completed**: 2026-08-11
+**Validated**: 2026-08-11
 **Base Commit**: 90e39ff876b6c9ba4a4a1656efc70a974929012d
 
 ---
@@ -199,45 +201,45 @@ flowchart LR
 
 ### Functional
 
-- [ ] Exactly 18 unique reproducible cases validate inside the required 10-20
+- [x] Exactly 18 unique reproducible cases validate inside the required 10-20
   range and span every Task `05` behavior category.
-- [ ] Every registered critical client boundary is covered by at least one
+- [x] Every registered critical client boundary is covered by at least one
   case with a deterministic critical expectation.
-- [ ] Every case predeclares tools, validated arguments, ordered events,
+- [x] Every case predeclares tools, validated arguments, ordered events,
   permission/effect behavior, recovery, stop reason, and output claims.
-- [ ] Result contracts retain minimized trace, score, and version metadata plus
+- [x] Result contracts retain minimized trace, score, and version metadata plus
   explicit available/unavailable latency, token, and cost fields.
-- [ ] Optional model grading is structurally separate and cannot change a
+- [x] Optional model grading is structurally separate and cannot change a
   critical pass/fail result.
 
 ### Testing
 
-- [ ] Contract guards reject extras, invalid identities/vocabularies, malformed
+- [x] Contract guards reject extras, invalid identities/vocabularies, malformed
   metrics, hostile values, and semantic result contradictions.
-- [ ] Suite validation rejects duplicate IDs, inventories outside bounds,
+- [x] Suite validation rejects duplicate IDs, inventories outside bounds,
   uncovered boundaries/categories, missing critical dimensions, illegal model
   graders, unsupported tools/events, and unselected argument expectations.
-- [ ] The frozen exported suite and nested cases cannot be mutated and validate
+- [x] The frozen exported suite and nested cases cannot be mutated and validate
   identically after defensive cloning.
-- [ ] All five legacy eval intentions have explicit golden-case mappings and
+- [x] All five legacy eval intentions have explicit golden-case mappings and
   the existing 5/5 runner remains green.
 
 ### Non-Functional
 
-- [ ] Contracts and tests require no model/provider credential, network call,
+- [x] Contracts and tests require no model/provider credential, network call,
   real customer data, wall-clock wait, or effect invocation.
-- [ ] Cases contain bounded synthetic selectors and expected evidence, not raw
+- [x] Cases contain bounded synthetic selectors and expected evidence, not raw
   prompts, transcripts, secrets, full provider payloads, or real identifiers.
-- [ ] Production remains exactly three Pi tools and no eval code enters Pi,
+- [x] Production remains exactly three Pi tools and no eval code enters Pi,
   HTTP, approval decisions, fake execution, or deployment permissions.
-- [ ] Source and documentation are ASCII with Unix LF line endings.
+- [x] Source and documentation are ASCII with Unix LF line endings.
 
 ### Quality Gates
 
-- [ ] Focused/full tests, strict types, format/lint, coverage, build, audit,
+- [x] Focused/full tests, strict types, format/lint, coverage, build, audit,
   production-agent verification, permission/data/link/encoding scans, and final
   base-diff review pass.
-- [ ] Documentation describes only contracts and inventory as complete; runner,
+- [x] Documentation describes only contracts and inventory as complete; runner,
   persistence, scorecard, critical exit gate, and red/fix/green remain pending.
 
 ---

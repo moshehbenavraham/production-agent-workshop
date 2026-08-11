@@ -1,10 +1,11 @@
 # Session 01: Durable Run Event Contract and Store
 
 **Session ID**: `phase02-session01-durable-run-event-contract-and-store`
-**Status**: Not Started
+**Status**: Complete
 **Source Task**: `04`
-**Estimated Tasks**: ~18
+**Tasks**: 18
 **Estimated Duration**: 2-4 hours
+**Validated**: 2026-08-11
 
 ---
 
@@ -40,8 +41,8 @@ Define and implement the closed durable run-event contract and hardened append-o
 
 ## Prerequisites
 
-- [ ] Phase 01 is complete and its approval and fake-result stores provide proven durability patterns to reuse deliberately.
-- [ ] Existing event producers and consumers are inventoried so the closed contract preserves required evidence without retaining unnecessary content.
+- [x] Phase 01 is complete and its approval and fake-result stores provide proven durability patterns to reuse deliberately.
+- [x] Existing event producers and consumers are inventoried so the closed contract preserves required evidence without retaining unnecessary content.
 
 ---
 
@@ -55,8 +56,8 @@ Define and implement the closed durable run-event contract and hardened append-o
 
 ## Success Criteria
 
-- [ ] Every persisted event is runtime-valid, minimized, LF-terminated, privately stored, flushed, and re-read before append success is reported.
-- [ ] Malformed, truncated, duplicate, invalid-namespace, or structurally out-of-order input fails visibly and cannot yield a partial trusted run history.
-- [ ] Optional version, model, duration, retry, token, and cost values distinguish unavailable from zero.
-- [ ] Existing approval and fake-result authority remains unchanged and no capability boundary is broadened.
-- [ ] Event contract and store tests pass without Pi, HTTP, provider credentials, or real customer data.
+- [x] Every persisted event is runtime-valid, minimized, LF-terminated, privately stored, flushed, and re-read before append success is reported.
+- [x] Malformed, truncated, duplicate, invalid-namespace, or structurally out-of-order input fails visibly and cannot yield a partial trusted run history.
+- [x] Optional version, model, duration, retry, token, and cost values distinguish unavailable from zero.
+- [x] Existing approval and fake-result authority remains unchanged and no capability boundary is broadened.
+- [x] Event contract and store tests pass without Pi, HTTP, provider credentials, or real customer data.

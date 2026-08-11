@@ -2,8 +2,10 @@
 
 **Session ID**: `phase02-session03-bounded-run-lifecycle`
 **Phase**: 02 - Recovery and Evaluation Gates
-**Status**: Not Started
+**Status**: Complete
 **Created**: 2026-08-11
+**Completed**: 2026-08-11
+**Validated**: 2026-08-11
 **Base Commit**: c39f94b2ddb95b338bdfb4548235d85fb82bdb74
 
 ---
@@ -203,48 +205,48 @@ flowchart LR
 
 ### Functional Requirements
 
-- [ ] Every composed run completes within the configured deadline and maximum
+- [x] Every composed run completes within the configured deadline and maximum
   steps or returns the exact non-success bounded stop reason.
-- [ ] Deadline, step-limit, dependency-failure, and normal completion paths
+- [x] Deadline, step-limit, dependency-failure, and normal completion paths
   persist exactly one compatible terminal event under the original `runId`.
-- [ ] Invalid bounds fail before runtime construction and leave files, timers,
+- [x] Invalid bounds fail before runtime construction and leave files, timers,
   sessions, and listeners untouched.
-- [ ] Every observed Pi tool attempt has exactly one correlated outcome; open
+- [x] Every observed Pi tool attempt has exactly one correlated outcome; open
   work at application stop receives one minimized synthetic stopped outcome.
-- [ ] Late settlement cannot append a second terminal or alter the returned
+- [x] Late settlement cannot append a second terminal or alter the returned
   result.
-- [ ] Permission denial, timeout, storage failure, missing evidence, and
+- [x] Permission denial, timeout, storage failure, missing evidence, and
   dependency failure cannot be mapped to completion by model text.
 
 ### Testing Requirements
 
-- [ ] Contract-first tests cover bounds, source-event classification, terminal
+- [x] Contract-first tests cover bounds, source-event classification, terminal
   variants, metadata, closed outcomes, freeze, and hostile dependency values.
-- [ ] Fake-time tests cover exact deadline, earlier completion, late resolve,
+- [x] Fake-time tests cover exact deadline, earlier completion, late resolve,
   late reject, abort rejection, and timer/listener cleanup.
-- [ ] Step tests cover exact limit, model/tool counting,
+- [x] Step tests cover exact limit, model/tool counting,
   excluded high-volume events, open tool synthesis, and same-run correlation.
-- [ ] Failure tests cover prompt, append, read, post-processing, malformed
+- [x] Failure tests cover prompt, append, read, post-processing, malformed
   replaceable outcomes, duplicate terminal attempts, and terminal append
   failure.
-- [ ] Existing projection, event, approval, fake-send, qualification, HTTP
+- [x] Existing projection, event, approval, fake-send, qualification, HTTP
   permission, and exact three-tool regressions remain green.
 
 ### Non-Functional Requirements
 
-- [ ] Required tests are provider-independent and use no real credential,
+- [x] Required tests are provider-independent and use no real credential,
   network, wall-clock delay, transcript, or customer data.
-- [ ] Public failures and durable evidence are bounded, canonical, and free of
+- [x] Public failures and durable evidence are bounded, canonical, and free of
   raw dependency messages, arguments, results, stack traces, and secrets.
-- [ ] The production Pi allowlist remains exactly three tools and no fake send
+- [x] The production Pi allowlist remains exactly three tools and no fake send
   becomes reachable from Pi or HTTP.
-- [ ] Source and documentation remain ASCII with Unix LF line endings.
+- [x] Source and documentation remain ASCII with Unix LF line endings.
 
 ### Quality Gates
 
-- [ ] Focused tests, `npm run verify`, coverage, dependency audit, production
+- [x] Focused tests, `npm run verify`, coverage, dependency audit, production
   boundary verification, security scans, and final diff review pass.
-- [ ] Behavioral quality trust, permission, recovery, persistence, failure,
+- [x] Behavioral quality trust, permission, recovery, persistence, failure,
   deadline, and contract checks pass.
 
 ---

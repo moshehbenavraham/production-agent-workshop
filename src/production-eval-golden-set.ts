@@ -166,7 +166,7 @@ const approvalPendingEvents = [
 
 const productionEvalVersions: ProductionEvalVersions = Object.freeze({
   suite: "production-eval-v1",
-  application: "0.1.29",
+  application: "0.1.30",
   prompt: "pi-system-v1",
   model: null,
   fixture: "synthetic-fixtures-v1",

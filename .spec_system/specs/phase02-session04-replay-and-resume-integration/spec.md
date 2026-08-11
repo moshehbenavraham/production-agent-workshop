@@ -2,8 +2,10 @@
 
 **Session ID**: `phase02-session04-replay-and-resume-integration`
 **Phase**: 02 - Recovery and Evaluation Gates
-**Status**: Not Started
+**Status**: Complete
 **Created**: 2026-08-11
+**Completed**: 2026-08-11
+**Validated**: 2026-08-11
 **Base Commit**: ec7824ddca245af1d5b972888dc642bfba6fb5e7
 
 ---
@@ -207,49 +209,49 @@ flowchart LR
 
 ### Functional Requirements
 
-- [ ] Qualification, draft, and approval interruptions resume from complete
+- [x] Qualification, draft, and approval interruptions resume from complete
   validated durable evidence under the original `runId` and reach the same
   exact pending-approval outcome across fresh instances.
-- [ ] Qualification resume appends no second qualification outcome; draft
+- [x] Qualification resume appends no second qualification outcome; draft
   resume reuses the exact durable ID/hash; approval resume creates no second
   approval.
-- [ ] Replaying the same recovery request returns a deeply equal frozen outcome
+- [x] Replaying the same recovery request returns a deeply equal frozen outcome
   and changes no event, approval, result, or adapter count.
-- [ ] Every successful recovery appends at most one missing compatible terminal
+- [x] Every successful recovery appends at most one missing compatible terminal
   and never reopens a stopped, failed, incompatible, or completed effect run.
-- [ ] Reservation-only, ambiguous, or unverified effect evidence always
+- [x] Reservation-only, ambiguous, or unverified effect evidence always
   escalates before mutation; completed effect evidence always stops.
-- [ ] Damaged or inconsistent evidence returns an actionable canonical failure
+- [x] Damaged or inconsistent evidence returns an actionable canonical failure
   with retry, escalate, or stop and no partial success.
 
 ### Testing Requirements
 
-- [ ] Contract-first tests cover request/result/failure/action guards, policy
+- [x] Contract-first tests cover request/result/failure/action guards, policy
   table, clone/freeze, stable draft identity, and hostile values.
-- [ ] Fresh private file tests cover interruption after qualification, draft,
+- [x] Fresh private file tests cover interruption after qualification, draft,
   and approval with no manual durable-file editing.
-- [ ] Replay tests prove stable outcomes, one approval, one terminal, no repeat
+- [x] Replay tests prove stable outcomes, one approval, one terminal, no repeat
   qualification/draft, unchanged result file, and zero effect calls.
-- [ ] Authority tests cover pending/terminal approval, reservation-only and
+- [x] Authority tests cover pending/terminal approval, reservation-only and
   completed fake result, extra/cross-run authority, and missing event evidence.
-- [ ] Failure tests cover storage, malformed adapter, corrupt, truncated,
+- [x] Failure tests cover storage, malformed adapter, corrupt, truncated,
   duplicate, cross-run, out-of-order, draft mismatch, and terminal mismatch.
 
 ### Non-Functional Requirements
 
-- [ ] Recovery is internal and provider-independent with no Pi/HTTP route,
+- [x] Recovery is internal and provider-independent with no Pi/HTTP route,
   credential, network, wall-clock wait, or effect adapter.
-- [ ] Events retain only minimized facts; full synthetic draft content remains
+- [x] Events retain only minimized facts; full synthetic draft content remains
   in the exact approval record or replaceable hash-verified input.
-- [ ] Production Pi remains exactly three tools and fake/write execution stays
+- [x] Production Pi remains exactly three tools and fake/write execution stays
   unreachable from Pi and HTTP.
-- [ ] Source and documentation remain ASCII with Unix LF line endings.
+- [x] Source and documentation remain ASCII with Unix LF line endings.
 
 ### Quality Gates
 
-- [ ] Focused tests, `npm run verify`, coverage, build, dependency audit,
+- [x] Focused tests, `npm run verify`, coverage, build, dependency audit,
   production boundary, security/data, links, encoding, and final diff pass.
-- [ ] Task `04` acceptance evidence and Week 3 documentation are complete
+- [x] Task `04` acceptance evidence and Week 3 documentation are complete
   without claiming public, distributed, deployed, or real-data recovery.
 
 ---

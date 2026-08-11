@@ -58,7 +58,9 @@ exact critical scoring, private validated artifacts, compact scorecards, and a
 non-zero repository deployment gate. Session 07 is completed and validated
 with three isolated red/fix/green boundary traces, exact safe-source hash
 restoration, permanent regression coverage, and final 270-test plus 18-case
-verification. Tasks `04` and `05` and the Phase 02 implementation are complete.
+session-close verification. The transition backup regressions bring the current
+repository gate to 273 tests while preserving the same 18-case critical suite.
+Tasks `04` and `05` and the Phase 02 implementation are complete.
 
 ## Next Phase
 
@@ -90,7 +92,7 @@ only after all five Phase 01 closeout workflows passed.
 - [x] Revalidate active CI and the required production-eval pipeline gate.
 - [x] Reassess infrastructure readiness and validate one offline backup/restore bundle without claiming a deployment.
 - [x] Carry Phase 02 lessons, risks, and controls into cumulative records.
-- [ ] Reconcile all current documentation and record the documentation audit.
+- [x] Reconcile all current documentation and record the documentation audit.
 
 ## Documentation Maintenance
 
