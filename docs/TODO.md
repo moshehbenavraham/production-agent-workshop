@@ -89,7 +89,7 @@ only after all five Phase 01 closeout workflows passed.
 - [x] Re-run the repository audit and reconcile local tooling evidence.
 - [x] Revalidate active CI and the required production-eval pipeline gate.
 - [x] Reassess infrastructure readiness and validate one offline backup/restore bundle without claiming a deployment.
-- [ ] Carry Phase 02 lessons, risks, and controls into cumulative records.
+- [x] Carry Phase 02 lessons, risks, and controls into cumulative records.
 - [ ] Reconcile all current documentation and record the documentation audit.
 
 ## Documentation Maintenance

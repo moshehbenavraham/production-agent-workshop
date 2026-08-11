@@ -1,7 +1,7 @@
 # Security & Compliance
 
 > Cumulative security posture and GDPR compliance record. Updated between phases via carryforward.
-> **Line budget**: 1000 max | **Last updated**: Phase 02 (2026-08-11)
+> **Line budget**: 1000 max | **Last updated**: Phase 02 (2026-08-12)
 
 This internal record describes implemented repository controls and release
 gates. Public vulnerability reporting belongs in the
@@ -14,10 +14,11 @@ gates. Public vulnerability reporting belongs in the
 
 ### Overall: AT RISK
 
-The complete Phase 02 implementation is clean for synthetic data in a local or
-otherwise controlled environment. It is not public-production-ready because caller
-access, public/distributed recovery, real-data lifecycle, distributed effect
-safety, backup, restore, and deployment controls remain open release gates.
+The complete Phase 02 implementation and transition controls are clean for
+synthetic data in a local or otherwise controlled environment. It is not
+public-production-ready because caller access, public/distributed recovery,
+real-data lifecycle, distributed effect safety, off-server backup operations,
+production restore, and deployment controls remain open release gates.
 
 | Metric | Value |
 |--------|-------|
@@ -51,10 +52,12 @@ They remain open until the stated controls have direct acceptance evidence.
 
 - **[P00][SC-002] Persisted evidence is not ready for real-data lifecycle duties**
   - Severity: Medium
-  - File: `src/approval-store.ts`, `src/fake-send-store.ts`, `docs/environments.md`
-  - Description: Synthetic files have a documented manual 30-day-or-teardown
-    whole-file rule, but no automated retention, scoped export/erasure,
-    backup/restore, lawful basis, subprocessor, or data-location control.
+  - File: `src/approval-store.ts`, `src/fake-send-store.ts`,
+    `src/production-eval-store.ts`, `scripts/data-snapshot.ts`
+  - Description: Synthetic files have a manual 30-day-or-teardown rule and a
+    locally validated stopped-writer snapshot/restore CLI, but no automated
+    retention, scoped export/erasure, private off-server destination/schedule,
+    lawful basis, subprocessor, or data-location control.
   - Remediation: Keep data synthetic until the complete lifecycle and access
     controls are implemented, approved, and exercised.
   - Status: Open
@@ -62,10 +65,12 @@ They remain open until the stated controls have direct acceptance evidence.
 
 - **[P00][SC-005] Recovery and release operations are unproved**
   - Severity: Medium
-  - File: `Dockerfile`, `.spec_system/audit/known-issues.md`, `docs/deployment.md`
-  - Description: Local health and rate checks pass, but production health,
-    persistent restart, backup restore, rollback, incident ownership, and
-    operator-access evidence do not exist.
+  - File: `Dockerfile`, `scripts/data-snapshot.ts`,
+    `.spec_system/audit/known-issues.md`, `docs/deployment.md`
+  - Description: Current health, rate, and offline byte-exact snapshot/restore
+    checks pass locally and in Docker, but production health, persistent
+    restart, off-server scheduling, Coolify restore activation, rollback,
+    incident ownership, and operator-access evidence do not exist.
   - Remediation: Validate these controls against the authorized Coolify target;
     remove the explicit Skipped Infra entries only after real checks pass.
   - Status: Open
@@ -115,6 +120,9 @@ They remain open until the stated controls have direct acceptance evidence.
 - [P02] Whole-run bounds validate before runtime construction, count only model
   turns and tool starts, abort once, persist one terminal, close open tool
   attempts, and ignore late provider settlement.
+- [P02] Closed schema-v2 run events and a read-only deterministic projector
+  preserve exact lifecycle/checkpoint evidence, reject complete-file damage and
+  illegal order, and keep approval/result records as separate authority.
 - [P02] Internal recovery validates complete event, approval, and fake-result
   evidence before mutation; hash-verifies replaceable drafts; requests at most
   one pending approval; and escalates any reservation-only state without an
@@ -137,12 +145,18 @@ They remain open until the stated controls have direct acceptance evidence.
   file was explicitly restored to its pre-exercise SHA-256 before continuing.
 - [P02] A permanent regression requires each named boundary failure to retain
   17 passing cases, expose its critical dimension, and exit non-zero.
+- [P02] Offline snapshot/restore requires explicit stopped-writer confirmation,
+  rejects symlink/root/nested paths and malformed JSONL, writes private files
+  plus a closed SHA-256 manifest, and restores only to an absent directory
+  after exact verification. It is not an off-server production backup.
 - [P00] Known-lead runs stop at `approval_pending`; visible outcomes derive from
   validated qualification events and durable approval projection, never prose.
-- [P02] Biome formatting/linting, strict TypeScript, 270 deterministic tests,
-  18 eval cases, coverage gates, npm audit, Code Quality, Build & Test, and CodeQL pass.
-- [P01] Docker health and process/container rate-gate validation pass locally;
-  missing production checks remain explicit in `known-issues.md`.
+- [P02] Biome formatting/linting, strict TypeScript, 273 deterministic tests,
+  18 eval cases, 97.64/85.55/97.86 application coverage, npm audit, staged
+  Biome hooks, Code Quality, Build & Test, Security, and CodeQL pass.
+- [P02] Docker health, process/container rate gating, and byte-exact offline
+  snapshot/restore pass locally; production exceptions remain explicit in
+  `known-issues.md`.
 
 ---
 
@@ -168,6 +182,7 @@ No real personal data collected or processed.
 | Synthetic approval record | Approval service | JSONL at `APPROVAL_LOG_PATH` | Exact authorization truth | Contains full draft; private file; 30-day-or-teardown rule | P01 |
 | Synthetic fake result | Internal fake service | Injected JSONL path | Idempotency truth | Internal tests/library only; no runtime route | P01 |
 | Synthetic eval artifact | Eval runner | JSONL at `PRODUCTION_EVAL_LOG_PATH` | Critical gate and comparison evidence | Minimized, private, append-only; manual coordinated lifecycle only | P02 |
+| Synthetic JSONL snapshot | Offline snapshot CLI | Operator-selected private backup root | Integrity-checked recovery copy | Stopped writers, closed SHA-256 manifest, local/container proof only; no off-server schedule or real-data approval | P02 |
 | Synthetic actor IDs | Internal policy | Approval records and minimized events | Decision/execution authorization tests | Not real authentication | P01 |
 | Provider working context | Pi/provider session | Memory for one run | Model drafting | Depends on operator configuration | P00 |
 | Provider credentials | External environment or Pi auth state | Outside repository | Provider authentication | Never store in source, events, images, or docs | P00 |
@@ -184,8 +199,8 @@ No real personal data collected or processed.
 | Third-party transfers documented | N/A | Provider behavior must be assessed before real data |
 
 Before real data, document purpose and lawful basis, access, minimization,
-retention, redaction, export, erasure, backup behavior, subprocessors, data
-locations, trusted operators, and incident ownership.
+retention, redaction, export, erasure, off-server backup/restore behavior,
+subprocessors, data locations, trusted operators, and incident ownership.
 
 ---
 
@@ -194,8 +209,11 @@ locations, trusted operators, and incident ownership.
 ### Current Vulnerabilities
 
 No known vulnerable dependencies. The current npm 12 audit reports 0
-vulnerabilities. Production dependencies remain pinned; the lockfile retains
-reviewed overrides and install-script approvals from `package.json`.
+vulnerabilities. Production dependencies remain pinned; Husky 9.1.7 and
+lint-staged 17.3.0 are exact development versions, and the lockfile retains
+reviewed overrides and install-script approvals. Security CI adds immutable-
+pinned full-history secret detection, pull-request dependency review, and
+locked-tree audit alongside managed CodeQL.
 
 ---
 
@@ -240,6 +258,9 @@ reviewed overrides and install-script approvals from `package.json`.
   recovery policy before any future effect exposure.
 - Record attempts, outcomes, `runId`, and terminal stop reasons without
   unnecessary content; add deterministic evidence for every changed failure path.
+- Stop all writers before snapshot or restore, verify the closed manifest and
+  checksums, restore only to an absent directory, and never claim an in-host
+  copy satisfies the off-server production-backup gate.
 - Run `npm run verify`, `npm run test:coverage`, `npm audit`, permission/data
   scans, and final diff review before completion.
 
@@ -249,10 +270,11 @@ reviewed overrides and install-script approvals from `package.json`.
 
 1. [P01] Keep internal fake execution disconnected until both stronger cross-
    process ownership and the recorded human permission gate exist.
-2. [P01] Keep all inputs synthetic until automated lifecycle, access, backup,
-   restore, and real-data governance controls pass.
-3. [P01] Validate health, edge security, persistence, restore, rollback, and
-   operator access against the real target only when deployment is authorized.
+2. [P02] Keep all inputs synthetic until automated lifecycle, access,
+   off-server backup/restore, and real-data governance controls pass.
+3. [P02] Validate health, edge security, persistence, backup scheduling,
+   restore activation, rollback, and operator access against the real target
+   only when deployment is authorized.
 4. [P01] Preserve the single-agent baseline and exact three-tool allowlist until
    measured evidence justifies a reviewed change.
 
