@@ -4,7 +4,7 @@
 **Sessions**: 7 (initial estimate)
 **Estimated Duration**: 5-7 workshop days
 
-**Progress**: 5/7 sessions (71%)
+**Progress**: 6/7 sessions (86%)
 
 ---
 
@@ -23,7 +23,7 @@ Week 3 turns the current lightweight event stream into validated durable run evi
 | 03 | Bounded Run Lifecycle | Complete | 19 | 2026-08-11 |
 | 04 | Replay and Resume Integration | Complete | 22 | 2026-08-11 |
 | 05 | Production Eval Contract and Golden Set | Complete | 20 | 2026-08-11 |
-| 06 | Critical Eval Gate and Scorecard | Not Started | ~20 | - |
+| 06 | Critical Eval Gate and Scorecard | Complete | 23 | 2026-08-11 |
 | 07 | Boundary Regression Exercises and Evidence | Not Started | ~16 | - |
 
 ---
@@ -35,12 +35,13 @@ Week 3 turns the current lightweight event stream into validated durable run evi
 - `phase02-session03-bounded-run-lifecycle` - completed and validated 2026-08-11.
 - `phase02-session04-replay-and-resume-integration` - completed and validated 2026-08-11.
 - `phase02-session05-production-eval-contract-and-golden-set` - completed and validated 2026-08-11.
+- `phase02-session06-critical-eval-gate-and-scorecard` - completed and validated 2026-08-11.
 
 ---
 
 ## Upcoming Sessions
 
-- Session 06: Critical Eval Gate and Scorecard
+- Session 07: Boundary Regression Exercises and Evidence
 
 ---
 
@@ -65,7 +66,7 @@ Week 3 turns the current lightweight event stream into validated durable run evi
 
 ### Working Assumptions
 
-- Phase 02 requires seven sessions: the current event store accepts arbitrary JSON and the current eval runner contains only five boolean cases, while Tasks `04` and `05` require new closed contracts, durable validation, projections, terminal bounds, three resume points, a 10-20 case inventory, deployment-blocking scoring, and three critical red/fix/green traces. Four recovery sessions and three eval sessions keep each objective within 12-25 tasks and 2-4 hours.
+- Phase 02 requires seven sessions: at planning time the event store accepted arbitrary JSON and the eval runner contained only five boolean cases, while Tasks `04` and `05` required new closed contracts, durable validation, projections, terminal bounds, three resume points, a 10-20 case inventory, deployment-blocking scoring, and three critical red/fix/green traces. Four recovery sessions and three eval sessions keep each objective within 12-25 tasks and 2-4 hours.
 - The critical golden set remains provider-independent by default: the repository has no committed provider credential and its critical safety gates must be deterministic, so model, token, and cost values are recorded as unavailable when the injected case cannot supply them. Optional model grading remains separate and cannot override a deterministic critical failure.
 - Recovery remains a controlled single-process workshop capability: current JSONL approval, event, and result stores have no transaction or distributed lock, so this phase may prove restart and replay behavior without exposing new HTTP, Pi, network-write, or distributed execution capability.
 
@@ -133,7 +134,7 @@ Phase complete when:
 - [x] Restart tests resume after qualification, draft creation, and approval request under the same `runId` with zero duplicate approvals or fake effects and no manual durable-record edits.
 - [x] The recovery decision table and event lifecycle rules define retry, resume, compensate, escalate, stop, retention, redaction, and deletion behavior for the synthetic scope.
 - [x] A 10-20 case golden set covers happy, ambiguous, malformed, unknown, timeout, permission, credential, downstream, duplicate, restart, invalid-model, adversarial, approval-bypass, false-completion, escalation, and stop behavior.
-- [ ] Deterministic critical assertions score schemas, state, tool arguments, event order, permissions, idempotency, recovery, and stop reasons; any critical failure exits non-zero and identifies expected versus observed evidence.
+- [x] Deterministic critical assertions score schemas, state, tool arguments, event order, permissions, idempotency, recovery, and stop reasons; any critical failure exits non-zero and identifies expected versus observed evidence.
 - [ ] Lead-fabrication, false-send, and approval-bypass red/fix/green exercises are reverted and protected by regression cases.
 - [ ] Week 3 Build Log evidence, `docs/TODO.md`, and `docs/CHANGELOG.md` match the implemented state, and final repository verification and security review pass.
 

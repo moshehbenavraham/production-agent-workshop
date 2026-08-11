@@ -10,6 +10,15 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Added
 
+- Added a deterministic 18-case production-eval harness that exercises input,
+  qualification, tool, lifecycle, approval, fake-write, recovery, and bounded
+  output paths through isolated synthetic production-domain boundaries.
+- Added exact critical scoring, closed immutable observations/artifacts,
+  private append-only JSONL evidence, a compact all-case scorecard, canonical
+  operational failures, and non-zero critical/persistence exit behavior.
+- Added 14 runner tests covering all-pass, one/many failures, quality-only
+  misses, hostile evidence, executor and persistence failures, corruption,
+  restart, minimized protected data, scorecard output, and gate immutability.
 - Added closed production-eval case, fixture, expectation, rubric, trace,
   result, version, latency, token, cost, score, and suite-validation contracts
   with canonical semantic failures and deeply frozen validated output.
@@ -101,6 +110,15 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Changed
 
+- Closed Phase 02 Session 06 at version `0.1.28` after 269/269 deterministic
+  tests, an 18/18 durable production-eval pass, 97.64% line/85.35% branch/
+  97.88% function coverage, zero dependency vulnerabilities, and complete
+  critical-gate, security, permission, and documentation validation. Task `05`
+  remains in progress until Session 07 records and reverts the three controlled
+  boundary regressions.
+- Replaced the five ad hoc boolean evals with the frozen 18-case gate in
+  `npm run eval` and `npm run verify`; safe final output now derives from the
+  application-owned stop reason rather than contradictory assistant prose.
 - Closed Phase 02 Session 05 at version `0.1.27` after 255/255 deterministic
   tests, 5/5 legacy evals, 97.73% line/85.54% branch/97.70% function coverage,
   zero dependency vulnerabilities, and complete definition-boundary, security,

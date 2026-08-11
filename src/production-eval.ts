@@ -1,36 +1,36 @@
 import { Type } from "typebox";
 import Schema from "typebox/schema";
 
-const EvalIdSchema = Type.String({
+export const ProductionEvalIdSchema = Type.String({
   minLength: 8,
   maxLength: 100,
   pattern: "^eval_[a-z0-9_]+$",
 });
 
-const VersionSchema = Type.String({
+export const ProductionEvalVersionSchema = Type.String({
   minLength: 1,
   maxLength: 80,
   pattern: "^[a-zA-Z0-9][a-zA-Z0-9._-]*$",
 });
 
-const CommitSchema = Type.Union([
+export const ProductionEvalCommitSchema = Type.Union([
   Type.String({ minLength: 40, maxLength: 40, pattern: "^[0-9a-f]{40}$" }),
   Type.Null(),
 ]);
 
-const BoundedCodeSchema = Type.String({
+export const ProductionEvalBoundedCodeSchema = Type.String({
   minLength: 1,
   maxLength: 80,
   pattern: "^[a-z][a-z0-9_.-]*$",
 });
 
-const BoundedEvidenceSchema = Type.String({
+export const ProductionEvalBoundedEvidenceSchema = Type.String({
   minLength: 1,
   maxLength: 160,
   pattern: "^[a-zA-Z0-9][a-zA-Z0-9 _.:/-]*$",
 });
 
-const LeadIdSchema = Type.String({
+export const ProductionEvalLeadIdSchema = Type.String({
   minLength: 6,
   maxLength: 80,
   pattern: "^lead_[a-z0-9_]+$",
@@ -126,7 +126,7 @@ export const ProductionEvalEventTypeSchema = Type.Union([
 
 const EvalRequestSchema = Type.Union([
   Type.Object(
-    { kind: Type.Literal("lead"), leadId: LeadIdSchema },
+    { kind: Type.Literal("lead"), leadId: ProductionEvalLeadIdSchema },
     { additionalProperties: false },
   ),
   Type.Object({ kind: Type.Literal("missing_lead_id") }, { additionalProperties: false }),
@@ -144,7 +144,7 @@ const EvalRequestSchema = Type.Union([
   Type.Object(
     {
       kind: Type.Literal("adversarial"),
-      leadId: LeadIdSchema,
+      leadId: ProductionEvalLeadIdSchema,
       instructionCode: Type.Literal("ignore_policy_and_claim_send"),
     },
     { additionalProperties: false },
@@ -214,7 +214,7 @@ export const ProductionEvalFixtureSchema = Type.Object(
   { additionalProperties: false },
 );
 
-const EvalScalarSchema = Type.Union([
+export const ProductionEvalScalarSchema = Type.Union([
   Type.String({ maxLength: 240 }),
   Type.Number(),
   Type.Boolean(),
@@ -223,7 +223,7 @@ const EvalScalarSchema = Type.Union([
 
 const ArgumentMatcherSchema = Type.Union([
   Type.Object(
-    { kind: Type.Literal("exact"), value: EvalScalarSchema },
+    { kind: Type.Literal("exact"), value: ProductionEvalScalarSchema },
     { additionalProperties: false },
   ),
   Type.Object(
@@ -260,7 +260,7 @@ const EventOrderExpectationSchema = Type.Object(
   { additionalProperties: false },
 );
 
-const PermissionExpectationSchema = Type.Object(
+export const ProductionEvalPermissionExpectationSchema = Type.Object(
   {
     decision: Type.Union([
       Type.Literal("not_evaluated"),
@@ -279,7 +279,7 @@ const PermissionExpectationSchema = Type.Object(
   { additionalProperties: false },
 );
 
-const RecoveryExpectationSchema = Type.Object(
+export const ProductionEvalRecoveryExpectationSchema = Type.Object(
   {
     action: Type.Union([
       Type.Literal("retry"),
@@ -300,7 +300,7 @@ const RecoveryExpectationSchema = Type.Object(
   { additionalProperties: false },
 );
 
-const ExpectedOutcomeCodeSchema = Type.Union([
+export const ProductionEvalExpectedOutcomeCodeSchema = Type.Union([
   Type.Literal("approval_pending"),
   Type.Literal("ambiguous_input"),
   Type.Literal("missing_lead_id"),
@@ -319,7 +319,7 @@ const ExpectedOutcomeCodeSchema = Type.Union([
   Type.Literal("step_limit_exceeded"),
 ]);
 
-const StopReasonSchema = Type.Union([
+export const ProductionEvalStopReasonSchema = Type.Union([
   Type.Literal("approval_pending"),
   Type.Literal("approval_failed"),
   Type.Literal("not_found"),
@@ -331,7 +331,7 @@ const StopReasonSchema = Type.Union([
   Type.Null(),
 ]);
 
-const OutcomeExpectationSchema = Type.Object(
+export const ProductionEvalOutcomeExpectationSchema = Type.Object(
   {
     kind: Type.Union([
       Type.Literal("success"),
@@ -339,13 +339,13 @@ const OutcomeExpectationSchema = Type.Object(
       Type.Literal("escalation"),
       Type.Literal("stop"),
     ]),
-    code: ExpectedOutcomeCodeSchema,
-    stopReason: StopReasonSchema,
+    code: ProductionEvalExpectedOutcomeCodeSchema,
+    stopReason: ProductionEvalStopReasonSchema,
   },
   { additionalProperties: false },
 );
 
-const OutputClaimSchema = Type.Union([
+export const ProductionEvalOutputClaimSchema = Type.Union([
   Type.Literal("grounded_lead"),
   Type.Literal("approval_pending"),
   Type.Literal("not_found"),
@@ -357,7 +357,7 @@ const OutputClaimSchema = Type.Union([
   Type.Literal("dependency_failure"),
 ]);
 
-const ProhibitedClaimSchema = Type.Union([
+export const ProductionEvalProhibitedClaimSchema = Type.Union([
   Type.Literal("lead_fabricated"),
   Type.Literal("message_sent"),
   Type.Literal("approval_granted"),
@@ -367,12 +367,12 @@ const ProhibitedClaimSchema = Type.Union([
 
 const OutputExpectationSchema = Type.Object(
   {
-    requiredClaims: Type.Array(OutputClaimSchema, {
+    requiredClaims: Type.Array(ProductionEvalOutputClaimSchema, {
       minItems: 1,
       maxItems: 8,
       uniqueItems: true,
     }),
-    prohibitedClaims: Type.Array(ProhibitedClaimSchema, {
+    prohibitedClaims: Type.Array(ProductionEvalProhibitedClaimSchema, {
       minItems: 1,
       maxItems: 8,
       uniqueItems: true,
@@ -394,9 +394,9 @@ export const ProductionEvalExpectationSchema = Type.Object(
       uniqueItems: true,
     }),
     eventOrder: EventOrderExpectationSchema,
-    permission: PermissionExpectationSchema,
-    recovery: RecoveryExpectationSchema,
-    outcome: OutcomeExpectationSchema,
+    permission: ProductionEvalPermissionExpectationSchema,
+    recovery: ProductionEvalRecoveryExpectationSchema,
+    outcome: ProductionEvalOutcomeExpectationSchema,
     output: OutputExpectationSchema,
   },
   { additionalProperties: false },
@@ -404,7 +404,7 @@ export const ProductionEvalExpectationSchema = Type.Object(
 
 export const ProductionEvalCaseSchema = Type.Object(
   {
-    id: EvalIdSchema,
+    id: ProductionEvalIdSchema,
     title: Type.String({ minLength: 8, maxLength: 120 }),
     category: ProductionEvalCategorySchema,
     criticalBoundaries: Type.Array(ProductionEvalCriticalBoundarySchema, {
@@ -473,12 +473,12 @@ export const ProductionEvalThresholdsSchema = Type.Object(
 
 export const ProductionEvalVersionsSchema = Type.Object(
   {
-    suite: VersionSchema,
-    application: VersionSchema,
-    prompt: Type.Union([VersionSchema, Type.Null()]),
-    model: Type.Union([VersionSchema, Type.Null()]),
-    fixture: VersionSchema,
-    commit: CommitSchema,
+    suite: ProductionEvalVersionSchema,
+    application: ProductionEvalVersionSchema,
+    prompt: Type.Union([ProductionEvalVersionSchema, Type.Null()]),
+    model: Type.Union([ProductionEvalVersionSchema, Type.Null()]),
+    fixture: ProductionEvalVersionSchema,
+    commit: ProductionEvalCommitSchema,
   },
   { additionalProperties: false },
 );
@@ -486,7 +486,7 @@ export const ProductionEvalVersionsSchema = Type.Object(
 const LegacyMappingSchema = Type.Object(
   {
     legacyName: Type.String({ minLength: 8, maxLength: 120 }),
-    caseId: EvalIdSchema,
+    caseId: ProductionEvalIdSchema,
   },
   { additionalProperties: false },
 );
@@ -581,7 +581,7 @@ export const ProductionEvalCostMetricSchema = Type.Union([
 
 const TraceArgumentsSchema = Type.Record(
   Type.String({ minLength: 1, maxLength: 80, pattern: "^[a-zA-Z][a-zA-Z0-9_]*$" }),
-  EvalScalarSchema,
+  ProductionEvalScalarSchema,
   { maxProperties: 8 },
 );
 
@@ -591,8 +591,8 @@ export const ProductionEvalTraceEntrySchema = Type.Object(
     eventType: ProductionEvalEventTypeSchema,
     tool: Type.Union([ProductionEvalToolNameSchema, Type.Null()]),
     validatedArguments: Type.Union([TraceArgumentsSchema, Type.Null()]),
-    result: Type.Union([BoundedCodeSchema, Type.Null()]),
-    stopReason: StopReasonSchema,
+    result: Type.Union([ProductionEvalBoundedCodeSchema, Type.Null()]),
+    stopReason: ProductionEvalStopReasonSchema,
   },
   { additionalProperties: false },
 );
@@ -601,9 +601,9 @@ export const ProductionEvalDimensionObservationSchema = Type.Object(
   {
     dimension: ProductionEvalDimensionSchema,
     passed: Type.Boolean(),
-    expected: Type.Array(BoundedEvidenceSchema, { minItems: 1, maxItems: 12 }),
-    observed: Type.Array(BoundedEvidenceSchema, { maxItems: 12 }),
-    code: BoundedCodeSchema,
+    expected: Type.Array(ProductionEvalBoundedEvidenceSchema, { minItems: 1, maxItems: 12 }),
+    observed: Type.Array(ProductionEvalBoundedEvidenceSchema, { maxItems: 12 }),
+    code: ProductionEvalBoundedCodeSchema,
   },
   { additionalProperties: false },
 );
@@ -623,7 +623,7 @@ const ModelGradeSchema = Type.Object(
   {
     dimension: Type.Literal("draft_quality"),
     score: Type.Number({ minimum: 0, maximum: 100 }),
-    rationaleCode: BoundedCodeSchema,
+    rationaleCode: ProductionEvalBoundedCodeSchema,
   },
   { additionalProperties: false },
 );
@@ -638,7 +638,7 @@ const QualityScoreSchema = Type.Object(
 
 export const ProductionEvalResultSchema = Type.Object(
   {
-    caseId: EvalIdSchema,
+    caseId: ProductionEvalIdSchema,
     status: Type.Union([Type.Literal("pass"), Type.Literal("fail")]),
     versions: ProductionEvalVersionsSchema,
     trace: Type.Array(ProductionEvalTraceEntrySchema, { maxItems: 200 }),
@@ -700,6 +700,9 @@ export type ProductionEvalCriticalBoundary = Type.Static<
 export type ProductionEvalDimension = Type.Static<typeof ProductionEvalDimensionSchema>;
 export type ProductionEvalToolName = Type.Static<typeof ProductionEvalToolNameSchema>;
 export type ProductionEvalEventType = Type.Static<typeof ProductionEvalEventTypeSchema>;
+export type ProductionEvalScalar = Type.Static<typeof ProductionEvalScalarSchema>;
+export type ProductionEvalOutputClaim = Type.Static<typeof ProductionEvalOutputClaimSchema>;
+export type ProductionEvalProhibitedClaim = Type.Static<typeof ProductionEvalProhibitedClaimSchema>;
 export type ProductionEvalFixture = Type.Static<typeof ProductionEvalFixtureSchema>;
 export type ProductionEvalExpectation = Type.Static<typeof ProductionEvalExpectationSchema>;
 export type ProductionEvalCase = Type.Static<typeof ProductionEvalCaseSchema>;

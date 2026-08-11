@@ -31,7 +31,7 @@ fake-only, synthetic-data, no-real-network boundary.
   - [x] Session 03 - Bounded Run Lifecycle
   - [x] Session 04 - Replay and Resume Integration
   - [x] Session 05 - Production Eval Contract and Golden Set
-  - [ ] Session 06 - Critical Eval Gate and Scorecard
+  - [x] Session 06 - Critical Eval Gate and Scorecard
   - [ ] Session 07 - Boundary Regression Exercises and Evidence
 
 Phase 02 is sourced only from Tasks [`04`](todo/04-recovery-and-replay.md) and
@@ -52,8 +52,12 @@ qualification, draft, and approval checkpoints with exact cross-store
 authority, stable replay, hash-anchored draft content, and mandatory escalation
 for indeterminate effects. Session 04 is validated, Task `04` is complete, and
 the boundary cannot invoke an effect. Session 05 is validated with closed
-production-eval contracts and an immutable 18-case synthetic golden set;
-Session 06 is next and owns execution, scorecards, and deployment blocking.
+production-eval contracts and an immutable 18-case synthetic golden set.
+Session 06 is completed and validated with deterministic production-boundary execution,
+exact critical scoring, private validated artifacts, compact scorecards, and a
+non-zero repository deployment gate. Session 07 remains responsible for the
+three controlled boundary break/revert evidence traces before Task `05` and
+Phase 02 can close.
 
 ## Phase 00 Transition (Complete)
 

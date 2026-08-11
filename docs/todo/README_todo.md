@@ -14,7 +14,9 @@ The repository currently provides:
   into the runtime approval path
 - a validated internal file-backed approval-to-fake-write application with no
   Pi/HTTP execution entrypoint or network effect
-- 156 deterministic tests and five deterministic eval cases
+- a provider-independent recovery application for qualification, draft, and
+  approval checkpoints that stops before indeterminate effects
+- 269 deterministic tests and a durable 18-case critical production-eval gate
 - a Node 24 container, `/health`, a Docker health probe, and a persistent `/app/data` volume contract
 - passing Code Quality and Build & Test workflows plus GitHub-managed CodeQL;
   broader CI/CD bundles remain incomplete

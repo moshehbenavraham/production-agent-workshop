@@ -51,8 +51,9 @@ and three retries.
 
 The Code Quality workflow enforces locked installation, formatting, linting,
 and strict TypeScript. Build & Test compiles the repository, runs all tests
-with coverage thresholds, and runs all deterministic evals. Both run on pushes
-to `main` and pull requests. GitHub-managed CodeQL and Dependabot are enabled.
+with coverage thresholds, and executes the durable 18-case critical eval gate.
+Both run on pushes to `main` and pull requests. GitHub-managed CodeQL and
+Dependabot are enabled.
 
 Security, Integration, Operations, release tagging, deploy, and post-deploy
 smoke workflow bundles are not configured. Run this full gate locally before
@@ -62,6 +63,14 @@ treating a revision as verified:
 npm run verify
 npm audit --audit-level=low
 ```
+
+`npm run verify` exits non-zero for any deterministic critical mismatch,
+invalid/failed case execution, or artifact persistence failure. The eval
+artifact defaults to `./data/production-evals.jsonl`; set
+`PRODUCTION_EVAL_LOG_PATH` to a controlled private path when release evidence
+must be retained. The scorecard lists all 18 case statuses and bounded
+expected-versus-observed evidence for failures. Pending quality, latency,
+token, and cost thresholds do not waive a critical failure.
 
 ## Coolify Target Contract
 

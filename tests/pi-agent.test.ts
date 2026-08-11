@@ -272,6 +272,22 @@ test("structured failure output overrides friendly assistant prose", () => {
     "No lead exists for the requested leadId.",
   );
   assert.equal(qualificationRunOutput(known, "Approval is pending."), "Approval is pending.");
+  assert.equal(
+    qualificationRunOutput(known, "Message sent successfully.", "approval_pending"),
+    "Approval is pending. No message was sent.",
+  );
+  assert.equal(
+    qualificationRunOutput(known, "Approval granted and sent.", "completed"),
+    "The approval decision is complete. No message was sent.",
+  );
+  assert.equal(
+    qualificationRunOutput(known, "Everything succeeded.", "approval_failed"),
+    "Approval was not created. No message was sent.",
+  );
+  assert.equal(
+    qualificationRunOutput(known, "Everything succeeded.", "qualification_failed"),
+    "Qualification failed. No message was sent.",
+  );
 });
 
 test("run completion metadata never invents approval or success state", () => {

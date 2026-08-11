@@ -19,6 +19,7 @@ owner. Those are external deployment decisions.
 | `PORT` | No | `3000` | HTTP listen port | Non-secret configuration |
 | `EVENT_LOG_PATH` | No | `./data/events.jsonl` | Append-only event file | Mount persistent storage in a container |
 | `APPROVAL_LOG_PATH` | No | `./data/approvals.jsonl` | Authoritative append-only approval records | Mount persistent storage; contains full synthetic drafts |
+| `PRODUCTION_EVAL_LOG_PATH` | No | `./data/production-evals.jsonl` | Append-only minimized `npm run eval` artifacts | Non-secret operator-controlled path; keep private and retain only for synthetic evidence |
 | `RUN_DEADLINE_MS` | No | `30000` | Application-owned whole-run deadline in milliseconds | Non-secret integer from 1 through 300,000; invalid values fail before runtime construction |
 | `RUN_MAX_STEPS` | No | `24` | Maximum model-turn and tool-start budget | Non-secret integer from 1 through 100; invalid values fail before runtime construction |
 | `RUN_RATE_LIMIT_MAX` | No | `10` | Maximum admitted `/runs` requests per process window | Non-secret integer from 1 through 10,000 |
@@ -38,6 +39,11 @@ images, documentation, or screenshots.
 - Use only the committed synthetic lead identifiers in every current environment.
 - Local event and approval evidence defaults to `./data/events.jsonl` and
   `./data/approvals.jsonl`.
+- Local production-eval artifacts default to
+  `./data/production-evals.jsonl`. They contain minimized synthetic result,
+  trace, version, duration, and explicit metric-availability evidence; they do
+  not contain lead profiles, draft bodies, transcripts, provider payloads,
+  credentials, stacks, or raw dependency messages.
 - The internal safe-write application takes explicit approval, event, and fake-
   result paths from a library caller. Tests inject temporary paths; no runtime
   environment variable, Pi tool, HTTP route, or server composition selects a
@@ -47,7 +53,7 @@ images, documentation, or screenshots.
   tool, scheduled worker, or effect adapter invokes it.
 - The image sets both paths under `/app/data` and declares that directory as a
   volume. Approval files are created with mode `0600`.
-- Treat the synthetic event, approval, and any injected fake-result files as
+- Treat the synthetic event, approval, eval-artifact, and any injected fake-result files as
   one coordinated environment. Retain the set for at most 30 days or until
   teardown, whichever occurs first. This is a manual operator rule; no
   automated expiry exists. A preserved incident copy delays deletion until

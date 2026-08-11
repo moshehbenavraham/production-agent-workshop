@@ -14,7 +14,7 @@ gates. Public vulnerability reporting belongs in the
 
 ### Overall: AT RISK
 
-Phase 02 Session 05 is clean for synthetic data in a local or otherwise
+Phase 02 Session 06 is clean for synthetic data in a local or otherwise
 controlled environment. It is not public-production-ready because caller
 access, public/distributed recovery, real-data lifecycle, distributed effect
 safety, backup, restore, and deployment controls remain open release gates.
@@ -122,11 +122,20 @@ They remain open until the stated controls have direct acceptance evidence.
 - [P02] Production-eval definitions validate and freeze 18 synthetic cases with
   deterministic critical dimensions, exact tool/event/authority expectations,
   explicit metric availability, and model grading restricted to non-blocking
-  draft quality. The definitions contain no executable callback or runtime edge.
+  draft quality.
+- [P02] The eval runner revalidates exact suite/case identity, executes every
+  case through isolated deterministic production-domain boundaries, derives
+  critical status from closed observations, and continues after failures.
+- [P02] Eval artifacts use private append-only JSONL, complete-file validation,
+  flush and exact re-read proof, canonical failures, bounded scorecard evidence,
+  and non-zero exit for any critical, executor, evidence, or persistence failure.
+- [P02] Persisted eval evidence excludes draft bodies, lead profiles,
+  transcripts, provider payloads, credentials, stack traces, full approval
+  records, and raw dependency messages.
 - [P00] Known-lead runs stop at `approval_pending`; visible outcomes derive from
   validated qualification events and durable approval projection, never prose.
-- [P02] Biome formatting/linting, strict TypeScript, 255 deterministic tests,
-  five evals, coverage gates, npm audit, Code Quality, Build & Test, and CodeQL pass.
+- [P02] Biome formatting/linting, strict TypeScript, 269 deterministic tests,
+  18 eval cases, coverage gates, npm audit, Code Quality, Build & Test, and CodeQL pass.
 - [P01] Docker health and process/container rate-gate validation pass locally;
   missing production checks remain explicit in `known-issues.md`.
 
@@ -153,6 +162,7 @@ No real personal data collected or processed.
 | Synthetic run/tool evidence | Application | JSONL at `EVENT_LOG_PATH` | Correlation, audit, and recovery checkpoint | Minimized; manual coordinated lifecycle only | P00 |
 | Synthetic approval record | Approval service | JSONL at `APPROVAL_LOG_PATH` | Exact authorization truth | Contains full draft; private file; 30-day-or-teardown rule | P01 |
 | Synthetic fake result | Internal fake service | Injected JSONL path | Idempotency truth | Internal tests/library only; no runtime route | P01 |
+| Synthetic eval artifact | Eval runner | JSONL at `PRODUCTION_EVAL_LOG_PATH` | Critical gate and comparison evidence | Minimized, private, append-only; manual coordinated lifecycle only | P02 |
 | Synthetic actor IDs | Internal policy | Approval records and minimized events | Decision/execution authorization tests | Not real authentication | P01 |
 | Provider working context | Pi/provider session | Memory for one run | Model drafting | Depends on operator configuration | P00 |
 | Provider credentials | External environment or Pi auth state | Outside repository | Provider authentication | Never store in source, events, images, or docs | P00 |
@@ -199,7 +209,7 @@ reviewed overrides and install-script approvals from `package.json`.
 
 | Phase | Sessions | Security | GDPR | Findings Opened | Findings Closed |
 |-------|----------|----------|------|-----------------|-----------------|
-| P02 | 5 of 7 | PASS for controlled synthetic scope through Session 05 | N/A | 0 | 1 |
+| P02 | 6 of 7 | PASS for controlled synthetic scope through Session 06 | N/A | 0 | 1 |
 | P01 | 6 | PASS for controlled synthetic scope | N/A | 1 | 1 |
 | P00 | 3 | PASS for controlled synthetic scope | N/A | 0 | 2 baseline control gaps |
 
@@ -232,9 +242,9 @@ reviewed overrides and install-script approvals from `package.json`.
 
 ## Recommendations
 
-1. [P02] Execute and persist the validated golden set, then make every critical
-   failure block the documented deployment path without weakening exact
-   identity, authority, event ordering, or indeterminate-effect handling.
+1. [P02] Capture and exactly revert the three controlled Session 07 boundary
+   breaks while proving the durable gate turns red and green without weakening
+   exact identity, authority, event ordering, or indeterminate-effect handling.
 2. [P01] Keep internal fake execution disconnected until both stronger cross-
    process ownership and the recorded human permission gate exist.
 3. [P01] Keep all inputs synthetic until automated lifecycle, access, backup,

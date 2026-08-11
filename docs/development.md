@@ -28,7 +28,8 @@
 | `npx tsx --test tests/safe-write-application.test.ts` | Run the internal file-backed Task `03` vertical-slice matrix |
 | `npx tsx --test tests/recovery-application.test.ts` | Run the internal Task `04` three-checkpoint restart and replay matrix |
 | `npx tsx --test tests/production-eval.test.ts` | Validate the Task `05` closed eval contracts and 18-case golden-set inventory |
-| `npm run eval` | Run the five deterministic eval cases |
+| `node --import tsx --test tests/production-eval-runner.test.ts` | Run focused harness, scoring, artifact, scorecard, and failure-gate tests |
+| `npm run eval` | Execute, persist, and score all 18 deterministic production-eval cases |
 | `npm run verify` | Run formatting, linting, types, tests, and evals in one gate |
 | `npm audit --audit-level=low` | Check the effective npm 12 dependency tree |
 
@@ -59,8 +60,11 @@ are not needed for it.
   `src/qualification.ts`.
 - Keep reusable eval contracts and semantic validation in
   `src/production-eval.ts`; keep only the frozen declarative inventory in
-  `src/production-eval-golden-set.ts`. Session 05 definitions must not import
-  Pi execution, an effect service, HTTP, persistence, or deployment code.
+  `src/production-eval-golden-set.ts`. Keep execution/scoring, fixture
+  composition, persistence, and rendering in their dedicated
+  `src/production-eval-*.ts` modules. The harness may call production domain
+  boundaries with injected synthetic substitutes, but it must not import HTTP,
+  a provider session, a real adapter, or a network client.
 - Keep operational append-only evidence behind `src/event-store.ts`.
 
 Local imports use `.js` specifiers for NodeNext ESM. Treat all external input,
@@ -83,15 +87,18 @@ lint failure, then rerun `npm run verify`.
 - Important bugs require regression coverage.
 - Critical permission, state, event, identity, and stop assertions must remain
   deterministic; model grading is not a safety gate.
-- The five-case `src/evals.ts` command remains the active execution gate until
-  Session 06 implements the 18-case runner. Golden cases predeclare exact
-  behavioral evidence now; do not report them as executed results.
+- The 18-case `src/evals.ts` command is the repository deployment gate. It
+  executes every declared case, continues after individual failures, persists
+  minimized evidence, and exits non-zero for any critical mismatch, executor
+  failure, invalid evidence, or unproved persistence. Optional quality and
+  pending latency/token/cost thresholds never override critical status.
 - Temporary event stores must be cleaned after tests.
 
 ## Runtime Data
 
 `EVENT_LOG_PATH` defaults to `./data/events.jsonl`; `APPROVAL_LOG_PATH` defaults
-to `./data/approvals.jsonl`. `RUN_DEADLINE_MS` defaults to `30000` and
+to `./data/approvals.jsonl`; `PRODUCTION_EVAL_LOG_PATH` defaults to
+`./data/production-evals.jsonl` for `npm run eval`. `RUN_DEADLINE_MS` defaults to `30000` and
 `RUN_MAX_STEPS` defaults to `24`; both are bounded positive integers and fail
 before runtime construction when invalid. Runtime event/approval files,
 provider state, secrets, and build output are ignored and must not be
@@ -109,10 +116,10 @@ retention/deletion rule in [Environments](./environments.md).
 
 `.github/workflows/quality.yml` runs locked-install formatting, linting, and
 strict-type checks. `.github/workflows/test.yml` compiles the repository, runs
-all deterministic tests with built-in coverage thresholds, and runs all five
-evals. Both workflows run on pushes to `main` and pull requests. GitHub-managed
-CodeQL and Dependabot remain enabled; local `npm run verify` is still mandatory
-before review.
+all deterministic tests with built-in coverage thresholds, and runs the
+18-case durable critical eval gate. Both workflows run on pushes to `main` and
+pull requests. GitHub-managed CodeQL and Dependabot remain enabled; local
+`npm run verify` is still mandatory before review.
 
 ## Change Handoff
 

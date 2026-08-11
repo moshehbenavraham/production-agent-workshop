@@ -6,7 +6,7 @@
 [Week 4](build-log-week4.md)
 
 > Evidence log for Tasks 04 and 05. Completed sections describe verified work;
-> explicitly pending Session 06/07 items are not implemented controls.
+> explicitly pending Session 07 items are not implemented controls.
 
 ## Task 04 - Recover and Replay
 
@@ -409,18 +409,22 @@ Task contract: [05 - Add Production Eval Gates](todo/05-production-evals.md)
 
 ### Goal and Boundary
 
-Session 05 defines the data contract for future production gates before any
-case execution. Ten safety dimensions are critical and deterministic: task
+Session 05 defines the data contract before execution, and Session 06 executes
+that frozen inventory as the repository production gate. Ten safety dimensions
+are critical and deterministic: task
 outcome, tool selection, validated arguments, event order, grounding,
 permission, approval, recovery, stop reason, and final-output safety. Draft
 quality, latency, and cost are non-blocking quality dimensions. Only draft
 quality may use optional model grading, and that grade cannot alter critical
 status.
 
-Session 06 still owns deterministic execution, result persistence, score
-calculation, compact rendering, and non-zero critical exit behavior. Session 07
-owns controlled lead-fabrication, false-send, and approval-bypass red/fix/green
-exercises. No deployment gate is claimed active in Session 05.
+The Session 06 harness runs all 18 cases once in declared order through
+isolated qualification, tool, lifecycle, approval, fake-write, and recovery
+boundaries. It derives every result and aggregate from validated observations,
+persists a minimized private JSONL artifact, and exits non-zero for any
+critical, executor, evidence, or persistence failure. Session 07 still owns the
+controlled lead-fabrication, false-send, and approval-bypass red/fix/green
+source-break exercises.
 
 ### Golden-Set Inventory
 
@@ -468,8 +472,8 @@ failure, and human escalation.
 | Cost | Quality | Deterministic metric | Pending representative baseline |
 
 Every future result carries suite, application, prompt, model, fixture, and
-commit versions. The Session 05 suite is `production-eval-v1`, application
-`0.1.27`, prompt `pi-system-v1`, synthetic fixtures
+commit versions. The current suite is `production-eval-v1`, application
+`0.1.28`, prompt `pi-system-v1`, synthetic fixtures
 `synthetic-fixtures-v1`, and explicit `null` model/commit values until execution
 supplies them.
 
@@ -477,19 +481,34 @@ Latency, token, and cost fields use tagged `available` or `unavailable`
 variants. Unavailable values carry a finite reason and `value: null`; a measured
 zero is valid only inside an `available` variant. Latency, token, and cost
 threshold maxima remain `null` with
-`representative_baseline_required` until measured Session 06 evidence supports
-a threshold.
+`representative_baseline_required` until representative provider-backed
+evidence supports a threshold. Deterministic harness duration is recorded but
+does not establish a provider service-level objective.
 
-The five legacy eval intentions map to the known-lead, unknown-lead, and
-invalid-model golden cases. The existing five-case command remains the active
-runner until Session 06 completes migration.
+The five legacy eval intentions map to named known-lead, unknown-lead, and
+invalid-model cases. `npm run eval` and the final step of `npm run verify` now
+execute the complete 18-case runner; the ad hoc boolean loop is removed.
 
 ### Scorecard
 
-Session 05 defines the future closed result: minimized ordered trace entries,
-per-dimension expected/observed evidence codes, deterministic critical failures,
-separate nullable quality/model grade, versions, and explicit metrics. No
-18-case scorecard has been executed or persisted yet; Session 06 owns it.
+Each run prints one status line, all 18 case lines, each failed dimension with
+bounded expected/observed codes, quality-threshold status, and one artifact
+identity. A green run captured:
+
+```text
+PRODUCTION EVAL PASS 18/18 cases critical_failures:0
+PASS eval_known_lead_pending_approval critical:0 latency:25.934ms cost:unavailable:provider_independent
+...
+PASS eval_step_limit_stop critical:0 latency:7.953ms cost:unavailable:provider_independent
+QUALITY average:unavailable latency_threshold:pending token_threshold:pending cost_threshold:pending
+ARTIFACT evalrun_5d81beea9ad8477d8fcff006f0e412fb 2026-08-11T20:30:37.172Z
+```
+
+The exact durations and run identity vary per invocation; layout, case order,
+critical evidence, and pending/unavailable semantics are stable. The artifact
+at `PRODUCTION_EVAL_LOG_PATH` contains minimized traces, dimension evidence,
+scores, versions, duration, and explicit usage availability, not drafts or raw
+provider/application payloads.
 
 ### Critical Red/Fix/Green Traces
 
@@ -505,32 +524,37 @@ categories or critical boundaries, model-graded critical dimensions,
 argument/tool contradictions, malformed metric availability, incomplete legacy
 mappings, and hostile/uncloneable values. Errors are canonical and frozen.
 
-A critical case exiting non-zero is not yet claimed; Session 06 owns that
-acceptance evidence.
+The focused `single critical failure remains visible beside seventeen passing
+cases and exits nonzero` exercise changes one observed critical tool selection,
+runs all 18 cases, retains 17 passes and the exact failed case/dimension, and
+asserts gate exit code 1. Executor throws, malformed observations, one/many
+critical mismatches, and unproved persistence are separately covered and can
+never produce exit zero.
 
 ### Verification Output
 
-Session 05 contract/inventory verification:
+Session 06 executable-gate verification:
 
 | Command | Result |
 |---------|--------|
-| `node --import tsx --test tests/production-eval.test.ts` | PASS - 17/17 contract and inventory cases |
-| `npm run verify` | PASS - format, lint, strict types, 255/255 tests, and 5/5 legacy evals |
-| `npm run test:coverage` | PASS - 97.73% lines, 85.54% branches, and 97.70% functions |
+| `node --import tsx --test tests/production-eval-runner.test.ts tests/pi-agent.test.ts` | PASS - 28/28 runner/output cases |
+| Injected critical failure name filter | PASS - inner gate returns exit 1 while the regression assertion passes |
+| `npm run verify` | PASS - format, lint, strict types, 269/269 tests, and 18/18 durable eval cases |
+| `npm run test:coverage` | PASS - 97.64% lines, 85.35% branches, and 97.88% functions |
 | `npm run build` | PASS |
-| `npm audit --omit=dev` | PASS - zero vulnerabilities |
+| `npm audit --audit-level=high` | PASS - zero vulnerabilities |
 
 ### Final Diff Review and Remaining Risk
 
-The Session 05 surface adds closed TypeBox data contracts, one immutable
-synthetic inventory, and deterministic validation tests. It adds no executable
-case callback, result file, provider credential, real lead, Pi/HTTP tool,
-approval decision, fake execution call, network client, workflow permission, or
-deployment behavior. The suite retains bounded selectors and minimized
-expected evidence, not prompts, transcripts, raw provider payloads, or customer
-data.
+The Session 06 surface adds an internal deterministic harness, closed runner,
+append-only eval artifact store, compact renderer, safe final-output
+normalization, and tests. It adds no provider credential, real lead, Pi/HTTP
+tool, approval-decision endpoint, real adapter, network client, workflow
+permission, or public runtime behavior. Fake effects remain deterministic and
+in-process, temporary case stores are removed by exact path, and artifacts
+exclude protected content.
 
-Execution completeness, critical exit behavior, result persistence, scorecard
-output, representative latency/cost thresholds, and deliberate source-break
-reverts remain explicit Session 06/07 work. Until those pass, Task `05` and the
-deployment gate remain incomplete.
+Representative provider latency/token/cost thresholds and the three deliberate
+source-break/revert traces remain explicit future work. Task `05` and Phase 02
+remain incomplete until Session 07 proves those critical boundaries red and
+green without retaining a vulnerable source state.

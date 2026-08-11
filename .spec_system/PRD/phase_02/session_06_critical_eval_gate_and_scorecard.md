@@ -1,10 +1,11 @@
 # Session 06: Critical Eval Gate and Scorecard
 
 **Session ID**: `phase02-session06-critical-eval-gate-and-scorecard`
-**Status**: Not Started
+**Status**: Complete
 **Source Task**: `05`
-**Estimated Tasks**: ~20
+**Tasks**: 23
 **Estimated Duration**: 2-4 hours
+**Validated**: 2026-08-11
 
 ---
 
@@ -41,8 +42,8 @@ Implement the reproducible eval runner, deterministic critical deployment gate, 
 
 ## Prerequisites
 
-- [ ] Session 05 validates every golden-set case, expected event sequence, critical dimension, and result contract.
-- [ ] Task `04` recovery and Phase 01 permission and idempotency tests remain green.
+- [x] Session 05 validates every golden-set case, expected event sequence, critical dimension, and result contract.
+- [x] Task `04` recovery and Phase 01 permission and idempotency tests remain green.
 
 ---
 
@@ -56,8 +57,28 @@ Implement the reproducible eval runner, deterministic critical deployment gate, 
 
 ## Success Criteria
 
-- [ ] Every golden-set case reports deterministic evidence for its declared critical dimensions.
-- [ ] Any critical failure exits non-zero, identifies the exact mismatch, and blocks the documented deployment path.
-- [ ] Non-blocking quality averages cannot mask or override a critical failure.
-- [ ] Results retain enough version, trace, duration, token, and cost metadata for one-variable comparisons without leaking protected content.
-- [ ] The expanded eval suite remains reproducible without provider credentials or real customer data.
+- [x] Every golden-set case reports deterministic evidence for its declared critical dimensions.
+- [x] Any critical failure exits non-zero, identifies the exact mismatch, and blocks the documented deployment path.
+- [x] Non-blocking quality averages cannot mask or override a critical failure.
+- [x] Results retain enough version, trace, duration, token, and cost metadata for one-variable comparisons without leaking protected content.
+- [x] The expanded eval suite remains reproducible without provider credentials or real customer data.
+
+---
+
+## Completion Evidence
+
+- `npm run verify`: PASS - format, lint, strict types, 269/269 tests, and
+  18/18 durable production-eval cases.
+- `npm run test:coverage`: PASS - 97.64% lines, 85.35% branches, and 97.88%
+  functions.
+- Controlled critical refusal: PASS - 17 passing cases remain visible and the
+  inner gate returns exit 1.
+- Artifact boundary: PASS - private append-only JSONL, complete-file
+  validation, flush/close/exact re-read, restart, corruption/conflict/I/O
+  refusal, minimized data, and immutable public outcomes.
+- Review/security: PASS - one high, four medium, and two low findings repaired;
+  no unresolved finding, permission expansion, provider/network edge, secret,
+  real-data behavior, or dependency vulnerability.
+
+Session 07 remains responsible for the three controlled source-break/revert
+traces. Task `05` and Phase 02 remain incomplete until that session validates.

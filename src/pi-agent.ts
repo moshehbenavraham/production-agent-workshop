@@ -135,8 +135,19 @@ export function deriveRunStopReason(
 export function qualificationRunOutput(
   qualification: QualificationOutcome,
   assistantOutput: string,
+  stopReason?: CompletedRunStopReason,
 ): string {
-  return qualification.ok ? assistantOutput : qualification.error.message;
+  if (!qualification.ok) return qualification.error.message;
+  if (stopReason === undefined) return assistantOutput;
+  if (stopReason === "approval_pending") {
+    return "Approval is pending. No message was sent.";
+  }
+  if (stopReason === "completed") {
+    return "The approval decision is complete. No message was sent.";
+  }
+  if (stopReason === "not_found") return "No lead exists for the requested leadId.";
+  if (stopReason === "qualification_failed") return "Qualification failed. No message was sent.";
+  return "Approval was not created. No message was sent.";
 }
 
 export function runCompletionMetadata(stopReason: CompletedRunStopReason) {
@@ -214,6 +225,7 @@ export async function runLeadAgent(leadId: string): Promise<RunResult> {
       const output = qualificationRunOutput(
         qualification,
         finalAssistantText(session.agent.state.messages),
+        stopReason,
       );
       return {
         value: { runId, output, qualification },

@@ -22,9 +22,10 @@ Items requiring attention in upcoming work. Review before each session.
 - [P01] **Single-process persistence**: Approval, event, and result JSONL files
   are separate logs with no OS/distributed lock or transaction; reservation-only
   fake state requires manual inspection and must never retry automatically.
-- [P02] **Eval execution gate pending**: The closed 18-case inventory and result
-  contracts exist, but Session 06 must execute, persist, score, and return
-  non-zero on every critical failure before deployment blocking is real.
+- [P02] **Boundary regression evidence pending**: The durable 18-case critical
+  gate is active, but Session 07 must still capture and exactly revert the three
+  controlled lead-grounding, false-completion, and approval-bypass source
+  breaks before Task `05` and Phase 02 close.
 
 ### External Dependencies
 
@@ -104,6 +105,12 @@ Proven patterns and anti-patterns. Reference during implementation.
 - [P02] **Tagged metric availability**: An unavailable latency, token, or cost
   value is a finite reason plus `null`, while measured zero remains an explicit
   available value; pending thresholds never masquerade as passing zeros.
+- [P02] **Critical truth before persistence**: Revalidate exact suite/case
+  membership, derive results and aggregates only from closed observations, and
+  require an exact append/flush/re-read artifact before a gate may exit zero.
+- [P02] **Continue after case failure**: A failed or malformed case becomes
+  bounded failure evidence while all remaining cases execute, keeping passing
+  cases and every mismatch visible in one scorecard.
 
 ### What to Avoid
 
@@ -145,6 +152,7 @@ Recently closed items (buffer - rotates out after 2 phases).
 
 | Phase | Item | Resolution |
 |-------|------|------------|
+| P02 | Eval execution gate | The frozen 18-case suite now executes through deterministic production boundaries, persists a minimized private artifact, renders bounded failures, and exits non-zero for every critical or operational evidence failure. |
 | P02 | Internal whole-run replay and resume | A closed provider-independent recovery application resumes qualification, draft, and approval checkpoints under the same run identity, reuses exact approval authority, and escalates any indeterminate effect without an adapter. |
 | P02 | Unbounded whole Pi run | Validated deadline and model/tool step bounds now abort once, persist one bounded terminal, and ignore late settlement through injected provider-independent boundaries. |
 | P01 | Event-only pending approval | Closed records, one-way transitions, private durable projection, exact draft linkage, internal decisions, and restart proof now own approval truth. |
