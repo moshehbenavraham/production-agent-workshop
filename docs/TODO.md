@@ -87,7 +87,7 @@ only after all five Phase 01 closeout workflows passed.
 ## Phase 02 Closeout Transition
 
 - [x] Re-run the repository audit and reconcile local tooling evidence.
-- [ ] Revalidate active CI and the required production-eval pipeline gate.
+- [x] Revalidate active CI and the required production-eval pipeline gate.
 - [ ] Reassess infrastructure readiness without claiming a deployment.
 - [ ] Carry Phase 02 lessons, risks, and controls into cumulative records.
 - [ ] Reconcile all current documentation and record the documentation audit.
