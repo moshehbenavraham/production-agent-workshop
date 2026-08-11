@@ -100,6 +100,7 @@ flowchart LR
 | Container boundary | `Dockerfile` | Node.js 24 Alpine | Port 3000, `/app/data`, process start, and container health probe |
 | Code Quality CI | `.github/workflows/quality.yml` | GitHub Actions | Locked install, formatting, linting, and strict TypeScript |
 | Build & Test CI | `.github/workflows/test.yml` | GitHub Actions | TypeScript build, 270 tests with coverage thresholds, and the durable 18-case critical eval gate |
+| Security CI | `.github/workflows/security.yml` plus managed repository security | GitHub Actions | Full-history Gitleaks, pull-request dependency review, locked-tree audit, CodeQL, secret scanning, and push protection |
 
 ## Run And Evidence Flow
 

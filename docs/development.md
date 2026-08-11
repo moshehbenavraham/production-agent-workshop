@@ -23,6 +23,7 @@
 | `npm run lint` | Check scoped TypeScript and root JSON with Biome recommended rules |
 | `npm run lint:fix` | Apply Biome safe lint fixes |
 | `npm run check` | Run strict TypeScript with no emit |
+| `npm run precommit` | Run lint-staged Biome checks for staged TypeScript and root JSON |
 | `npm test` | Run all deterministic `node:test` cases through TSX |
 | `npm run test:coverage` | Run tests with 95% line, 85% branch, and 95% function minimums |
 | `npx tsx --test tests/safe-write-application.test.ts` | Run the internal file-backed Task `03` vertical-slice matrix |
@@ -34,7 +35,8 @@
 | `npm audit --audit-level=low` | Check the effective npm 12 dependency tree |
 
 `npm run verify` is the required one-command local gate. Provider credentials
-are not needed for it.
+are not needed for it. `npm ci` runs the Husky prepare script, and the tracked
+pre-commit hook applies the same Biome checks to staged TypeScript and root JSON.
 
 ## Source Boundaries
 
@@ -117,9 +119,12 @@ retention/deletion rule in [Environments](./environments.md).
 `.github/workflows/quality.yml` runs locked-install formatting, linting, and
 strict-type checks. `.github/workflows/test.yml` compiles the repository, runs
 all deterministic tests with built-in coverage thresholds, and runs the
-18-case durable critical eval gate. Both workflows run on pushes to `main` and
-pull requests. GitHub-managed CodeQL and Dependabot remain enabled; local
-`npm run verify` is still mandatory before review.
+18-case durable critical eval gate. `.github/workflows/security.yml` scans full
+history with Gitleaks, reviews pull-request dependency changes at high severity,
+and audits the locked dependency tree. GitHub-managed CodeQL, secret scanning
+with push protection, and Dependabot remain enabled. Repository workflows run
+on pushes to `main` and pull requests; local `npm run verify` is still mandatory
+before review.
 
 ## Change Handoff
 
