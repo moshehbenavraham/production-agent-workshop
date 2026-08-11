@@ -10,6 +10,14 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Added
 
+- Added closed, immutable service, run, model, and tool observation contracts
+  with exact run correlation, tagged metric availability, finite operational
+  vocabularies, and canonical semantic validation.
+- Added a controlled service snapshot collector for bounded process, storage,
+  queue, and dependency health with preflight configuration validation,
+  per-dependency abort timeouts, deterministic ordering, isolated failures,
+  protected-value minimization, and 20 focused tests; HTTP and Pi permissions
+  remain unchanged.
 - Added the eight-session Phase 03 Apex plan for four-layer observability,
   exact-`runId` reporting, alerts, incident drills, controlled Coolify release,
   persistent restart, off-server restore, rollback, parity, and operator

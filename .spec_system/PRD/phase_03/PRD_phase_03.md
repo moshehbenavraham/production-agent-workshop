@@ -1,10 +1,10 @@
 # PRD Phase 03: Operations and Coolify Release
 
-**Status**: Not Started
+**Status**: In Progress
 **Sessions**: 8 (initial estimate)
 **Estimated Duration**: 6-8 workshop days
 
-**Progress**: 0/8 sessions (0%)
+**Progress**: 1/8 sessions (12.5%)
 
 ---
 
@@ -18,7 +18,7 @@ Week 4 turns the validated recovery and eval baseline into an operator-facing sy
 
 | Session | Name | Status | Est. Tasks | Validated |
 |---------|------|--------|------------|-----------|
-| 01 | Observability Contract and Service Health | Not Started | ~18 | - |
+| 01 | Observability Contract and Service Health | Complete | 18 | 2026-08-12 |
 | 02 | Run Timeline Query and Redaction | Not Started | ~18 | - |
 | 03 | Alerts and Incident Runbook | Not Started | ~17 | - |
 | 04 | Incident Drills and Operational Baseline | Not Started | ~20 | - |
@@ -31,13 +31,13 @@ Week 4 turns the validated recovery and eval baseline into an operator-facing sy
 
 ## Completed Sessions
 
-None yet.
+- Session 01: Observability Contract and Service Health - completed 2026-08-12
 
 ---
 
 ## Upcoming Sessions
 
-- Session 01: Observability Contract and Service Health
+- Session 02: Run Timeline Query and Redaction
 
 ---
 

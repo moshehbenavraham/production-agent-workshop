@@ -9,7 +9,7 @@
     "3": {
       "name": "Operations and Coolify Release",
       "description": "Make runs observable and operable, then prove a controlled Coolify release with persistence, restore, rollback, and operator handoff.",
-      "status": "not_started",
+      "status": "in_progress",
       "session_count": 8
     },
     "0": {
@@ -46,26 +46,12 @@
     "phase02-session04-replay-and-resume-integration",
     "phase02-session05-production-eval-contract-and-golden-set",
     "phase02-session06-critical-eval-gate-and-scorecard",
-    "phase02-session07-boundary-regression-exercises-and-evidence"
+    "phase02-session07-boundary-regression-exercises-and-evidence",
+    "phase03-session01-observability-contract-and-service-health"
   ],
   "next_session_history": [
     {
       "date": "2026-08-11",
-      "session": "phase02-session01-durable-run-event-contract-and-store",
-      "status": "validated"
-    },
-    {
-      "date": "2026-08-11",
-      "session": "phase02-session01-durable-run-event-contract-and-store",
-      "status": "completed"
-    },
-    {
-      "date": "2026-08-11",
-      "session": "phase02-session02-run-projection-and-corruption-refusal",
-      "status": "planned"
-    },
-    {
-      "date": "2026-08-11",
       "session": "phase02-session02-run-projection-and-corruption-refusal",
       "status": "validated"
     },
@@ -147,6 +133,21 @@
     {
       "date": "2026-08-12",
       "session": "phase02-session07-boundary-regression-exercises-and-evidence",
+      "status": "completed"
+    },
+    {
+      "date": "2026-08-12",
+      "session": "phase03-session01-observability-contract-and-service-health",
+      "status": "planned"
+    },
+    {
+      "date": "2026-08-12",
+      "session": "phase03-session01-observability-contract-and-service-health",
+      "status": "validated"
+    },
+    {
+      "date": "2026-08-12",
+      "session": "phase03-session01-observability-contract-and-service-health",
       "status": "completed"
     }
   ]

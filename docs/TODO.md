@@ -65,7 +65,10 @@ Tasks `04` and `05` and the Phase 02 implementation are complete.
 ## Active Planned Phase
 
 - [ ] Phase 03 - Operations and Coolify Release (Week 4)
-  - [ ] Session 01 - Observability Contract and Service Health
+  - [x] Session 01 - Observability Contract and Service Health
+    - [x] Implement closed four-layer observation contracts and bounded service collection.
+    - [x] Add deterministic availability, correlation, timeout, failure, and redaction tests.
+    - [x] Complete Apex review, validation, and PRD closeout.
   - [ ] Session 02 - Run Timeline Query and Redaction
   - [ ] Session 03 - Alerts and Incident Runbook
   - [ ] Session 04 - Incident Drills and Operational Baseline
@@ -78,7 +81,11 @@ Phase 03 is sourced only from Tasks
 [`06`](todo/06-observability-and-incidents.md) and
 [`07`](todo/07-coolify-release.md). Its eight bounded session stubs preserve
 controlled exposure, synthetic-only data, the exact three-tool Pi allowlist,
-and operator-owned deployment actions. Implementation has not started.
+and operator-owned deployment actions.
+Session 01 is complete with closed service, run, model, and tool observation
+contracts plus a controlled service snapshot collector. Task `06` remains
+incomplete until Sessions 02 through 04 prove reporting, alerts, runbooks, and
+incident drills.
 
 ## Phase 00 Transition (Complete)
 

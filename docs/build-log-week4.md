@@ -16,8 +16,31 @@ Task contract:
 
 ### Goal and Boundary
 
-_State the implemented service, run, model, and tool observability boundary and
-its data-minimization rules._
+Session 01 adds a closed, read-only observability contract for four layers and
+a controlled service snapshot collector. The collector is library-only: it is
+not registered as a Pi tool and is not reachable through HTTP. `GET /health`
+remains exactly `{"status":"ok"}`. Approval records and fake-result records
+remain the only approval and effect authority.
+
+Task `06` remains in progress until the run query, alerts, runbook, and five
+incident drills in Sessions 02 through 04 have direct evidence.
+
+```mermaid
+flowchart LR
+  Process[Process metrics] --> Service[Service observation]
+  Storage[Storage and queue readers] --> Service
+  Dependencies[Bounded dependency checks] --> Service
+  Events[Validated run events] --> Run[Run observation]
+  Events --> Model[Model observation]
+  Events --> Tool[Tool observation]
+  Service --> Report[Controlled operator report]
+  Run --> Report
+  Model --> Report
+  Tool --> Report
+  Approval[Approval records] --> Authority[Durable authority]
+  Results[Fake result records] --> Authority
+  Report -. explains but cannot authorize .-> Authority
+```
 
 ### Complete Incident Timeline
 
@@ -37,8 +60,23 @@ unavailable dependencies._
 
 ### Redacted Observability View
 
-_Show the implemented service, run, model, and tool fields without credentials,
-private infrastructure, unnecessary lead data, or full drafts._
+| Layer | Correlation | Bounded fields | Explicit absence |
+|-------|-------------|----------------|------------------|
+| Service | Application version, environment, canonical time | Uptime, RSS, heap, CPU, storage, queue, dependency ID/state/duration/error | `unavailable` or `not_applicable` with finite reason |
+| Run | Exact `runId` | Outcome, stop reason, duration, step count, retry count, error category | Tagged measurements and nullable finite error/stop fields |
+| Model | Exact `runId` and step | Model/prompt version, outcome, duration, retry, tokens, cost, error | Tagged token/cost/duration availability |
+| Tool | Exact `runId` and step | Tool/call identity, outcome, permission, side-effect category, duration, retry, error | Tagged duration and nullable finite error |
+
+Fields intentionally absent from every observation include credentials,
+provider payloads, raw errors, filesystem paths, private URLs, lead attributes,
+draft bodies, full approval records, and fake-result receipts. Collector labels
+are bounded identifiers, dependencies are limited to 20, and timeout cleanup is
+mandatory for every dependency check.
+
+Measured zero is represented as `{"status":"available","value":0,"unit":"..."}`.
+Missing values never reuse zero: they are either
+`{"status":"unavailable","reason":"..."}` or
+`{"status":"not_applicable","reason":"..."}`.
 
 ### Incident Runbook
 
@@ -53,8 +91,18 @@ duplicate effects._
 
 ### Verification Output
 
-_Record the exact verification commands and results, including
-`npm run verify`._
+Session 01 focused evidence:
+
+- `npx tsc --noEmit`: pass.
+- `npx tsx --test tests/observability.test.ts`: 20/20 pass.
+- Local `GET /health`: exact `{"status":"ok"}` response.
+- Exact production Pi allowlist regression: 1/1 pass.
+- `npm run verify`: 293/293 tests and 18/18 production eval cases pass.
+- `npm run test:coverage`: 97.72% lines, 85.60% branches, and 98.04% functions.
+- `npm audit`: zero known vulnerabilities.
+
+The final Task `06` verification result will be recorded after Sessions 02
+through 04 complete the query, alert, runbook, and drill evidence.
 
 ### Final Diff Review and Remaining Risk
 
