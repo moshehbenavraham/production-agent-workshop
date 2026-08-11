@@ -125,6 +125,10 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Changed
 
+- Reconciled the Week 3 Build Log directly with Tasks `04` and `05`: added
+  acceptance-to-evidence maps, corrected focused test counts and application
+  version metadata, normalized variable scorecard fields, and refreshed the
+  final recovery/eval verification to the current 273-test and 18-case gate.
 - Reconciled the master PRD, all seven Phase 02 session records, root README,
   onboarding, architecture, operator guidance, workshop index, and
   documentation audit with the verified Phase 02 implementation and transition

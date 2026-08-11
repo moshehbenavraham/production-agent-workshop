@@ -8,6 +8,10 @@
 > Completed evidence log for Tasks 04 and 05. Each implemented control and
 > controlled exercise below has repository verification evidence.
 
+This log is scoped to the evidence requested by the two Week 3 task contracts.
+Phase-transition tooling and deployment work appear only where they establish a
+verification result or an explicit remaining release gate.
+
 ## Task 04 - Recover and Replay
 
 Task contract: [04 - Recover and Replay](todo/04-recovery-and-replay.md)
@@ -23,6 +27,19 @@ network capability.
 Operational events own recorded run history. They do not authorize an approval
 or prove a fake effect: the dedicated approval and fake-result stores remain
 the exact permission and idempotency authorities.
+
+### Task 04 Acceptance Map
+
+| Acceptance requirement | Evidence in this log |
+|------------------------|----------------------|
+| Durable run and approval projection | Event Schema and Projection Rules |
+| Three restart points | Three Restart Timelines |
+| Replay without duplicate approval or effect | Replay-Idempotency Proof |
+| Deadline and step-limit terminals | Bounded Run Lifecycle |
+| Visible corrupt or incomplete state | Storage Contract, Projection Rules, and Exercised Failure and Recovery |
+| Replaceable working context and minimized durable evidence | Projection Rules and Retention Decision |
+| No manual durable-file edits in recovery tests | Replay-Idempotency Proof |
+| Green repository gate | Verification Output |
 
 ### Event Schema
 
@@ -79,7 +96,7 @@ legacy unversioned or version 1 event files fail closed rather than being
 silently upgraded; the workshop uses synthetic data and must reset or
 explicitly migrate such a file before startup.
 
-Focused evidence: strict file checks pass and 19/19 event contract/store tests
+Focused evidence: strict file checks pass and 18/18 event contract/store tests
 cover closed variants, restart, private mode, corruption, truncation, duplicate
 identity, decreasing time, no-op writes, and injected write/sync/close/read
 failures.
@@ -377,14 +394,15 @@ with action `stop`. No recovery path constructs or calls an effect adapter.
 
 ### Verification Output
 
-Task `04` implementation verification:
+Current Task `04` verification:
 
 | Command | Result |
 |---------|--------|
-| `npm run verify` | PASS - format, lint, strict types, 238/238 tests, and 5/5 evals |
-| `npm run test:coverage` | PASS - 97.17% lines, 85.87% branches, and 97.41% functions against 95/85/95 gates |
+| `node --import tsx --test tests/run-event.test.ts tests/event-store.test.ts tests/run-projection.test.ts tests/run-lifecycle.test.ts tests/recovery-application.test.ts` | PASS - 80/80 focused event, store, projection, lifecycle, and recovery tests |
+| `npm run verify` | PASS - format, lint, strict types, 273/273 tests, and 18/18 production eval cases |
+| `npm run test:coverage` | PASS - 97.64% lines, 85.55% branches, and 97.86% functions against 95/85/95 gates |
 | `npm run build` | PASS |
-| `npm audit --omit=dev` | PASS - zero vulnerabilities |
+| `npm audit --audit-level=high` | PASS - zero vulnerabilities |
 
 The production-boundary check confirms exactly `qualify_lead`,
 `draft_follow_up`, and `request_send_approval`. The lifecycle adds no shell,
@@ -425,6 +443,18 @@ persists a minimized private JSONL artifact, and exits non-zero for any
 critical, executor, evidence, or persistence failure. Session 07 completed the
 three isolated lead-fabrication, false-completion, and approval-bypass
 red/fix/green exercises and retained only their safe regression coverage.
+
+### Task 05 Acceptance Map
+
+| Acceptance requirement | Evidence in this log |
+|------------------------|----------------------|
+| Happy, ambiguous, failure, adversarial, and escalation coverage | Golden-Set Inventory |
+| Tools, arguments, events, stop reason, and output scored | Golden-Set Inventory and Rubric |
+| Critical failures block regardless of averages | Rubric, Scorecard, and Exercised Failure and Refusal |
+| Reproducible versioned comparison evidence | Rubric and Scorecard |
+| Explicit latency, token, and cost availability or thresholds | Rubric |
+| Lead-fabrication, false-completion, and approval-bypass red/fix/green proof | Critical Red/Fix/Green Traces |
+| Restored source and green repository gate | Critical Red/Fix/Green Traces and Verification Output |
 
 ### Golden-Set Inventory
 
@@ -471,9 +501,9 @@ failure, and human escalation.
 | Latency | Quality | Deterministic metric | Pending representative baseline |
 | Cost | Quality | Deterministic metric | Pending representative baseline |
 
-Every future result carries suite, application, prompt, model, fixture, and
-commit versions. The current suite is `production-eval-v1`, application
-`0.1.29`, prompt `pi-system-v1`, synthetic fixtures
+Every result carries suite, application, prompt, model, fixture, and commit
+versions. The current suite is `production-eval-v1`, application `0.1.30`,
+prompt `pi-system-v1`, synthetic fixtures
 `synthetic-fixtures-v1`, and explicit `null` model/commit values until execution
 supplies them.
 
@@ -493,15 +523,15 @@ execute the complete 18-case runner; the ad hoc boolean loop is removed.
 
 Each run prints one status line, all 18 case lines, each failed dimension with
 bounded expected/observed codes, quality-threshold status, and one artifact
-identity. A green run captured:
+identity. The normalized green scorecard shape is:
 
 ```text
 PRODUCTION EVAL PASS 18/18 cases critical_failures:0
-PASS eval_known_lead_pending_approval critical:0 latency:20.803ms cost:unavailable:provider_independent
+PASS eval_known_lead_pending_approval critical:0 latency:<measured>ms cost:unavailable:provider_independent
 ...
-PASS eval_step_limit_stop critical:0 latency:6.252ms cost:unavailable:provider_independent
+PASS eval_step_limit_stop critical:0 latency:<measured>ms cost:unavailable:provider_independent
 QUALITY average:unavailable latency_threshold:pending token_threshold:pending cost_threshold:pending
-ARTIFACT evalrun_f79fa45999b94650b85b514e0e903a8b 2026-08-11T20:56:39.873Z
+ARTIFACT <evalrun_id> <UTC timestamp>
 ```
 
 The exact durations and run identity vary per invocation; layout, case order,
@@ -584,17 +614,17 @@ never produce exit zero.
 
 ### Verification Output
 
-Final Session 07 and Phase 02 implementation verification:
+Current Task `05` and repository verification:
 
 | Command | Result |
 |---------|--------|
-| Named boundary regression filter | PASS - 1/1 retained regression covering all three named mutations |
-| `node --import tsx --test tests/production-eval-runner.test.ts tests/pi-agent.test.ts` | PASS - 29/29 runner/output cases |
-| `npm run verify` | PASS - format, lint, strict types, 270/270 tests, and 18/18 durable eval cases |
-| `npm run test:coverage` | PASS - 97.64% lines, 85.43% branches, and 97.88% functions |
+| `node --import tsx --test tests/production-eval.test.ts tests/production-eval-runner.test.ts` | PASS - 32/32 contract, inventory, runner, artifact, scorecard, and retained boundary-regression tests |
+| `npm run eval` | PASS - 18/18 cases with zero critical failures and a durable artifact |
+| `npm run verify` | PASS - format, lint, strict types, 273/273 tests, and 18/18 durable eval cases |
+| `npm run test:coverage` | PASS - 97.64% lines, 85.55% branches, and 97.86% functions |
 | `npm run build` | PASS |
 | `npm audit --audit-level=high` | PASS - zero vulnerabilities |
-| Final hashes, artifact, diff, residue, permission, and secret scans | PASS |
+| Current hashes of `src/leads.ts`, `src/pi-agent.ts`, and `src/tools.ts` | PASS - exact match to the three restored safe hashes recorded above |
 
 ### Final Diff Review and Remaining Risk
 

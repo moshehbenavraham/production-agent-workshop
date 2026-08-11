@@ -100,3 +100,5 @@ only after all five Phase 01 closeout workflows passed.
 - [x] Split Build Log evidence into linked Week 1-4 files with scoped future-week templates.
 - [x] Reconcile the Week 2 Build Log with Tasks `02` and `03` and current
   approval/fake-send source and test evidence.
+- [x] Reconcile the Week 3 Build Log with Tasks `04` and `05`, current recovery
+  and production-eval contracts, and the 273-test repository gate.
