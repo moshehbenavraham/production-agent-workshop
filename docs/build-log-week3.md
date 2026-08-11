@@ -15,13 +15,73 @@ Task contract: [04 - Recover and Replay](todo/04-recovery-and-replay.md)
 
 ### Goal and Boundary
 
-_State the implemented recovery boundary, durable source of truth, and
-replaceable working context._
+Session 01 establishes trusted durable run history only. Closed versioned
+events and the hardened JSONL adapter are implemented; run projection,
+checkpoint selection, whole-run bounds, replay, and resume remain assigned to
+Sessions 02-04 and are not claimed here.
+
+Operational events own recorded run history. They do not authorize an approval
+or prove a fake effect: the dedicated approval and fake-result stores remain
+the exact permission and idempotency authorities.
 
 ### Event Schema
 
-_Record the closed event envelope, minimized payload contracts, version and
-usage fields, terminal events, deadline, and maximum-step evidence._
+`src/run-event.ts` owns the version 1 envelope:
+
+| Field | Contract |
+|-------|----------|
+| `schemaVersion` | Exact literal `1` |
+| `eventId` | Prefixed bounded `event_*` identity |
+| `runId` | Existing bounded `run_*` or UUID identity |
+| `at` | Canonical millisecond UTC ISO timestamp |
+| `type` | Bounded code exactly matching `data.eventType` |
+| `data` | One closed minimized owned payload variant |
+| `metadata` | Closed actor, action, tool, argument, result, error, approval, stop, version, duration, retry, token, and cost fields |
+
+Metadata uses `null` for unavailable values, so measured zero duration, retry,
+tokens, or cost is not confused with missing provider evidence. Token totals
+must equal input plus output. Validated arguments permit at most 20 bounded
+scalar fields and reject nested arbitrary content.
+
+Current payload variants cover `run.started`, `run.completed`, `run.failed`,
+qualification attempt/completion/failure, `domain.follow_up_drafted`, normalized
+`pi.lifecycle`, all closed approval events, and all closed fake-send events.
+Pi SDK objects are reduced to bounded source type, tool name and call identity,
+error flag, message identity, and stop reason; raw SDK payloads are rejected.
+
+Example minimized record:
+
+```json
+{"schemaVersion":1,"eventId":"event_example_001","runId":"run_example_001","at":"2026-08-11T16:00:00.000Z","type":"run.started","data":{"eventType":"run.started","leadId":"lead_ada"},"metadata":{"actor":{"kind":"application","id":null},"action":"run_start","tool":null,"validatedArguments":null,"result":"attempted","errorCode":null,"approvalState":null,"stopReason":null,"applicationVersion":"0.1.22","modelVersion":null,"promptVersion":null,"durationMs":null,"retryCount":0,"tokens":null,"costUsd":null}}
+```
+
+#### Storage Contract
+
+`JsonlEventStore` validates configuration and generated metadata before
+filesystem construction. Append then validates the complete existing log,
+denies duplicate identity or decreasing per-run time, opens with private mode,
+writes one LF-terminated record, calls `fsync`, closes, re-reads the entire
+file, and compares exact before/after state before reporting success.
+
+Reads validate every line, event, namespace, identity, and timestamp before
+filtering by `runId`. A missing file is an exact empty history; blank,
+truncated, malformed, duplicate, or out-of-order evidence returns canonical
+`corrupt_record`, `interrupted_write`, `duplicate_event`, or
+`out_of_order_record` failure. Pre-write I/O and replaceable-boundary failures
+use canonical `storage_failure`; indeterminate write, flush, close, or re-read
+failures use canonical `interrupted_write`.
+
+Compatibility decision: the existing `at` field remains the timestamp name and
+file order remains the structural order for the current single-process store.
+Session 02 owns domain-semantic event order and recovery checkpoints. Existing
+legacy unversioned event files fail closed rather than being silently upgraded;
+the workshop uses synthetic data and must reset or explicitly migrate such a
+file before startup.
+
+Focused evidence: strict file checks pass and 19/19 event contract/store tests
+cover closed variants, restart, private mode, corruption, truncation, duplicate
+identity, decreasing time, no-op writes, and injected write/sync/close/read
+failures.
 
 ### Projection Rules
 

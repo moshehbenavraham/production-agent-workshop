@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { appendFileSync, existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test, { after } from "node:test";
@@ -12,6 +12,7 @@ import {
   SafeWriteApplication,
   type SafeWriteApplicationPaths,
 } from "../src/safe-write-application.js";
+import { readRunEvents } from "./run-event-test-helpers.js";
 
 const temporaryDirectories: string[] = [];
 
@@ -210,7 +211,7 @@ test("approved exact action completes through file-backed composition with match
   assert.deepEqual(app.listApprovals(RUN_ID), { ok: true, value: [approved] });
   assert.equal(lineCount(files.approvalPath), 2);
   assert.equal(lineCount(files.resultPath), 2);
-  const events = new JsonlEventStore(files.eventPath).readRun(RUN_ID);
+  const events = readRunEvents(new JsonlEventStore(files.eventPath), RUN_ID);
   assert.deepEqual(
     events.map((event) => event.type),
     ["approval.requested", "approval.approved", "fake_send.attempted", "fake_send.accepted"],
@@ -221,6 +222,8 @@ test("approved exact action completes through file-backed composition with match
   assert.equal(
     fakeEvents.every(
       (event) =>
+        "approvalId" in event.data &&
+        "idempotencyKey" in event.data &&
         event.data.approvalId === approved.approvalId &&
         event.data.idempotencyKey === outcome.value.idempotencyKey,
     ),
@@ -298,7 +301,7 @@ test("timeout aborts the composed adapter and persists one terminal result", asy
   assert.equal(lineCount(files.resultPath), 2);
   const events = new JsonlEventStore(files.eventPath);
   assert.equal(
-    events.readRun(RUN_ID).some((event) => event.type === "fake_send.timed_out"),
+    readRunEvents(events, RUN_ID).some((event) => event.type === "fake_send.timed_out"),
     true,
   );
 
@@ -311,11 +314,11 @@ test("timeout aborts the composed adapter and persists one terminal result", asy
   await new Promise((resolve) => setTimeout(resolve, 20));
   assert.equal(lineCount(files.resultPath), 2);
   assert.equal(
-    events.readRun(RUN_ID).filter((event) => event.type === "fake_send.timed_out").length,
+    readRunEvents(events, RUN_ID).filter((event) => event.type === "fake_send.timed_out").length,
     1,
   );
   assert.equal(
-    events.readRun(RUN_ID).filter((event) => event.type === "fake_send.accepted").length,
+    readRunEvents(events, RUN_ID).filter((event) => event.type === "fake_send.accepted").length,
     0,
   );
 });
@@ -339,11 +342,18 @@ test("new application returns exact original duplicate with one total effect", a
   assert.equal(duplicateFake.calls(), 0);
   assert.equal(lineCount(files.resultPath), 2);
 
-  new JsonlEventStore(files.eventPath).append({
-    runId: RUN_ID,
-    type: "fake_send.accepted",
-    data: { eventType: "approval.requested", approvalId: approved.approvalId },
-  });
+  const persistedEvents = readRunEvents(new JsonlEventStore(files.eventPath), RUN_ID);
+  const acceptedEvent = persistedEvents.find((event) => event.type === "fake_send.accepted");
+  assert.ok(acceptedEvent);
+  appendFileSync(
+    files.eventPath,
+    `${JSON.stringify({
+      ...acceptedEvent,
+      eventId: "event_malformed_namespace",
+      type: "fake_send.accepted",
+      data: { eventType: "approval.requested", approvalId: approved.approvalId },
+    })}\n`,
+  );
   const malformedNamespace = await duplicateApp.executeFakeSend(request(approved));
   assert.equal(malformedNamespace.ok, false);
   if (malformedNamespace.ok) assert.fail("Expected malformed fake namespace refusal");
@@ -381,9 +391,9 @@ test("actor sets are snapshotted and unauthorized operator gets minimized denial
   assert.equal(denied.error.code, "permission_denied");
   assert.equal(fake.calls(), 0);
   assert.equal(existsSync(files.resultPath), false);
-  const deniedEvent = new JsonlEventStore(files.eventPath)
-    .readRun(RUN_ID)
-    .find((event) => event.type === "fake_send.permission_denied");
+  const deniedEvent = readRunEvents(new JsonlEventStore(files.eventPath), RUN_ID).find(
+    (event) => event.type === "fake_send.permission_denied",
+  );
   assert.deepEqual(deniedEvent?.data, {
     eventType: "fake_send.permission_denied",
     approvalId: approved.approvalId,
@@ -412,9 +422,9 @@ test("adapter rejection persists exact rejected result and event", async () => {
   assert.equal(calls, 1);
   assert.equal(lineCount(files.resultPath), 2);
   assert.equal(
-    new JsonlEventStore(files.eventPath)
-      .readRun(RUN_ID)
-      .some((event) => event.type === "fake_send.rejected"),
+    readRunEvents(new JsonlEventStore(files.eventPath), RUN_ID).some(
+      (event) => event.type === "fake_send.rejected",
+    ),
     true,
   );
 });
@@ -444,9 +454,9 @@ test("thrown, rejected, and malformed downstream outcomes become canonical durab
     assert.doesNotMatch(JSON.stringify(outcome), /sensitive|raw/);
     assert.equal(lineCount(files.resultPath), 2);
     assert.equal(
-      new JsonlEventStore(files.eventPath)
-        .readRun(RUN_ID)
-        .some((event) => event.type === "fake_send.downstream_failed"),
+      readRunEvents(new JsonlEventStore(files.eventPath), RUN_ID).some(
+        (event) => event.type === "fake_send.downstream_failed",
+      ),
       true,
     );
   }

@@ -7,17 +7,54 @@ import {
   WORKSHOP_APPROVAL_ACTOR_IDS,
   deriveRunStopReason,
   qualificationRunOutput,
+  runCompletionMetadata,
 } from "../src/pi-agent.js";
 import { qualifyLead } from "../src/qualification.js";
+import { createAgentEvent } from "../src/run-event.js";
 
-function event(type: string, data: Record<string, unknown> = {}): AgentEvent {
+let eventIndex = 0;
+
+function event(
+  type: "qualification.completed" | "qualification.failed" | "approval.requested",
+  data: Record<string, unknown>,
+): AgentEvent {
+  const closedData =
+    type === "qualification.completed"
+      ? { eventType: type, result: data }
+      : type === "qualification.failed"
+        ? { eventType: type, error: data }
+        : {
+            eventType: type,
+            approvalId: "approval_projection_event_001",
+            action: "send_follow_up",
+            targetKind: "lead",
+            leadId: typeof data.leadId === "string" ? data.leadId : "lead_ada",
+            draftId: "draft_projection_event_001",
+            status: "pending",
+          };
+  eventIndex += 1;
+  const outcome = createAgentEvent(
+    { runId: "run_projection_test", type, data: closedData },
+    {
+      eventId: `event_projection_${eventIndex}`,
+      at: "2026-08-04T00:00:00.000Z",
+      applicationVersion: "0.1.22",
+    },
+  );
+  if (!outcome.ok) assert.fail(outcome.error.message);
+  return outcome.value;
+}
+
+function corruptQualificationEvent(data: Record<string, unknown>): AgentEvent {
   return {
-    eventId: crypto.randomUUID(),
+    schemaVersion: 1,
+    eventId: "event_projection_corrupt",
     runId: "run_projection_test",
     at: "2026-08-04T00:00:00.000Z",
-    type,
-    data,
-  };
+    type: "qualification.completed",
+    data: { eventType: "qualification.completed", result: data },
+    metadata: {},
+  } as unknown as AgentEvent;
 }
 
 const known = qualifyLead({ leadId: "lead_ada" });
@@ -117,7 +154,7 @@ test("missing or corrupt qualification evidence fails closed", () => {
   assert.equal(
     deriveRunStopReason(
       [
-        event("qualification.completed", {
+        corruptQualificationEvent({
           leadId: "lead_ada",
           fit: "invented",
           confidence: 2,
@@ -231,4 +268,27 @@ test("structured failure output overrides friendly assistant prose", () => {
     "No lead exists for the requested leadId.",
   );
   assert.equal(qualificationRunOutput(known, "Approval is pending."), "Approval is pending.");
+});
+
+test("run completion metadata never invents approval or success state", () => {
+  assert.deepEqual(runCompletionMetadata("approval_pending"), {
+    action: "run_complete",
+    result: "pending",
+    stopReason: "approval_pending",
+    approvalState: "pending",
+  });
+  assert.deepEqual(runCompletionMetadata("completed"), {
+    action: "run_complete",
+    result: "succeeded",
+    stopReason: "completed",
+    approvalState: null,
+  });
+  for (const stopReason of ["approval_failed", "not_found", "qualification_failed"] as const) {
+    assert.deepEqual(runCompletionMetadata(stopReason), {
+      action: "run_complete",
+      result: "stopped",
+      stopReason,
+      approvalState: null,
+    });
+  }
 });

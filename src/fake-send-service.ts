@@ -34,15 +34,17 @@ import {
   makeFakeSendExecutionResultOutcome,
   type FakeSendExecutionOutcome,
 } from "./fake-send-execution.js";
+import {
+  isMatchingRunEventAppendOutcome,
+  isRunEventReadOutcome,
+  type RunEventStore,
+} from "./run-event.js";
 
 export type FakeSendAuthorizationBoundary = {
   authorize(input: unknown): unknown;
 };
 
-export type FakeSendEventStore = {
-  append(input: Omit<AgentEvent, "eventId" | "at">): unknown;
-  readRun(runId: string): unknown;
-};
+export type FakeSendEventStore = Pick<RunEventStore, "append" | "readRun">;
 
 export type FakeSendServiceOptions = {
   timeoutMs?: number;
@@ -58,41 +60,39 @@ function storageFailureOutcome(): FakeSendExecutionOutcome {
   return { ok: false, kind: "failure", error: makeFakeSendFailure("storage_failure") };
 }
 
-function isAgentEventEnvelope(value: unknown, runId: string): value is AgentEvent {
-  try {
-    if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
-    const candidate = value as Record<string, unknown>;
-    if (
-      Object.keys(candidate).length !== 5 ||
-      typeof candidate.eventId !== "string" ||
-      candidate.eventId.length === 0 ||
-      candidate.runId !== runId ||
-      typeof candidate.at !== "string" ||
-      !Number.isFinite(Date.parse(candidate.at)) ||
-      new Date(Date.parse(candidate.at)).toISOString() !== candidate.at ||
-      typeof candidate.type !== "string" ||
-      typeof candidate.data !== "object" ||
-      candidate.data === null ||
-      Array.isArray(candidate.data)
-    ) {
-      return false;
-    }
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 function isFakeSendAgentEvent(value: unknown, runId: string): value is AgentEvent {
   try {
     return (
-      isAgentEventEnvelope(value, runId) &&
+      typeof value === "object" &&
+      value !== null &&
+      "runId" in value &&
+      value.runId === runId &&
+      "type" in value &&
+      typeof value.type === "string" &&
+      "data" in value &&
       isFakeSendEventData(value.data) &&
       value.type === value.data.eventType
     );
   } catch {
     return false;
   }
+}
+
+function fakeSendEventMetadata(data: FakeSendEventData) {
+  const result =
+    data.eventType === "fake_send.attempted"
+      ? "attempted"
+      : data.eventType === "fake_send.duplicate"
+        ? "duplicate"
+        : data.eventType === "fake_send.accepted"
+          ? "succeeded"
+          : "failed";
+  return {
+    action: data.eventType,
+    result,
+    errorCode: "code" in data ? data.code : null,
+    durationMs: "durationMs" in data ? data.durationMs : null,
+  };
 }
 
 export class FakeSendService {
@@ -150,12 +150,18 @@ export class FakeSendService {
     try {
       if (!isFakeSendEventData(data)) return false;
       const immutableData = Object.freeze({ ...data }) as FakeSendEventData;
-      const event = this.events.append({
+      const input = {
         runId,
         type: immutableData.eventType,
         data: immutableData,
-      });
-      return isFakeSendAgentEvent(event, runId) && isDeepStrictEqual(event.data, immutableData);
+        metadata: fakeSendEventMetadata(immutableData),
+      };
+      const outcome: unknown = this.events.append(input);
+      return (
+        isMatchingRunEventAppendOutcome(outcome, input) &&
+        isFakeSendAgentEvent(outcome.value, runId) &&
+        isDeepStrictEqual(outcome.value.data, immutableData)
+      );
     } catch {
       return false;
     }
@@ -163,12 +169,16 @@ export class FakeSendService {
 
   private readEvents(runId: string): AgentEvent[] | undefined {
     try {
-      const events = this.events.readRun(runId);
-      if (!Array.isArray(events) || !events.every((event) => isAgentEventEnvelope(event, runId))) {
+      const outcome: unknown = this.events.readRun(runId);
+      if (
+        !isRunEventReadOutcome(outcome) ||
+        !outcome.ok ||
+        !outcome.value.every((event) => event.runId === runId)
+      ) {
         return undefined;
       }
       const fakeSendEvents: AgentEvent[] = [];
-      for (const event of events) {
+      for (const event of outcome.value) {
         const dataEventType = "eventType" in event.data ? event.data.eventType : undefined;
         const claimsFakeSendNamespace =
           event.type.startsWith("fake_send.") ||

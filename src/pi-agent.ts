@@ -10,6 +10,7 @@ import { isApprovalRecord, type ApprovalRecord } from "./approval.js";
 import { ApprovalService } from "./approval-service.js";
 import { FileApprovalStore } from "./approval-store.js";
 import { JsonlEventStore, type AgentEvent } from "./event-store.js";
+import { isMatchingRunEventAppendOutcome, isRunEventReadOutcome } from "./run-event.js";
 import type { QualificationOutcome } from "./qualification.js";
 import { buildTools, qualificationOutcomeFromEvents } from "./tools.js";
 
@@ -40,9 +41,77 @@ Rules:
 - If the lead does not exist, stop clearly.
 - Keep the final response short and factual.`;
 
-function eventData(event: Record<string, unknown>): Record<string, unknown> {
-  const allowed = ["type", "toolName", "toolCallId", "isError", "messageId", "stopReason"];
-  return Object.fromEntries(allowed.filter((key) => key in event).map((key) => [key, event[key]]));
+function boundedCode(value: unknown): string | null {
+  return typeof value === "string" &&
+    value.length >= 1 &&
+    value.length <= 80 &&
+    /^[a-z][a-z0-9_.-]*$/.test(value)
+    ? value
+    : null;
+}
+
+function boundedIdentifier(value: unknown): string | null {
+  return typeof value === "string" &&
+    value.length >= 1 &&
+    value.length <= 120 &&
+    /^[a-zA-Z0-9][a-zA-Z0-9_.:-]*$/.test(value)
+    ? value
+    : null;
+}
+
+function unknownPiEvent() {
+  return {
+    eventType: "pi.lifecycle" as const,
+    sourceType: "unknown",
+    toolName: null,
+    toolCallId: null,
+    isError: null,
+    messageId: null,
+    stopReason: null,
+  };
+}
+
+function normalizedPiEvent(event: unknown) {
+  try {
+    if (typeof event !== "object" || event === null) return unknownPiEvent();
+    const candidate = event as Record<string, unknown>;
+    const toolName =
+      typeof candidate.toolName === "string" &&
+      candidate.toolName.length <= 80 &&
+      /^[a-z][a-z0-9_]+$/.test(candidate.toolName)
+        ? candidate.toolName
+        : null;
+    const stopReason = boundedCode(candidate.stopReason);
+    return {
+      eventType: "pi.lifecycle" as const,
+      sourceType: boundedCode(candidate.type) ?? "unknown",
+      toolName,
+      toolCallId: boundedIdentifier(candidate.toolCallId),
+      isError: typeof candidate.isError === "boolean" ? candidate.isError : null,
+      messageId: boundedIdentifier(candidate.messageId),
+      stopReason,
+    };
+  } catch {
+    return unknownPiEvent();
+  }
+}
+
+function appendRunEvent(store: JsonlEventStore, input: unknown): boolean {
+  try {
+    const outcome: unknown = store.append(input);
+    return isMatchingRunEventAppendOutcome(outcome, input);
+  } catch {
+    return false;
+  }
+}
+
+function readRunEvents(store: JsonlEventStore, runId: string): AgentEvent[] | undefined {
+  try {
+    const outcome: unknown = store.readRun(runId);
+    return isRunEventReadOutcome(outcome) && outcome.ok ? outcome.value : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 function finalAssistantText(messages: unknown[]): string {
@@ -124,6 +193,20 @@ export function qualificationRunOutput(
   return qualification.ok ? assistantOutput : qualification.error.message;
 }
 
+export function runCompletionMetadata(stopReason: RunStopReason) {
+  return {
+    action: "run_complete" as const,
+    result:
+      stopReason === "approval_pending"
+        ? ("pending" as const)
+        : stopReason === "completed"
+          ? ("succeeded" as const)
+          : ("stopped" as const),
+    stopReason,
+    approvalState: stopReason === "approval_pending" ? ("pending" as const) : null,
+  };
+}
+
 export async function runLeadAgent(leadId: string): Promise<RunResult> {
   const runId = crypto.randomUUID();
   const cwd = process.cwd();
@@ -135,11 +218,16 @@ export async function runLeadAgent(leadId: string): Promise<RunResult> {
     authorizedActorIds: new Set(WORKSHOP_APPROVAL_ACTOR_IDS),
   });
 
-  store.append({
-    runId,
-    type: "run.started",
-    data: { leadId },
-  });
+  if (
+    !appendRunEvent(store, {
+      runId,
+      type: "run.started",
+      data: { eventType: "run.started", leadId },
+      metadata: { action: "run_start", result: "attempted" },
+    })
+  ) {
+    throw new Error("Run event storage is unavailable.");
+  }
 
   const resourceLoader = new DefaultResourceLoader({
     cwd,
@@ -159,20 +247,36 @@ export async function runLeadAgent(leadId: string): Promise<RunResult> {
     sessionManager: SessionManager.inMemory(cwd),
   });
 
+  let lifecycleEventFailure = false;
   const unsubscribe = session.subscribe((event) => {
-    const raw = event as unknown as Record<string, unknown>;
-    store.append({
+    const data = normalizedPiEvent(event);
+    const appended = appendRunEvent(store, {
       runId,
-      type: `pi.${String(raw.type ?? "unknown")}`,
-      data: eventData(raw),
+      type: data.eventType,
+      data,
+      metadata: {
+        actor: { kind: data.toolName ? "tool" : "model", id: null },
+        action: "pi_lifecycle",
+        tool: data.toolName ? { name: data.toolName, callId: data.toolCallId } : null,
+        result: data.isError === null ? null : data.isError ? "failed" : "succeeded",
+        errorCode: data.isError ? "pi_event_error" : null,
+        stopReason: data.stopReason,
+      },
     });
+    if (!appended) lifecycleEventFailure = true;
   });
 
   try {
     await session.prompt(
       `Qualify lead "${leadId}", draft the best first follow-up, request human approval, and stop.`,
     );
-    const events = store.readRun(runId);
+    if (lifecycleEventFailure) {
+      throw new Error("Run event storage is unavailable.");
+    }
+    const events = readRunEvents(store, runId);
+    if (!events) {
+      throw new Error("Run event storage is unavailable.");
+    }
     const qualification = qualificationOutcomeFromEvents(events, leadId);
     if (!qualification) {
       throw new Error("Qualification tool produced no valid terminal evidence.");
@@ -186,19 +290,29 @@ export async function runLeadAgent(leadId: string): Promise<RunResult> {
       qualification,
       finalAssistantText(session.agent.state.messages),
     );
-    store.append({
-      runId,
-      type: "run.completed",
-      data: { stopReason },
-    });
+    if (
+      !appendRunEvent(store, {
+        runId,
+        type: "run.completed",
+        data: { eventType: "run.completed", stopReason },
+        metadata: runCompletionMetadata(stopReason),
+      })
+    ) {
+      throw new Error("Run event storage is unavailable.");
+    }
     return { runId, output, stopReason, qualification };
-  } catch (error) {
-    store.append({
+  } catch {
+    const appended = appendRunEvent(store, {
       runId,
       type: "run.failed",
-      data: { error: error instanceof Error ? error.message : String(error) },
+      data: { eventType: "run.failed", code: "agent_run_failed" },
+      metadata: {
+        action: "run_fail",
+        result: "failed",
+        errorCode: "agent_run_failed",
+      },
     });
-    throw error;
+    throw new Error(appended ? "Agent run failed." : "Run event storage is unavailable.");
   } finally {
     unsubscribe();
     session.dispose();

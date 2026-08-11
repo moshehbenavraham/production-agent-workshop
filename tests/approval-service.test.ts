@@ -7,6 +7,7 @@ import { ApprovalService, type ApprovalEventStore } from "../src/approval-servic
 import { FileApprovalStore } from "../src/approval-store.js";
 import { createPendingApproval, makeApprovalFailure, type ApprovalStore } from "../src/approval.js";
 import { JsonlEventStore } from "../src/event-store.js";
+import { readRunEvents } from "./run-event-test-helpers.js";
 
 const temporaryDirectories: string[] = [];
 
@@ -81,7 +82,7 @@ test("durable request stores exact state and emits only minimized evidence", () 
   });
   assert.equal(lineCount(approvalPath), 1);
 
-  const recorded = events.readRun(outcome.value.runId);
+  const recorded = readRunEvents(events, outcome.value.runId);
   assert.deepEqual(
     recorded.map((event) => event.type),
     ["approval.requested"],
@@ -150,7 +151,7 @@ test("duplicate request appends no approval line and records a refusal", () => {
   assert.equal(duplicate.error.code, "duplicate_request");
   assert.equal(lineCount(approvalPath), 1);
   assert.deepEqual(
-    events.readRun(input.runId).map((event) => event.type),
+    readRunEvents(events, input.runId).map((event) => event.type),
     ["approval.requested", "approval.invalid"],
   );
 });
@@ -201,7 +202,8 @@ test("malformed, missing, and unknown-actor decisions remain visible and immutab
   }
   assert.equal(lineCount(approvalPath), 1);
   assert.equal(
-    events.readRun(created.value.runId).filter((event) => event.type === "approval.invalid").length,
+    readRunEvents(events, created.value.runId).filter((event) => event.type === "approval.invalid")
+      .length,
     3,
   );
 });
@@ -233,7 +235,7 @@ test("duplicate and conflicting decisions return original state without another 
   assert.deepEqual(conflict.value, approved.value);
   assert.equal(lineCount(approvalPath), 2);
   assert.deepEqual(
-    events.readRun(created.value.runId).map((event) => event.type),
+    readRunEvents(events, created.value.runId).map((event) => event.type),
     [
       "approval.requested",
       "approval.approved",
@@ -249,7 +251,7 @@ test("request retry repairs missing event after durable state was written", () =
     append: () => {
       throw new Error("sensitive event write detail");
     },
-    readRun: () => [],
+    readRun: () => ({ ok: true, value: [] }),
   };
   const first = service(approvalPath, failingEvents);
   const input = requestInput();
@@ -266,7 +268,7 @@ test("request retry repairs missing event after durable state was written", () =
   assert.equal(recovered.ok, true);
   assert.equal(lineCount(approvalPath), 1);
   assert.deepEqual(
-    events.readRun(input.runId).map((event) => event.type),
+    readRunEvents(events, input.runId).map((event) => event.type),
     ["approval.requested"],
   );
 });
@@ -306,7 +308,7 @@ test("decision retry repairs missing terminal event without another transition",
   assert.equal(recovered.kind, "duplicate");
   assert.equal(lineCount(approvalPath), 2);
   assert.deepEqual(
-    realEvents.readRun(created.value.runId).map((event) => event.type),
+    readRunEvents(realEvents, created.value.runId).map((event) => event.type),
     ["approval.requested", "approval.approved", "approval.decision_duplicate"],
   );
 });
@@ -342,8 +344,8 @@ test("approval-store and metadata failures emit redacted storage evidence", () =
     assert.equal(outcome.ok, false);
     if (outcome.ok) assert.fail("Expected storage failure");
     assert.deepEqual(outcome.error, makeApprovalFailure("storage_failure"));
-    assert.doesNotMatch(JSON.stringify(events.readRun("run_service_001")), /sensitive/);
-    const data = events.readRun("run_service_001")[0]?.data;
+    assert.doesNotMatch(JSON.stringify(readRunEvents(events, "run_service_001")), /sensitive/);
+    const data = readRunEvents(events, "run_service_001")[0]?.data;
     assert.equal(data?.eventType, "approval.storage_failed");
     assert.equal(data?.operation, "request");
     assert.equal(data?.code, "storage_failure");
@@ -396,7 +398,7 @@ test("decision store and clock failures preserve pending state and emit no termi
       ok: true,
       value: created.value,
     });
-    const recorded = events.readRun(created.value.runId);
+    const recorded = readRunEvents(events, created.value.runId);
     assert.equal(
       recorded.some((event) => event.type === "approval.approved"),
       false,
@@ -427,8 +429,11 @@ test("event read failure during retry appends no state and returns typed storage
   if (outcome.ok) assert.fail("Expected event read failure");
   assert.equal(outcome.error.code, "storage_failure");
   assert.equal(lineCount(approvalPath), 1);
-  assert.equal(realEvents.readRun(created.value.runId).at(-1)?.type, "approval.storage_failed");
-  assert.doesNotMatch(JSON.stringify(realEvents.readRun(created.value.runId)), /sensitive/);
+  assert.equal(
+    readRunEvents(realEvents, created.value.runId).at(-1)?.type,
+    "approval.storage_failed",
+  );
+  assert.doesNotMatch(JSON.stringify(readRunEvents(realEvents, created.value.runId)), /sensitive/);
 });
 
 test("terminal operational evidence excludes draft content and decision time", () => {
@@ -445,7 +450,7 @@ test("terminal operational evidence excludes draft content and decision time", (
   });
   if (!decided.ok) assert.fail(decided.error.message);
 
-  const terminal = events.readRun(created.value.runId).at(-1);
+  const terminal = readRunEvents(events, created.value.runId).at(-1);
   assert.deepEqual(terminal?.data, {
     eventType: "approval.declined",
     approvalId: created.value.approvalId,
@@ -478,7 +483,7 @@ test("invalid or mismatched replaceable-store outcomes fail closed", () => {
   assert.equal(mismatched.ok, false);
   if (mismatched.ok) assert.fail("Expected mismatched store failure");
   assert.equal(mismatched.error.code, "storage_failure");
-  assert.equal(events.readRun("run_service_001").at(-1)?.type, "approval.storage_failed");
+  assert.equal(readRunEvents(events, "run_service_001").at(-1)?.type, "approval.storage_failed");
 
   const invalidStore = {
     ...mismatchedStore,
@@ -522,7 +527,7 @@ test("malformed and cross-run event arrays cannot spoof request recovery", () =>
       append: () => {
         throw new Error("initial event outage");
       },
-      readRun: () => [],
+      readRun: () => ({ ok: true, value: [] }),
     }).requestApproval(requestInput(), { draftId: "draft_service_001" });
     assert.equal(initial.ok, false);
     assert.equal(lineCount(approvalPath), 1);
@@ -542,42 +547,50 @@ test("malformed and cross-run event arrays cannot spoof request recovery", () =>
   }
 });
 
-test("event type and data discriminants must both match before recovery is considered present", () => {
+test("the closed event boundary rejects mismatched type and data discriminants", () => {
   const { approvalPath, eventPath } = paths();
   const initial = service(approvalPath, {
     append: () => {
       throw new Error("initial event outage");
     },
-    readRun: () => [],
+    readRun: () => ({ ok: true, value: [] }),
   }).requestApproval(requestInput(), { draftId: "draft_service_001" });
   assert.equal(initial.ok, false);
 
   const realEvents = new JsonlEventStore(eventPath);
   const spoofed: ApprovalEventStore = {
     append: (input) => realEvents.append(input),
-    readRun: () => [
-      {
-        eventId: "event_spoofed_type",
-        runId: "run_service_001",
-        at: "2026-08-04T10:01:00.000Z",
-        type: "approval.requested",
-        data: {
-          eventType: "approval.invalid",
-          approvalId: "approval_service_001",
-          operation: "request",
-          code: "duplicate_request",
-        },
-      },
-    ],
+    readRun: () =>
+      ({
+        ok: true,
+        value: [
+          {
+            schemaVersion: 1,
+            eventId: "event_spoofed_type",
+            runId: "run_service_001",
+            at: "2026-08-04T10:01:00.000Z",
+            type: "approval.requested",
+            data: {
+              eventType: "approval.invalid",
+              approvalId: "approval_service_001",
+              operation: "request",
+              code: "duplicate_request",
+            },
+            metadata: {},
+          },
+        ],
+      }) as never,
   };
   const recovered = service(approvalPath, spoofed).requestApproval(requestInput(), {
     draftId: "draft_service_001",
   });
-  assert.equal(recovered.ok, true);
+  assert.equal(recovered.ok, false);
+  if (recovered.ok) assert.fail("Expected mismatched event boundary failure");
+  assert.equal(recovered.error.code, "storage_failure");
   assert.equal(lineCount(approvalPath), 1);
   assert.deepEqual(
-    realEvents.readRun("run_service_001").map((event) => event.type),
-    ["approval.requested"],
+    readRunEvents(realEvents, "run_service_001").map((event) => event.type),
+    ["approval.storage_failed"],
   );
 });
 
@@ -594,7 +607,7 @@ test("malformed decision identity remains invalid rather than becoming a storage
   if (outcome.ok) assert.fail("Expected invalid decision");
   assert.equal(outcome.kind, "failure");
   assert.equal(outcome.error.code, "invalid_decision");
-  assert.deepEqual(events.readRun("run_service_001")[0]?.data, {
+  assert.deepEqual(readRunEvents(events, "run_service_001")[0]?.data, {
     eventType: "approval.invalid",
     operation: "decision",
     code: "invalid_decision",
@@ -641,5 +654,8 @@ test("schema-valid dependency failure text is canonicalized before output or eve
     ok: false,
     error: makeApprovalFailure("storage_failure"),
   });
-  assert.doesNotMatch(JSON.stringify([written, events.readRun("run_service_001")]), /Sensitive/);
+  assert.doesNotMatch(
+    JSON.stringify([written, readRunEvents(events, "run_service_001")]),
+    /Sensitive/,
+  );
 });

@@ -7,6 +7,7 @@ import Schema from "typebox/schema";
 import { ApprovalService } from "../src/approval-service.js";
 import { FileApprovalStore } from "../src/approval-store.js";
 import { JsonlEventStore } from "../src/event-store.js";
+import type { AgentEvent } from "../src/run-event.js";
 import {
   isQualificationOutcome,
   qualifyLead,
@@ -18,6 +19,7 @@ import {
   executeQualification,
   qualificationOutcomeFromEvents,
 } from "../src/tools.js";
+import { readRunEvents } from "./run-event-test-helpers.js";
 
 const temporaryDirectories: string[] = [];
 
@@ -98,13 +100,19 @@ test("known qualification records one minimized attempt and completion", async (
   assert.equal(isQualificationOutcome(outcome), true);
   assert.deepEqual(outcome, qualifyLead({ leadId: "lead_ada" }));
 
-  const events = store.readRun(runId);
+  const events = readRunEvents(store, runId);
   assert.deepEqual(
     events.map((event) => event.type),
     ["qualification.attempted", "qualification.completed"],
   );
-  assert.deepEqual(events[0]?.data, { leadId: "lead_ada" });
-  assert.deepEqual(events[1]?.data, outcome.ok ? outcome.value : undefined);
+  assert.deepEqual(events[0]?.data, {
+    eventType: "qualification.attempted",
+    leadId: "lead_ada",
+  });
+  assert.deepEqual(events[1]?.data, {
+    eventType: "qualification.completed",
+    result: outcome.ok ? outcome.value : undefined,
+  });
   assert.equal(
     JSON.stringify(events).includes("Northstar Ops") ||
       JSON.stringify(events).includes("Support triage"),
@@ -124,13 +132,16 @@ test("raw wrapper records missing and malformed failures without raw input", asy
     assert.equal(outcome.ok, false);
     if (outcome.ok) assert.fail(`Expected ${code}`);
     assert.equal(outcome.error.code, code);
-    const events = store.readRun(runId);
+    const events = readRunEvents(store, runId);
     assert.deepEqual(
       events.map((event) => event.type),
       ["qualification.attempted", "qualification.failed"],
     );
-    assert.deepEqual(events[0]?.data, {});
-    assert.deepEqual(events[1]?.data, outcome.error);
+    assert.deepEqual(events[0]?.data, { eventType: "qualification.attempted" });
+    assert.deepEqual(events[1]?.data, {
+      eventType: "qualification.failed",
+      error: outcome.error,
+    });
   }
 });
 
@@ -154,7 +165,10 @@ test("cross-lead qualification is rejected before the executor", async () => {
   if (outcome.ok) assert.fail("Expected cross-lead failure");
   assert.equal(outcome.error.code, "invalid_input");
   assert.equal(executorCalled, false);
-  assert.deepEqual(store.readRun(runId)[0]?.data, { leadId: "lead_grace" });
+  assert.deepEqual(readRunEvents(store, runId)[0]?.data, {
+    eventType: "qualification.attempted",
+    leadId: "lead_grace",
+  });
 });
 
 test("unknown lead records structured not-found failure", async () => {
@@ -167,10 +181,13 @@ test("unknown lead records structured not-found failure", async () => {
   if (outcome.ok) assert.fail("Expected not found");
   assert.equal(outcome.error.code, "lead_not_found");
   assert.deepEqual(
-    store.readRun(runId).map((event) => event.type),
+    readRunEvents(store, runId).map((event) => event.type),
     ["qualification.attempted", "qualification.failed"],
   );
-  assert.deepEqual(qualificationOutcomeFromEvents(store.readRun(runId), "lead_unknown"), outcome);
+  assert.deepEqual(
+    qualificationOutcomeFromEvents(readRunEvents(store, runId), "lead_unknown"),
+    outcome,
+  );
 });
 
 test("throwing, rejecting, invalid, and cross-lead executors become redacted failures", async () => {
@@ -199,8 +216,8 @@ test("throwing, rejecting, invalid, and cross-lead executors become redacted fai
     if (outcome.ok) assert.fail("Expected redacted executor failure");
     assert.equal(outcome.error.code, "lead_lookup_failed");
     assert.equal(outcome.error.message, "Lead lookup failed.");
-    assert.doesNotMatch(JSON.stringify(store.readRun(runId)), /sensitive|invented/);
-    assert.equal(store.readRun(runId).length, 2);
+    assert.doesNotMatch(JSON.stringify(readRunEvents(store, runId)), /sensitive|invented/);
+    assert.equal(readRunEvents(store, runId).length, 2);
   }
 });
 
@@ -231,7 +248,7 @@ test("executor failure fields are canonicalized by the application", async () =>
       retryable: false,
     },
   });
-  assert.doesNotMatch(JSON.stringify(store.readRun(runId)), /Sensitive/);
+  assert.doesNotMatch(JSON.stringify(readRunEvents(store, runId)), /Sensitive/);
 });
 
 test("timeout wins once and a late result cannot append another event", async () => {
@@ -252,12 +269,12 @@ test("timeout wins once and a late result cannot append another event", async ()
   assert.equal(outcome.ok, false);
   if (outcome.ok) assert.fail("Expected timeout");
   assert.equal(outcome.error.code, "qualification_timeout");
-  assert.equal(store.readRun(runId).length, 2);
+  assert.equal(readRunEvents(store, runId).length, 2);
 
   resolveExecutor?.(qualifyLead({ leadId: "lead_ada" }));
   await new Promise((resolve) => setTimeout(resolve, 20));
   assert.deepEqual(
-    store.readRun(runId).map((event) => event.type),
+    readRunEvents(store, runId).map((event) => event.type),
     ["qualification.attempted", "qualification.failed"],
   );
 });
@@ -269,7 +286,7 @@ test("invalid timeout configuration fails before an event lifecycle starts", asy
     executeQualification(runId, "lead_ada", store, { leadId: "lead_ada" }, { timeoutMs: 0 }),
     /positive finite number/,
   );
-  assert.deepEqual(store.readRun(runId), []);
+  assert.deepEqual(readRunEvents(store, runId), []);
 });
 
 test("repeated qualification is deterministic and records one pair per call", async () => {
@@ -283,7 +300,7 @@ test("repeated qualification is deterministic and records one pair per call", as
 
   assert.deepEqual(first, second);
   assert.deepEqual(
-    store.readRun(runId).map((event) => event.type),
+    readRunEvents(store, runId).map((event) => event.type),
     [
       "qualification.attempted",
       "qualification.completed",
@@ -322,7 +339,7 @@ test("draft and approval deny missing, failed, and cross-lead qualification", as
     approval: null,
     code: "qualification_required",
   });
-  assert.equal(store.readRun(runId).length, 0);
+  assert.equal(readRunEvents(store, runId).length, 0);
 
   await executeTool(qualificationTool, { leadId: "lead_grace" });
   const draftAfterMismatch = await executeTool(draftTool, {
@@ -336,11 +353,11 @@ test("draft and approval deny missing, failed, and cross-lead qualification", as
   assert.equal((draftAfterMismatch.details as { created: boolean }).created, false);
   assert.equal((approvalAfterMismatch.details as { created: boolean }).created, false);
   assert.equal(
-    store.readRun(runId).some((event) => event.type === "domain.follow_up_drafted"),
+    readRunEvents(store, runId).some((event) => event.type === "domain.follow_up_drafted"),
     false,
   );
   assert.equal(
-    store.readRun(runId).some((event) => event.type === "approval.requested"),
+    readRunEvents(store, runId).some((event) => event.type === "approval.requested"),
     false,
   );
 });
@@ -375,7 +392,7 @@ test("draft and approval deny an exact-lead qualification failure", async () => 
   assert.equal((draftResult.details as { created: boolean }).created, false);
   assert.equal((approvalResult.details as { created: boolean }).created, false);
   assert.deepEqual(
-    store.readRun(runId).map((event) => event.type),
+    readRunEvents(store, runId).map((event) => event.type),
     ["qualification.attempted", "qualification.failed"],
   );
 });
@@ -412,7 +429,7 @@ test("known lead completes deterministic qualification-to-approval vertical slic
     "pending",
   );
 
-  const events = store.readRun(runId);
+  const events = readRunEvents(store, runId);
   assert.deepEqual(
     events.map((event) => event.type),
     [
@@ -431,9 +448,13 @@ test("known lead completes deterministic qualification-to-approval vertical slic
     events.some((event) => /sent/i.test(event.type)),
     false,
   );
-  const drafted = events.find((event) => event.type === "domain.follow_up_drafted");
-  assert.equal(typeof drafted?.data.draftId, "string");
-  assert.match(String(drafted?.data.sha256), /^[0-9a-f]{64}$/);
+  const drafted = events.find((event) => event.data.eventType === "domain.follow_up_drafted");
+  assert.ok(drafted);
+  if (drafted.data.eventType !== "domain.follow_up_drafted") {
+    assert.fail("Expected drafted event payload");
+  }
+  assert.equal(typeof drafted.data.draftId, "string");
+  assert.match(drafted.data.sha256, /^[0-9a-f]{64}$/);
   assert.equal("draft" in (drafted?.data ?? {}), false);
   assert.equal(JSON.stringify(drafted).includes(draft), false);
 });
@@ -469,7 +490,7 @@ test("approval rejects altered and stale drafts before durable creation", async 
     });
     assert.deepEqual(approvalService.listRun(runId), { ok: true, value: [] });
     assert.equal(
-      store.readRun(runId).some((event) => event.type.startsWith("approval.")),
+      readRunEvents(store, runId).some((event) => event.type.startsWith("approval.")),
       false,
     );
   }
@@ -519,7 +540,7 @@ test("tool-created pending and internal terminal state survive independent servi
   });
   assert.equal(readFileSync(approvalPath, "utf8").split("\n").filter(Boolean).length, 2);
   assert.deepEqual(
-    store.readRun(runId).map((event) => event.type),
+    readRunEvents(store, runId).map((event) => event.type),
     [
       "qualification.attempted",
       "qualification.completed",
@@ -569,7 +590,7 @@ test("approval storage outage returns typed tool refusal and minimized evidence"
     code: "storage_failure",
   });
   assert.deepEqual(
-    store.readRun(runId).map((event) => event.type),
+    readRunEvents(store, runId).map((event) => event.type),
     [
       "qualification.attempted",
       "qualification.completed",
@@ -577,7 +598,7 @@ test("approval storage outage returns typed tool refusal and minimized evidence"
       "approval.storage_failed",
     ],
   );
-  assert.doesNotMatch(JSON.stringify(store.readRun(runId)), /sensitive|Hi Ada/);
+  assert.doesNotMatch(JSON.stringify(readRunEvents(store, runId)), /sensitive|Hi Ada/);
 });
 
 test("tool event-read failures return typed refusals without durable approval", async () => {
@@ -627,17 +648,82 @@ test("tool event-read failures return typed refusals without durable approval", 
   }
 });
 
+test("thrown and schema-valid mismatched append outcomes fail closed", async () => {
+  let executorCalled = false;
+  const thrown = await executeQualification(
+    "run_qualification_thrown_append",
+    "lead_ada",
+    {
+      append: () => {
+        throw null;
+      },
+      readRun: () => ({ ok: true, value: [] }),
+    },
+    { leadId: "lead_ada" },
+    {
+      qualificationExecutor: () => {
+        executorCalled = true;
+        return qualifyLead({ leadId: "lead_ada" });
+      },
+    },
+  );
+  assert.equal(thrown.ok, false);
+  if (thrown.ok) assert.fail("Expected thrown append failure");
+  assert.equal(thrown.error.code, "lead_lookup_failed");
+  assert.equal(executorCalled, false);
+
+  const { runId, store, approvalService } = createStore();
+  let appendCalls = 0;
+  const mismatchedStore = {
+    append: (input: unknown) => {
+      appendCalls += 1;
+      if (appendCalls <= 2) return store.append(input);
+      return store.append({
+        runId,
+        type: "run.started",
+        data: { eventType: "run.started", leadId: "lead_ada" },
+      });
+    },
+    readRun: (requestedRunId: unknown) => store.readRun(requestedRunId),
+  };
+  const [qualificationTool, draftTool] = buildTools(
+    runId,
+    "lead_ada",
+    mismatchedStore,
+    approvalService,
+  );
+  const qualification = await executeTool(qualificationTool, { leadId: "lead_ada" });
+  assert.equal((qualification.details as QualificationOutcome).ok, true);
+  const draft = await executeTool(draftTool, {
+    leadId: "lead_ada",
+    angle: "An auditable support triage workflow",
+  });
+  assert.equal((draft.details as { created: boolean }).created, false);
+  assert.equal((draft.details as { code: string }).code, "storage_failure");
+  assert.equal(
+    readRunEvents(store, runId).some(
+      (event) => event.data.eventType === "domain.follow_up_drafted",
+    ),
+    false,
+  );
+});
+
 test("corrupt terminal event data cannot become qualification truth", () => {
   assert.equal(
     qualificationOutcomeFromEvents(
       [
         {
+          schemaVersion: 1,
           eventId: "event_corrupt",
           runId: "run_corrupt",
           at: "2026-08-04T00:00:00.000Z",
           type: "qualification.completed",
-          data: { leadId: "lead_ada", fit: "invented", confidence: 2 },
-        },
+          data: {
+            eventType: "qualification.completed",
+            result: { leadId: "lead_ada", fit: "invented", confidence: 2 },
+          },
+          metadata: {},
+        } as unknown as AgentEvent,
       ],
       "lead_ada",
     ),

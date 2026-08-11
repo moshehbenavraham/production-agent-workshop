@@ -204,7 +204,7 @@ One phase corresponds to exactly one workshop week. Each phase is implemented th
 |-------|------|------|--------------|----------|--------|
 | 00 | 1 | Foundation | `00`, `01` | 3 | Complete |
 | 01 | 2 | Durable Approval and Safe Write | `02`, `03` | 6 | Complete |
-| 02 | 3 | Recovery and Evaluation Gates | `04`, `05` | TBD after Phase 01 | Planned |
+| 02 | 3 | Recovery and Evaluation Gates | `04`, `05` | 7 | Not Started |
 | 03 | 4 | Operations and Coolify Release | `06`, `07` | TBD after Phase 02 | Planned |
 | 04 | 5 | Typed Handoff Decision | `08` | TBD after Phase 03 and the entry gate | Planned and Required |
 
@@ -279,9 +279,17 @@ Phase 01 must be complete.
 1. Rebuild, replay, and resume interrupted runs from durable evidence without duplicate approvals or effects.
 2. Gate deployment with a representative 10-20 case production eval suite and critical non-zero failures.
 
-### Sessions (To Be Defined)
+### Sessions
 
-After Phase 01 completion and transition work, `phasebuild` defines Phase 02 session stubs under `.spec_system/PRD/phase_02/`.
+| Session | Objective | Source task |
+|---------|-----------|-------------|
+| 01 | Define and implement the closed durable run-event contract and hardened append-only store | `04` |
+| 02 | Build deterministic run projections and fail closed on ambiguous or corrupt recovery evidence | `04` |
+| 03 | Enforce whole-run deadline and step bounds with complete attempt, outcome, and terminal evidence | `04` |
+| 04 | Integrate replay and resume at three checkpoints without duplicate approvals or fake effects | `04` |
+| 05 | Define production-eval contracts and a validated 10-20 case synthetic golden set | `05` |
+| 06 | Implement the deterministic critical gate, result persistence, and compact scorecard | `05` |
+| 07 | Prove critical boundaries with reverted red/fix/green exercises and close Phase 02 evidence | `05` |
 
 ## Phase 03: Operations and Coolify Release
 
@@ -378,7 +386,7 @@ The completed five-week path must leave one reviewable portfolio containing:
 - File-backed append-only storage is sufficient for the current single-process workshop: repository architecture guidance explicitly defers a database, Redis, or queue until durable concurrency requires it, and the storage interfaces remain replaceable.
 - The repository is a single package rather than a monorepo: deterministic analysis found no workspace indicators or packages, and the root contains one `package.json`, so package-scoped planning is unnecessary.
 - Phases map one-to-one to workshop weeks: Phase 00 owns Week 1 tasks `00`-`01`, Phase 01 owns Week 2 tasks `02`-`03`, Phase 02 owns Week 3 tasks `04`-`05`, Phase 03 owns Week 4 tasks `06`-`07`, and Phase 04 owns required Week 5 task `08`; the user supplied this phase boundary directly, so no unrelated integration phase may be inserted.
-- Project state registers completed Phases 00 and 01 only: Phases 02 through 04 remain PRD-planned future phases and gain session state sequentially through `phasebuild`, never in advance.
+- Project state registers completed Phases 00 and 01 and current not-started Phase 02: Phases 03 and 04 remain PRD-planned future phases and gain session state sequentially through `phasebuild`, never in advance.
 - Production CRM, company research, real send, and Postgres work remain unscheduled deferred requirements: they appear in future-looking repository material but not in the ordered todo path, so aligning the PRD does not authorize or schedule them.
 
 ### Conflict Resolutions

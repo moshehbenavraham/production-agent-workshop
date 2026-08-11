@@ -25,6 +25,15 @@ import {
 } from "../src/fake-send-service.js";
 import { DeterministicFakeSendAdapter } from "../src/fake-send-adapter.js";
 import { FileFakeSendResultStore } from "../src/fake-send-store.js";
+import {
+  createAgentEvent,
+  isRunEventInput,
+  isRunId,
+  makeRunEventFailure,
+  type RunEventAppendOutcome,
+  type RunEventReadOutcome,
+} from "../src/run-event.js";
+import { appendRunEvent, readRunEvents } from "./run-event-test-helpers.js";
 
 const temporaryDirectories: string[] = [];
 
@@ -163,19 +172,29 @@ class MemoryEventStore implements FakeSendEventStore {
   readonly events: AgentEvent[] = [];
   readonly failOnce = new Set<string>();
 
-  append(input: Omit<AgentEvent, "eventId" | "at">): AgentEvent {
-    if (this.failOnce.delete(input.type)) throw new Error("sensitive event failure");
-    const event: AgentEvent = {
-      ...input,
+  append(input: unknown): RunEventAppendOutcome {
+    if (
+      typeof input === "object" &&
+      input !== null &&
+      "type" in input &&
+      typeof input.type === "string" &&
+      this.failOnce.delete(input.type)
+    ) {
+      throw new Error("sensitive event failure");
+    }
+    const outcome = createAgentEvent(input, {
       eventId: `event_fake_service_${this.events.length + 1}`,
       at: "2026-08-04T12:00:01.000Z",
-    };
-    this.events.push(event);
-    return event;
+      applicationVersion: "0.1.22",
+    });
+    if (outcome.ok) this.events.push(outcome.value);
+    return outcome;
   }
 
-  readRun(runId: string): AgentEvent[] {
-    return this.events.filter((event) => event.runId === runId);
+  readRun(runId: unknown): RunEventReadOutcome {
+    return isRunId(runId)
+      ? { ok: true, value: this.events.filter((event) => event.runId === runId) }
+      : { ok: false, error: makeRunEventFailure("invalid_input") };
   }
 }
 
@@ -191,11 +210,11 @@ test("exact approved action persists one accepted result and minimized events", 
   assert.equal(fake.calls(), 1);
   assert.equal(lineCount(resultPath), 2);
   assert.deepEqual(
-    events.readRun(RUN_ID).map((event) => event.type),
+    readRunEvents(events, RUN_ID).map((event) => event.type),
     ["fake_send.attempted", "fake_send.accepted"],
   );
-  assert.equal(JSON.stringify(events.readRun(RUN_ID)).includes(DRAFT), false);
-  assert.equal(JSON.stringify(events.readRun(RUN_ID)).includes("lead_ada"), false);
+  assert.equal(JSON.stringify(readRunEvents(events, RUN_ID)).includes(DRAFT), false);
+  assert.equal(JSON.stringify(readRunEvents(events, RUN_ID)).includes("lead_ada"), false);
 });
 
 test("new service returns exact durable original for duplicate with zero second effect", async () => {
@@ -225,7 +244,7 @@ test("new service returns exact durable original for duplicate with zero second 
   assert.equal(duplicateFake.calls(), 0);
   assert.equal(lineCount(resultPath), 2);
   assert.deepEqual(
-    events.readRun(RUN_ID).map((event) => event.type),
+    readRunEvents(events, RUN_ID).map((event) => event.type),
     ["fake_send.attempted", "fake_send.accepted", "fake_send.duplicate"],
   );
 });
@@ -434,6 +453,8 @@ test("generated reservations, results, and event evidence are immutable at repla
   const memory = new MemoryEventStore();
   const events: FakeSendEventStore = {
     append: (input) => {
+      assert.equal(isRunEventInput(input), true);
+      if (!isRunEventInput(input)) assert.fail("Expected closed run-event input");
       assert.equal(Object.isFrozen(input.data), true);
       assert.throws(() => {
         (input.data as { eventType: string }).eventType = "fake_send.storage_failed";
@@ -548,7 +569,12 @@ test("duplicate retry fails closed when terminal evidence is duplicated", async 
   if (!first.ok) assert.fail(first.error.message);
   const accepted = events.events.find((event) => event.type === "fake_send.accepted");
   assert.ok(accepted);
-  events.append({ runId: accepted.runId, type: accepted.type, data: accepted.data });
+  appendRunEvent(events, {
+    runId: accepted.runId,
+    type: accepted.type,
+    data: accepted.data,
+    metadata: accepted.metadata,
+  });
 
   const duplicateFake = acceptedAdapter();
   const duplicate = await service(resultPath, events, duplicateFake.adapter).execute(request());
@@ -622,11 +648,14 @@ test("malformed or throwing authorization and event reads stay typed", async () 
   const hostileEvents: FakeSendEventStore = {
     append: (input) => persistedEvents.append(input),
     readRun: () =>
-      new Proxy([], {
-        get: () => {
-          throw new Error("hostile events");
+      new Proxy(
+        { ok: true, value: [] },
+        {
+          get: () => {
+            throw new Error("hostile events");
+          },
         },
-      }),
+      ) as never,
   };
   const duplicate = await service(resultPath, hostileEvents, fake.adapter).execute(request());
   assert.equal(duplicate.ok, false);

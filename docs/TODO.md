@@ -23,6 +23,24 @@ Phase 01 is sourced only from Tasks [`02`](todo/02-durable-approvals.md) and
 [`03`](todo/03-idempotent-send.md). Its completed implementation preserves the
 fake-only, synthetic-data, no-real-network boundary.
 
+## Current Phase
+
+- [ ] Phase 02 - Recovery and Evaluation Gates (Week 3)
+  - [x] Session 01 - Durable Run Event Contract and Store
+  - [ ] Session 02 - Run Projection and Corruption Refusal
+  - [ ] Session 03 - Bounded Run Lifecycle
+  - [ ] Session 04 - Replay and Resume Integration
+  - [ ] Session 05 - Production Eval Contract and Golden Set
+  - [ ] Session 06 - Critical Eval Gate and Scorecard
+  - [ ] Session 07 - Boundary Regression Exercises and Evidence
+
+Phase 02 is sourced only from Tasks [`04`](todo/04-recovery-and-replay.md) and
+[`05`](todo/05-production-evals.md). Its plan preserves dedicated approval and
+fake-result authorization truth while making durable events authoritative for
+run lifecycle recovery. Session 01 now has a validated closed, versioned event
+contract and private durable JSONL adapter with corruption refusal; it does not
+yet add run projection, execution bounds, replay, or resume. Session 02 is next.
+
 ## Phase 00 Transition (Complete)
 
 - [x] Audit and validate the first local-tooling bundle (Biome formatting).
@@ -39,8 +57,8 @@ fake-only, synthetic-data, no-real-network boundary.
 - [x] Carry Phase 01 lessons, risks, and controls into the cumulative records.
 - [x] Reconcile all current documentation and record the documentation audit.
 
-Phase 02 remains untouched. After these five closeout workflows pass, the next
-command is `phasebuild`; it is deliberately outside the Phase 01 cutoff.
+Phase 02 planning is now complete. Its seven bounded session stubs were created
+only after all five Phase 01 closeout workflows passed.
 
 ## Documentation Maintenance
 

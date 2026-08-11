@@ -23,11 +23,13 @@ import {
   type TerminalApproval,
 } from "./approval.js";
 import type { AgentEvent } from "./event-store.js";
+import {
+  isMatchingRunEventAppendOutcome,
+  isRunEventReadOutcome,
+  type RunEventStore,
+} from "./run-event.js";
 
-export type ApprovalEventStore = {
-  append(input: Omit<AgentEvent, "eventId" | "at">): AgentEvent;
-  readRun(runId: string): AgentEvent[];
-};
+export type ApprovalEventStore = Pick<RunEventStore, "append" | "readRun">;
 
 export type ApprovalServiceOptions = {
   authorizedActorIds?: ReadonlySet<string>;
@@ -67,19 +69,27 @@ function approvalIdHint(value: unknown): string | undefined {
     : undefined;
 }
 
-function isAgentEvent(value: unknown, runId: string): value is AgentEvent {
-  if (typeof value !== "object" || value === null) return false;
-  const candidate = value as Partial<AgentEvent>;
-  return (
-    typeof candidate.eventId === "string" &&
-    candidate.runId === runId &&
-    typeof candidate.at === "string" &&
-    Number.isFinite(Date.parse(candidate.at)) &&
-    typeof candidate.type === "string" &&
-    typeof candidate.data === "object" &&
-    candidate.data !== null &&
-    !Array.isArray(candidate.data)
-  );
+function approvalEventMetadata(data: ApprovalEventData) {
+  const actorId = "actorId" in data ? data.actorId : null;
+  const approvalState = "status" in data ? data.status : null;
+  const errorCode = "code" in data ? data.code : null;
+  const result =
+    data.eventType === "approval.requested"
+      ? "pending"
+      : data.eventType === "approval.decision_duplicate"
+        ? "duplicate"
+        : data.eventType === "approval.approved"
+          ? "succeeded"
+          : "failed";
+  return {
+    actor: actorId
+      ? ({ kind: "human", id: actorId } as const)
+      : ({ kind: "application", id: null } as const),
+    action: data.eventType,
+    result,
+    errorCode,
+    approvalState,
+  };
 }
 
 function requestMatches(current: ApprovalRecord, candidate: PendingApproval): boolean {
@@ -164,12 +174,14 @@ export class ApprovalService {
   private appendEvent(runId: string, data: ApprovalEventData): boolean {
     if (!isApprovalEventData(data)) return false;
     try {
-      const event: unknown = this.events.append({ runId, type: data.eventType, data });
-      return (
-        isAgentEvent(event, runId) &&
-        event.type === data.eventType &&
-        isDeepStrictEqual(event.data, data)
-      );
+      const input = {
+        runId,
+        type: data.eventType,
+        data,
+        metadata: approvalEventMetadata(data),
+      };
+      const outcome: unknown = this.events.append(input);
+      return isMatchingRunEventAppendOutcome(outcome, input);
     } catch {
       return false;
     }
@@ -177,9 +189,11 @@ export class ApprovalService {
 
   private readEvents(runId: string): EventReadOutcome {
     try {
-      const events = this.events.readRun(runId);
-      return Array.isArray(events) && events.every((event) => isAgentEvent(event, runId))
-        ? { ok: true, value: events }
+      const outcome: unknown = this.events.readRun(runId);
+      return isRunEventReadOutcome(outcome) &&
+        outcome.ok &&
+        outcome.value.every((event) => event.runId === runId)
+        ? { ok: true, value: outcome.value }
         : { ok: false, error: makeApprovalFailure("storage_failure") };
     } catch {
       return { ok: false, error: makeApprovalFailure("storage_failure") };

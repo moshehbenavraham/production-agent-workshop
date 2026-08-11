@@ -10,6 +10,15 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Added
 
+- Added a closed, versioned run-event envelope with explicit operational
+  metadata availability, minimized owned payload variants, canonical failures,
+  and strict append/read outcomes.
+- Added a private durable JSONL run-event adapter with complete-file validation,
+  flush and exact re-read confirmation, restart-safe reads, and visible
+  truncation, corruption, duplicate-identity, and ordering refusal.
+- Added the seven-session Phase 02 Apex plan for durable recovery, bounded run
+  lifecycle, replay-safe resume, and deterministic production eval gates sourced
+  from Tasks `04` and `05`.
 - Enabled the Biome 2.5.6 recommended-rule linting bundle with fix/check
   commands and enforcement in the complete local verification gate.
 - Added a least-privilege Build & Test workflow with a TypeScript build, all
@@ -54,6 +63,19 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Changed
 
+- Corrected Phase 02 workflow history trimming, sourced default event metadata
+  from the installed package version, and made run-completion metadata
+  distinguish pending, successful, and stopped outcomes without inventing an
+  approval state.
+- Closed Phase 02 Session 01 at version `0.1.23` after 176/176 deterministic
+  tests, 5/5 evals, coverage above all configured thresholds, zero dependency
+  vulnerabilities, and complete security and production-boundary validation.
+- Migrated run, normalized Pi, qualification, draft, approval, and fake-send
+  event producers and consumers to the shared closed boundary while retaining
+  dedicated approval and fake-result stores as authorization truth. Run
+  projection, execution bounds, replay, and resume remain unimplemented.
+- Advanced spec workflow tracking to Phase 02 and synchronized the master PRD
+  and project TODO with the bounded Week 3 session split.
 - Reconciled the Week 2 Build Log directly with Tasks `02` and `03`, current
   contracts, and focused tests: corrected approval-state and duplicate-event
   semantics, clarified indeterminate fake-send reservations, added the typed

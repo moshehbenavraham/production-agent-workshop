@@ -2,7 +2,7 @@
   "version": "2.0",
   "project_name": "production-agent-workshop",
   "description": "Build an Agency Lead Operations Agent with Codex, Pi, and Coolify.",
-  "current_phase": 1,
+  "current_phase": 2,
   "current_session": null,
   "monorepo": false,
   "phases": {
@@ -16,6 +16,12 @@
       "description": "Persist exact approval decisions and add a fake exact-target idempotent write boundary without a real network effect.",
       "status": "complete",
       "session_count": 6
+    },
+    "2": {
+      "name": "Recovery and Evaluation Gates",
+      "description": "Build durable run recovery, replay-safe resume, and deployment-blocking production eval gates.",
+      "status": "in_progress",
+      "session_count": 7
     }
   },
   "completed_sessions": [
@@ -27,66 +33,12 @@
     "phase01-session03-durable-approval-integration",
     "phase01-session04-fake-send-contract-and-authorization",
     "phase01-session05-idempotent-fake-send-execution",
-    "phase01-session06-safe-write-integration-and-evidence"
+    "phase01-session06-safe-write-integration-and-evidence",
+    "phase02-session01-durable-run-event-contract-and-store"
   ],
   "next_session_history": [
     {
       "date": "2026-08-04",
-      "session": "phase00-session01-bounded-system-map",
-      "status": "planned"
-    },
-    {
-      "date": "2026-08-04",
-      "session": "phase00-session01-bounded-system-map",
-      "status": "validated"
-    },
-    {
-      "date": "2026-08-04",
-      "session": "phase00-session01-bounded-system-map",
-      "status": "validated"
-    },
-    {
-      "date": "2026-08-04",
-      "session": "phase00-session01-bounded-system-map",
-      "status": "completed"
-    },
-    {
-      "date": "2026-08-04",
-      "session": "phase00-session02-qualification-contract-and-domain",
-      "status": "planned"
-    },
-    {
-      "date": "2026-08-04",
-      "session": "phase00-session02-qualification-contract-and-domain",
-      "status": "validated"
-    },
-    {
-      "date": "2026-08-04",
-      "session": "phase00-session02-qualification-contract-and-domain",
-      "status": "completed"
-    },
-    {
-      "date": "2026-08-04",
-      "session": "phase00-session03-qualification-tool-integration",
-      "status": "planned"
-    },
-    {
-      "date": "2026-08-04",
-      "session": "phase00-session03-qualification-tool-integration",
-      "status": "validated"
-    },
-    {
-      "date": "2026-08-04",
-      "session": "phase00-session03-qualification-tool-integration",
-      "status": "completed"
-    },
-    {
-      "date": "2026-08-04",
-      "session": "phase01-session01-approval-contract-and-transitions",
-      "status": "planned"
-    },
-    {
-      "date": "2026-08-04",
       "session": "phase01-session01-approval-contract-and-transitions",
       "status": "validated"
     },
@@ -168,6 +120,21 @@
     {
       "date": "2026-08-04",
       "session": "phase01-session06-safe-write-integration-and-evidence",
+      "status": "completed"
+    },
+    {
+      "date": "2026-08-11",
+      "session": "phase02-session01-durable-run-event-contract-and-store",
+      "status": "planned"
+    },
+    {
+      "date": "2026-08-11",
+      "session": "phase02-session01-durable-run-event-contract-and-store",
+      "status": "validated"
+    },
+    {
+      "date": "2026-08-11",
+      "session": "phase02-session01-durable-run-event-contract-and-store",
       "status": "completed"
     }
   ]

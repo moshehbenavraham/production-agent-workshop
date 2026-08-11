@@ -7,7 +7,7 @@ import {
   type PendingApproval,
 } from "./approval.js";
 import type { ApprovalService } from "./approval-service.js";
-import type { AgentEvent, JsonlEventStore } from "./event-store.js";
+import type { AgentEvent } from "./event-store.js";
 import { findLead, type Lead } from "./leads.js";
 import {
   QualificationInputSchema,
@@ -19,6 +19,11 @@ import {
   qualifyLead,
   type QualificationOutcome,
 } from "./qualification.js";
+import {
+  isMatchingRunEventAppendOutcome,
+  isRunEventReadOutcome,
+  type RunEventStore,
+} from "./run-event.js";
 
 export { findLead, type Lead } from "./leads.js";
 
@@ -31,7 +36,16 @@ export type QualificationExecutionOptions = {
   timeoutMs?: number;
 };
 
-export type ToolEventStore = Pick<JsonlEventStore, "append" | "readRun">;
+export type ToolEventStore = Pick<RunEventStore, "append" | "readRun">;
+
+function appendToolEvent(store: ToolEventStore, input: unknown): boolean {
+  try {
+    const outcome: unknown = store.append(input);
+    return isMatchingRunEventAppendOutcome(outcome, input);
+  } catch {
+    return false;
+  }
+}
 
 type DraftToolDetails = {
   created: boolean;
@@ -93,11 +107,23 @@ export async function executeQualification(
   }
 
   const validatedInput = isQualificationInput(input) ? input : undefined;
-  store.append({
+  const attempted = {
     runId,
     type: "qualification.attempted",
-    data: validatedInput ? { leadId: validatedInput.leadId } : {},
-  });
+    data: {
+      eventType: "qualification.attempted",
+      ...(validatedInput ? { leadId: validatedInput.leadId } : {}),
+    },
+    metadata: {
+      action: "qualify_lead",
+      tool: { name: "qualify_lead", callId: null },
+      validatedArguments: validatedInput ? { leadId: validatedInput.leadId } : null,
+      result: "attempted",
+    },
+  };
+  if (!appendToolEvent(store, attempted)) {
+    return makeQualificationFailure("lead_lookup_failed");
+  }
 
   let outcome: QualificationOutcome;
   if (validatedInput && validatedInput.leadId !== requestedLeadId) {
@@ -114,12 +140,23 @@ export async function executeQualification(
         : candidate;
   }
 
-  store.append({
+  const terminal = {
     runId,
     type: outcome.ok ? "qualification.completed" : "qualification.failed",
-    data: outcome.ok ? { ...outcome.value } : { ...outcome.error },
-  });
-  return outcome;
+    data: outcome.ok
+      ? { eventType: "qualification.completed", result: outcome.value }
+      : { eventType: "qualification.failed", error: outcome.error },
+    metadata: {
+      action: "qualify_lead",
+      tool: { name: "qualify_lead", callId: null },
+      validatedArguments: validatedInput ? { leadId: validatedInput.leadId } : null,
+      result: outcome.ok ? "succeeded" : "failed",
+      errorCode: outcome.ok ? null : outcome.error.code,
+    },
+  };
+  return appendToolEvent(store, terminal)
+    ? outcome
+    : makeQualificationFailure("lead_lookup_failed");
 }
 
 export function createQualificationTool(
@@ -150,14 +187,18 @@ export function qualificationOutcomeFromEvents(
   requestedLeadId: string,
 ): QualificationOutcome | undefined {
   for (const event of [...events].reverse()) {
-    if (event.type === "qualification.completed") {
-      return isQualificationResult(event.data) && event.data.leadId === requestedLeadId
-        ? { ok: true, value: event.data }
+    if (
+      event.type === "qualification.completed" &&
+      event.data.eventType === "qualification.completed"
+    ) {
+      return isQualificationResult(event.data.result) &&
+        event.data.result.leadId === requestedLeadId
+        ? { ok: true, value: event.data.result }
         : undefined;
     }
-    if (event.type === "qualification.failed") {
-      return isQualificationFailure(event.data)
-        ? makeQualificationFailure(event.data.code)
+    if (event.type === "qualification.failed" && event.data.eventType === "qualification.failed") {
+      return isQualificationFailure(event.data.error)
+        ? makeQualificationFailure(event.data.error.code)
         : undefined;
     }
   }
@@ -168,19 +209,12 @@ type ToolEventReadOutcome = { ok: true; value: AgentEvent[] } | { ok: false };
 
 function readToolEvents(store: ToolEventStore, runId: string): ToolEventReadOutcome {
   try {
-    const events: unknown = store.readRun(runId);
-    if (!Array.isArray(events)) return { ok: false };
-    const valid = events.every(
-      (event) =>
-        typeof event === "object" &&
-        event !== null &&
-        (event as AgentEvent).runId === runId &&
-        typeof (event as AgentEvent).type === "string" &&
-        typeof (event as AgentEvent).data === "object" &&
-        (event as AgentEvent).data !== null &&
-        !Array.isArray((event as AgentEvent).data),
-    );
-    return valid ? { ok: true, value: events as AgentEvent[] } : { ok: false };
+    const outcome: unknown = store.readRun(runId);
+    return isRunEventReadOutcome(outcome) &&
+      outcome.ok &&
+      outcome.value.every((event) => event.runId === runId)
+      ? { ok: true, value: outcome.value }
+      : { ok: false };
   } catch {
     return { ok: false };
   }
@@ -244,7 +278,12 @@ function hasCurrentDraftEvidence(
 
   for (let index = events.length - 1; index > qualificationIndex; index -= 1) {
     const event = events[index];
-    if (event?.type !== "domain.follow_up_drafted") continue;
+    if (
+      event?.type !== "domain.follow_up_drafted" ||
+      event.data.eventType !== "domain.follow_up_drafted"
+    ) {
+      continue;
+    }
     return (
       evidence.leadId === requestedLeadId &&
       event.data.leadId === evidence.leadId &&
@@ -331,12 +370,36 @@ export function buildTools(
       const draft = makeDraft(lead, params.angle);
       const draftId = `draft_${crypto.randomUUID()}`;
       const sha256 = hashApprovalDraft(draft);
-      latestDraft = { leadId: params.leadId, draftId, sha256, content: draft };
-      store.append({
+      const evidence = { leadId: params.leadId, draftId, sha256, content: draft };
+      const draftedEvent = {
         runId,
         type: "domain.follow_up_drafted",
-        data: { leadId: params.leadId, draftId, sha256 },
-      });
+        data: {
+          eventType: "domain.follow_up_drafted",
+          leadId: params.leadId,
+          draftId,
+          sha256,
+        },
+        metadata: {
+          action: "draft_follow_up",
+          tool: { name: "draft_follow_up", callId: null },
+          validatedArguments: { leadId: params.leadId },
+          result: "succeeded",
+        },
+      };
+      if (!appendToolEvent(store, draftedEvent)) {
+        return {
+          content: [{ type: "text", text: "Cannot draft: event storage is unavailable." }],
+          details: {
+            created: false,
+            draft: null,
+            draftId: null,
+            sha256: null,
+            code: "storage_failure" as const,
+          },
+        };
+      }
+      latestDraft = evidence;
       return {
         content: [{ type: "text", text: draft }],
         details: { created: true, draft, draftId, sha256, code: null },
