@@ -1,10 +1,17 @@
 import assert from "node:assert/strict";
 import {
+  createAgentEvent,
   isRunEventAppendOutcome,
   isRunEventReadOutcome,
   type AgentEvent,
   type RunEventAppendOutcome,
 } from "../src/run-event.js";
+
+export function makeRunEvent(input: unknown, generated: unknown): AgentEvent {
+  const outcome = createAgentEvent(input, generated);
+  if (!outcome.ok) assert.fail(outcome.error.message);
+  return outcome.value;
+}
 
 export function readRunEvents(
   store: { readRun(runId: unknown): unknown },

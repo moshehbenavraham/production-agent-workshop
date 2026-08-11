@@ -85,8 +85,77 @@ failures.
 
 ### Projection Rules
 
-_Record deterministic run and approval projections, ordering rules, corruption
-handling, and the facts required to resume._
+`src/run-projection.ts` is a pure, read-only projector over one complete
+validated run history. It clones external input before validation, folds legal
+transitions in file order, and returns either one deeply frozen projection or a
+canonical redacted failure. It performs no store write, tool call, approval
+transition, fake effect, model invocation, or network operation.
+
+```mermaid
+flowchart LR
+    E[Complete validated events] --> F[Deterministic transition fold]
+    A[Approval records] --> C[Exact authority cross-check]
+    R[Fake-result projections] --> C
+    F --> C
+    C -->|identities agree| P[Frozen run projection]
+    F -->|missing or conflicting evidence| X[Canonical refusal]
+    C -->|authority absent or mismatched| X
+```
+
+The legal core order is one `run.started`, one qualification attempt and
+optional outcome, one successful-qualification-dependent draft, one
+draft-dependent approval request, and one compatible run terminal. Normalized
+Pi events may occur before the run terminal but cannot create a checkpoint.
+After the run terminal, only approval decision/failure observations and
+fake-send observations may extend the history; a second terminal or new run,
+qualification, draft, approval-request, or Pi event fails closed.
+
+| Durable milestone | Latest safe checkpoint | Required exact facts |
+|-------------------|------------------------|----------------------|
+| Run start | `run_started` | Event, run, and lead identity |
+| Qualification success | `qualification_completed` | Attempt plus result for the started lead |
+| Draft creation | `draft_created` | Qualified lead, draft identity, and SHA-256 |
+| Approval request | `approval_requested` | Run, lead, draft, action, and approval identity |
+
+An open qualification attempt remains visible while the checkpoint stays at
+run start. An attempted fake effect remains `effect_indeterminate`; the
+projector does not infer whether a side effect occurred. Run status is closed
+to `running`, `waiting_for_approval`, `approved`, `effect_indeterminate`,
+`completed`, `stopped`, or `failed`, while the agent terminal outcome remains a
+separate durable fact.
+
+Operational approval and fake-send events expose only observed status. When
+dedicated evidence is omitted, the projection reports `not_supplied`. When it
+is supplied, the projector validates every record and checks exact run, lead,
+draft, hash, approval, idempotency, result status, and result duration. Missing,
+extra, invalid, or mismatched dedicated evidence returns `authority_mismatch`
+or `invalid_input`; no event grants approval or proves an effect. An observed
+approval or accepted fake result cannot elevate the trusted lifecycle to
+`approved` or effect-complete without matching dedicated truth; it remains
+waiting or indeterminate.
+
+Replaceable working context contains only qualification result or failure,
+draft identity and hash, approval identity and observed state, fake-send
+identity and observed state, checkpoint, terminal, and event identities. It
+contains no transcript, full draft, lead profile, credential, raw Pi payload,
+or arbitrary dependency message. Rebuilding context never deletes or mutates
+the source events.
+
+Canonical refusal codes cover invalid input, missing start, cross-run identity,
+out-of-order events, missing prerequisites, duplicate evidence, conflicting
+evidence, incompatible terminals, authority mismatch, structurally corrupt or
+interrupted durable history, and storage failure. Failures expose only a stable
+message plus a safe event index and identity when available; partial
+projections are never returned.
+
+Focused evidence: 22/22 projection cases pass. They cover every checkpoint,
+open attempts, qualification refusal, run failure, legal post-run approval and
+fake evidence, replay duplicates, exact authority checks, missing and malformed
+evidence, lead-bound not-found refusal, cross-run and ordering refusal, repeated
+milestones, terminal compatibility, mutation resistance, malformed or throwing
+adapters, structural store-failure mapping, and deep equality across fresh
+`JsonlEventStore` instances. Projection exists; retry, replay execution, and
+resume remain assigned to Session 04.
 
 ### Recovery Decision Table
 

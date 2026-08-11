@@ -34,26 +34,12 @@
     "phase01-session04-fake-send-contract-and-authorization",
     "phase01-session05-idempotent-fake-send-execution",
     "phase01-session06-safe-write-integration-and-evidence",
-    "phase02-session01-durable-run-event-contract-and-store"
+    "phase02-session01-durable-run-event-contract-and-store",
+    "phase02-session02-run-projection-and-corruption-refusal"
   ],
   "next_session_history": [
     {
       "date": "2026-08-04",
-      "session": "phase01-session01-approval-contract-and-transitions",
-      "status": "validated"
-    },
-    {
-      "date": "2026-08-04",
-      "session": "phase01-session01-approval-contract-and-transitions",
-      "status": "completed"
-    },
-    {
-      "date": "2026-08-04",
-      "session": "phase01-session02-approval-store-and-projection",
-      "status": "planned"
-    },
-    {
-      "date": "2026-08-04",
       "session": "phase01-session02-approval-store-and-projection",
       "status": "validated"
     },
@@ -135,6 +121,21 @@
     {
       "date": "2026-08-11",
       "session": "phase02-session01-durable-run-event-contract-and-store",
+      "status": "completed"
+    },
+    {
+      "date": "2026-08-11",
+      "session": "phase02-session02-run-projection-and-corruption-refusal",
+      "status": "planned"
+    },
+    {
+      "date": "2026-08-11",
+      "session": "phase02-session02-run-projection-and-corruption-refusal",
+      "status": "validated"
+    },
+    {
+      "date": "2026-08-11",
+      "session": "phase02-session02-run-projection-and-corruption-refusal",
       "status": "completed"
     }
   ]

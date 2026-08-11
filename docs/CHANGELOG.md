@@ -10,6 +10,14 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Added
 
+- Added a deterministic read-only run projector with closed lifecycle,
+  checkpoint, terminal, minimized context, authority-verification, and
+  canonical corruption-refusal contracts.
+- Added 22 focused projection cases covering legal complete and interrupted
+  prefixes, fresh-store restart equivalence, post-run approval/fake evidence,
+  exact cross-store identity checks, indeterminate attempts, malformed
+  adapters, and duplicate, conflicting, cross-run, ordering, and terminal
+  refusal.
 - Added a closed, versioned run-event envelope with explicit operational
   metadata availability, minimized owned payload variants, canonical failures,
   and strict append/read outcomes.
@@ -63,6 +71,13 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Changed
 
+- Closed Phase 02 Session 02 at version `0.1.24` after 198/198 deterministic
+  tests, 5/5 evals, configured coverage gates, zero dependency
+  vulnerabilities, and complete security and production-boundary validation.
+- Hardened run projection review paths so unverified operational observations
+  cannot elevate trusted approval/effect status, not-found requires lead-bound
+  attempt evidence, structural store failures retain actionable categories, and
+  future-dated fake-result authority is refused.
 - Corrected Phase 02 workflow history trimming, sourced default event metadata
   from the installed package version, and made run-completion metadata
   distinguish pending, successful, and stopped outcomes without inventing an

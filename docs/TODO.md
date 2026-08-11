@@ -27,7 +27,7 @@ fake-only, synthetic-data, no-real-network boundary.
 
 - [ ] Phase 02 - Recovery and Evaluation Gates (Week 3)
   - [x] Session 01 - Durable Run Event Contract and Store
-  - [ ] Session 02 - Run Projection and Corruption Refusal
+  - [x] Session 02 - Run Projection and Corruption Refusal
   - [ ] Session 03 - Bounded Run Lifecycle
   - [ ] Session 04 - Replay and Resume Integration
   - [ ] Session 05 - Production Eval Contract and Golden Set
@@ -39,7 +39,11 @@ Phase 02 is sourced only from Tasks [`04`](todo/04-recovery-and-replay.md) and
 fake-result authorization truth while making durable events authoritative for
 run lifecycle recovery. Session 01 now has a validated closed, versioned event
 contract and private durable JSONL adapter with corruption refusal; it does not
-yet add run projection, execution bounds, replay, or resume. Session 02 is next.
+add execution bounds, replay, or resume. Session 02 is validated with a
+deterministic read-only run projection, explicit safe checkpoints, structured
+replaceable context, legal post-run operational evidence, restart equivalence,
+actionable damaged-history failures, and exact approval/fake-result authority
+cross-checks. Session 03 is next and has not started.
 
 ## Phase 00 Transition (Complete)
 
