@@ -78,9 +78,12 @@ lint failure, then rerun `npm run verify`.
 ## Runtime Data
 
 `EVENT_LOG_PATH` defaults to `./data/events.jsonl`; `APPROVAL_LOG_PATH` defaults
-to `./data/approvals.jsonl`. Runtime event/approval files, provider state,
-secrets, and build output are ignored and must not be committed. Approval
-records contain exact full synthetic drafts, while operational events do not.
+to `./data/approvals.jsonl`. `RUN_DEADLINE_MS` defaults to `30000` and
+`RUN_MAX_STEPS` defaults to `24`; both are bounded positive integers and fail
+before runtime construction when invalid. Runtime event/approval files,
+provider state, secrets, and build output are ignored and must not be
+committed. Approval records contain exact full synthetic drafts, while
+operational events do not.
 Internal safe-write tests inject temporary approval, event, and fake-result
 JSONL paths; the server does not import the composition or configure/open a
 fake-result file.

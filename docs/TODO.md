@@ -28,7 +28,7 @@ fake-only, synthetic-data, no-real-network boundary.
 - [ ] Phase 02 - Recovery and Evaluation Gates (Week 3)
   - [x] Session 01 - Durable Run Event Contract and Store
   - [x] Session 02 - Run Projection and Corruption Refusal
-  - [ ] Session 03 - Bounded Run Lifecycle
+  - [x] Session 03 - Bounded Run Lifecycle
   - [ ] Session 04 - Replay and Resume Integration
   - [ ] Session 05 - Production Eval Contract and Golden Set
   - [ ] Session 06 - Critical Eval Gate and Scorecard
@@ -43,7 +43,12 @@ add execution bounds, replay, or resume. Session 02 is validated with a
 deterministic read-only run projection, explicit safe checkpoints, structured
 replaceable context, legal post-run operational evidence, restart equivalence,
 actionable damaged-history failures, and exact approval/fake-result authority
-cross-checks. Session 03 is next and has not started.
+cross-checks. Session 03 now implements schema-v2 step metadata, validated
+whole-run deadline and maximum-step configuration, complete minimized Pi tool
+attempt/outcome evidence, abort-once and terminal-once coordination, bounded
+stop projection, and deterministic late-settlement suppression. Session 03 is
+validated; Session 04 replay and resume integration is next and remains
+unimplemented.
 
 ## Phase 00 Transition (Complete)
 

@@ -283,6 +283,76 @@ test("run failure closes an interrupted prefix without inventing successful work
   });
 });
 
+test("bounded stops close any trusted prefix and reject incompatible metadata or late core evidence", () => {
+  for (const stopReason of [
+    "deadline_exceeded",
+    "step_limit_exceeded",
+    "dependency_failed",
+  ] as const) {
+    const terminal = event({ eventType: "run.stopped", stopReason }, 2, {
+      metadata: {
+        action: "run_stop",
+        result: "stopped",
+        errorCode: stopReason,
+        stopReason,
+        durationMs: 25,
+        stepNumber: 1,
+      },
+    });
+    const projection = requireProjection({
+      runId: RUN_ID,
+      events: [...happyHistory().slice(0, 2), terminal],
+    });
+    assert.equal(projection.status, "stopped");
+    assert.deepEqual(projection.terminalOutcome, {
+      kind: "stopped",
+      eventId: "event_projection_002",
+      stopReason,
+    });
+
+    const late = projectRunEvents({
+      runId: RUN_ID,
+      events: [
+        ...happyHistory().slice(0, 2),
+        terminal,
+        event(
+          {
+            eventType: "pi.lifecycle",
+            sourceType: "agent_settled",
+            toolName: null,
+            toolCallId: null,
+            isError: null,
+            messageId: null,
+            stopReason: null,
+          },
+          3,
+        ),
+      ],
+    });
+    assert.equal(late.ok, false);
+    if (late.ok) assert.fail("Expected late core evidence refusal");
+    assert.equal(late.error.code, "conflicting_evidence");
+  }
+
+  const incompatible = projectRunEvents({
+    runId: RUN_ID,
+    events: [
+      event({ eventType: "run.started", leadId: LEAD_ID }, 0),
+      event({ eventType: "run.stopped", stopReason: "deadline_exceeded" }, 1, {
+        metadata: {
+          action: "run_stop",
+          result: "stopped",
+          errorCode: "dependency_failed",
+          stopReason: "deadline_exceeded",
+        },
+      }),
+    ],
+  });
+  assert.equal(incompatible.ok, false);
+  if (incompatible.ok) assert.fail("Expected incompatible stopped metadata refusal");
+  assert.equal(incompatible.error.code, "incompatible_terminal");
+});
+
 test("qualification refusal maps only compatible not-found and failure terminals", () => {
   const cases = [
     { code: "lead_not_found" as const, stopReason: "not_found" as const },

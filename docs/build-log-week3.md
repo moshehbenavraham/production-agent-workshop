@@ -15,10 +15,9 @@ Task contract: [04 - Recover and Replay](todo/04-recovery-and-replay.md)
 
 ### Goal and Boundary
 
-Session 01 establishes trusted durable run history only. Closed versioned
-events and the hardened JSONL adapter are implemented; run projection,
-checkpoint selection, whole-run bounds, replay, and resume remain assigned to
-Sessions 02-04 and are not claimed here.
+Sessions 01-03 establish trusted durable run history, deterministic projection,
+and application-owned whole-run bounds. Replay and resume remain assigned to
+Session 04 and are not claimed here.
 
 Operational events own recorded run history. They do not authorize an approval
 or prove a fake effect: the dedicated approval and fake-result stores remain
@@ -26,33 +25,34 @@ the exact permission and idempotency authorities.
 
 ### Event Schema
 
-`src/run-event.ts` owns the version 1 envelope:
+`src/run-event.ts` owns the version 2 envelope:
 
 | Field | Contract |
 |-------|----------|
-| `schemaVersion` | Exact literal `1` |
+| `schemaVersion` | Exact literal `2` |
 | `eventId` | Prefixed bounded `event_*` identity |
 | `runId` | Existing bounded `run_*` or UUID identity |
 | `at` | Canonical millisecond UTC ISO timestamp |
 | `type` | Bounded code exactly matching `data.eventType` |
 | `data` | One closed minimized owned payload variant |
-| `metadata` | Closed actor, action, tool, argument, result, error, approval, stop, version, duration, retry, token, and cost fields |
+| `metadata` | Closed actor, action, tool, argument, result, error, approval, stop, version, duration, step, retry, token, and cost fields |
 
 Metadata uses `null` for unavailable values, so measured zero duration, retry,
 tokens, or cost is not confused with missing provider evidence. Token totals
 must equal input plus output. Validated arguments permit at most 20 bounded
 scalar fields and reject nested arbitrary content.
 
-Current payload variants cover `run.started`, `run.completed`, `run.failed`,
-qualification attempt/completion/failure, `domain.follow_up_drafted`, normalized
-`pi.lifecycle`, all closed approval events, and all closed fake-send events.
+Current payload variants cover `run.started`, `run.completed`, `run.stopped`,
+`run.failed`, qualification attempt/completion/failure,
+`domain.follow_up_drafted`, normalized `pi.lifecycle`, all closed approval
+events, and all closed fake-send events.
 Pi SDK objects are reduced to bounded source type, tool name and call identity,
 error flag, message identity, and stop reason; raw SDK payloads are rejected.
 
 Example minimized record:
 
 ```json
-{"schemaVersion":1,"eventId":"event_example_001","runId":"run_example_001","at":"2026-08-11T16:00:00.000Z","type":"run.started","data":{"eventType":"run.started","leadId":"lead_ada"},"metadata":{"actor":{"kind":"application","id":null},"action":"run_start","tool":null,"validatedArguments":null,"result":"attempted","errorCode":null,"approvalState":null,"stopReason":null,"applicationVersion":"0.1.22","modelVersion":null,"promptVersion":null,"durationMs":null,"retryCount":0,"tokens":null,"costUsd":null}}
+{"schemaVersion":2,"eventId":"event_example_001","runId":"run_example_001","at":"2026-08-11T16:00:00.000Z","type":"run.started","data":{"eventType":"run.started","leadId":"lead_ada"},"metadata":{"actor":{"kind":"application","id":null},"action":"run_start","tool":null,"validatedArguments":null,"result":"attempted","errorCode":null,"approvalState":null,"stopReason":null,"applicationVersion":"0.1.25","modelVersion":null,"promptVersion":null,"durationMs":null,"stepNumber":null,"retryCount":0,"tokens":null,"costUsd":null}}
 ```
 
 #### Storage Contract
@@ -74,9 +74,9 @@ failures use canonical `interrupted_write`.
 Compatibility decision: the existing `at` field remains the timestamp name and
 file order remains the structural order for the current single-process store.
 Session 02 owns domain-semantic event order and recovery checkpoints. Existing
-legacy unversioned event files fail closed rather than being silently upgraded;
-the workshop uses synthetic data and must reset or explicitly migrate such a
-file before startup.
+legacy unversioned or version 1 event files fail closed rather than being
+silently upgraded; the workshop uses synthetic data and must reset or
+explicitly migrate such a file before startup.
 
 Focused evidence: strict file checks pass and 19/19 event contract/store tests
 cover closed variants, restart, private mode, corruption, truncation, duplicate
@@ -157,6 +157,72 @@ adapters, structural store-failure mapping, and deep equality across fresh
 `JsonlEventStore` instances. Projection exists; retry, replay execution, and
 resume remain assigned to Session 04.
 
+### Bounded Run Lifecycle
+
+`src/run-lifecycle.ts` owns the run deadline, step budget, Pi lifecycle
+normalization, open-tool correlation, cancellation, and terminal race. Bounds
+are resolved before event paths, stores, sessions, timers, or listeners:
+
+| Variable | Default | Accepted range | Invalid behavior |
+|----------|---------|----------------|------------------|
+| `RUN_DEADLINE_MS` | `30000` | Integer `1` through `300000` | Startup/run construction fails before runtime files |
+| `RUN_MAX_STEPS` | `24` | Integer `1` through `100` | Startup/run construction fails before runtime files |
+
+Exactly two Pi event types consume budget: `turn_start` charges one model step
+and `tool_execution_start` charges one tool step. Bounded agent, turn, message
+boundary, tool outcome, retry, compaction, and model-selection evidence is
+persisted without another charge. High-volume `message_update`,
+`tool_execution_update`, queue, entry, and bash updates are neither charged nor
+persisted, so provider verbosity cannot force one fsync/full-log re-read per
+token. The event that reaches `RUN_MAX_STEPS` is minimized and recorded, then
+the application stops the run; no event above the configured maximum is
+accepted.
+
+```mermaid
+sequenceDiagram
+    participant App as Lifecycle coordinator
+    participant Pi as Replaceable Pi session
+    participant Store as Durable event store
+    App->>Store: run.started (same runId)
+    App->>Pi: subscribe and prompt
+    Pi-->>App: turn_start / tool_execution_start
+    App->>Store: minimized pi.lifecycle + stepNumber
+    alt prompt and evidence complete first
+        App->>Store: run.completed exactly once
+    else deadline or step limit wins
+        App->>Pi: abort once
+        App->>Store: synthetic outcomes for open tool calls
+        App->>Store: run.stopped exactly once
+    end
+    Pi-->>App: possible late settlement
+    Note over App: ignored after first terminal decision
+```
+
+Tool-start evidence retains only bounded tool name/call identity and the
+originating run/step. A matching tool outcome records success or the canonical
+application error code found in validated tool details, including validation,
+permission, storage, timeout, or dependency refusal. Raw arguments, tool
+results, assistant prose, and arbitrary errors are discarded. If a deadline
+or step limit closes an open call, the application records one synthetic
+`tool_execution_end` with the bounded stop reason before the run terminal.
+
+Normal application evidence creates `run.completed`. Deadline,
+`step_limit_exceeded`, and dependency failures create one `run.stopped` event
+with matching result, error code, stop reason, duration, and last step.
+Terminal append failure never becomes a manufactured stopped success; the HTTP
+composition returns the existing availability failure. The projector accepts
+one compatible bounded terminal from any trusted prefix and rejects all late
+core evidence or duplicate terminals.
+
+Focused evidence: 21/21 lifecycle cases cover closed defaults and bounds,
+exact step classification, minimized application-level tool refusal and usage,
+normal correlated completion, deadline, late settlement, open-tool step stop,
+dependency failure, lifecycle and terminal storage failure, rejected abort,
+open-call completion refusal, deadline before session creation, and
+invalid-input no-construction behavior. Event and projection
+contract tests additionally cover all three stopped reasons, step metadata,
+schema version refusal, terminal compatibility, and late-core refusal.
+
 ### Recovery Decision Table
 
 _Map each interruption or failure to retry, resume, compensate, escalate, or
@@ -179,18 +245,40 @@ using real customer data._
 
 ### Exercised Failure and Recovery
 
-_Record a corrupt, incomplete, timeout, or maximum-step case and its visible,
-operator-actionable recovery or stop._
+The deterministic deadline case advances injected time to exactly the bound,
+observes one abort request, one `deadline_exceeded` terminal, listener/timer
+cleanup, and an immutable non-success result. Resolving the prompt and emitting
+an agent event afterward produces no event or result change. The maximum-step
+case starts one model turn under a limit of two, then observes a tool start at
+step two; it records the attempt, a synthetic stopped outcome for that exact
+call ID, and one `step_limit_exceeded` terminal. Session 04 still owns recovery
+or resume from the projected checkpoint.
 
 ### Verification Output
 
-_Record the exact verification commands and results, including
-`npm run verify`._
+Session 03 implementation verification:
+
+| Command | Result |
+|---------|--------|
+| `npm run verify` | PASS - formatting, linting, strict types, 221/221 tests, and 5/5 evals |
+| `npm run test:coverage` | PASS - 97.02% lines, 85.70% branches, and 97.46% functions against 95/85/95 gates |
+| `npm run build` | PASS |
+| `npm audit --omit=dev` | PASS - zero vulnerabilities |
+
+The production-boundary check confirms exactly `qualify_lead`,
+`draft_follow_up`, and `request_send_approval`. The lifecycle adds no shell,
+filesystem, network client, approval-decision, fake-send, or safe-write
+capability to Pi or HTTP.
 
 ### Final Diff Review and Remaining Risk
 
-_Record the permissions, privacy, event, replay, side-effect, and documentation
-diff review plus unresolved recovery risks._
+Session 03 diff review found no credential, real customer data, raw Pi payload,
+new network dependency, real effect, permission expansion, public cancellation,
+replay, or resume path. Event schema version 2 is intentionally incompatible
+with earlier synthetic files; an operator must reset or explicitly migrate
+them rather than accepting mixed history. Session 04 still owns replay/resume,
+recovery action classification, three restart timelines, and duplicate-effect
+proof.
 
 ## Task 05 - Add Production Eval Gates
 

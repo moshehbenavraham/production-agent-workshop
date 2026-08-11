@@ -75,9 +75,11 @@ When deployment is separately authorized, the repository evidence requires:
    survive a controlled container replacement before claiming persistence.
 5. Expose container port 3000.
 6. Confirm the Docker health probe and verify `/health` over the assigned HTTPS URL.
-7. Configure bounded `RUN_RATE_LIMIT_MAX` and `RUN_RATE_LIMIT_WINDOW_MS` values
+7. Configure bounded `RUN_DEADLINE_MS` and `RUN_MAX_STEPS` values for the
+   measured provider/session envelope.
+8. Configure bounded `RUN_RATE_LIMIT_MAX` and `RUN_RATE_LIMIT_WINDOW_MS` values
    for measured single-replica capacity.
-8. Keep `/runs` controlled until authentication, authorization, tenant,
+9. Keep `/runs` controlled until authentication, authorization, tenant,
    shared rate-limit, edge-WAF, and data-lifecycle gates match the intended
    exposure.
 

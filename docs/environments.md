@@ -19,6 +19,8 @@ owner. Those are external deployment decisions.
 | `PORT` | No | `3000` | HTTP listen port | Non-secret configuration |
 | `EVENT_LOG_PATH` | No | `./data/events.jsonl` | Append-only event file | Mount persistent storage in a container |
 | `APPROVAL_LOG_PATH` | No | `./data/approvals.jsonl` | Authoritative append-only approval records | Mount persistent storage; contains full synthetic drafts |
+| `RUN_DEADLINE_MS` | No | `30000` | Application-owned whole-run deadline in milliseconds | Non-secret integer from 1 through 300,000; invalid values fail before runtime construction |
+| `RUN_MAX_STEPS` | No | `24` | Maximum model-turn and tool-start budget | Non-secret integer from 1 through 100; invalid values fail before runtime construction |
 | `RUN_RATE_LIMIT_MAX` | No | `10` | Maximum admitted `/runs` requests per process window | Non-secret integer from 1 through 10,000 |
 | `RUN_RATE_LIMIT_WINDOW_MS` | No | `60000` | Process-wide `/runs` window in milliseconds | Non-secret integer from 1 through 3,600,000 |
 | `OPENAI_API_KEY` | Provider-dependent | None | Optional supported provider auth | Secret; inject outside repository |

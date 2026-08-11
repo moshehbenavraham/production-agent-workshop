@@ -35,6 +35,11 @@ positive integers with `RUN_RATE_LIMIT_MAX` and
 trust `X-Forwarded-For`, does not identify a caller, resets on process restart,
 and is independent per replica.
 
+Each run also uses application-owned `RUN_DEADLINE_MS` (default `30000`, maximum
+`300000`) and `RUN_MAX_STEPS` (default `24`, maximum `100`). A model turn and a
+tool start each consume one step. Malformed bounds fail before runtime files,
+sessions, timers, or listeners are created.
+
 ### Request
 
 - Body must be valid JSON and remain at or below 16,384 bytes.
@@ -55,10 +60,11 @@ Status: `200`.
 RunResult
 |-- runId: string
 |-- output: string
-|-- stopReason: approval_pending | approval_failed | not_found | qualification_failed | completed
+|-- stopReason: approval_pending | approval_failed | not_found | qualification_failed | completed | deadline_exceeded | step_limit_exceeded | dependency_failed
 `-- qualification:
     |-- { ok: true, value: QualificationResult }
-    `-- { ok: false, error: QualificationFailure }
+    |-- { ok: false, error: QualificationFailure }
+    `-- null (whole-run bounded or dependency stop before qualification evidence)
 ```
 
 `QualificationResult` contains only:
@@ -80,9 +86,11 @@ codes are:
 - `qualification_timeout`.
 
 The `output` field is application-owned failure text when qualification fails;
-on success it is the final assistant text. Qualification truth comes from
-validated event evidence; approval truth comes from the validated durable
-projection. Neither comes from `output`.
+on domain success it is the final assistant text. A whole-run deadline, step
+limit, or dependency stop returns canonical application text and a null
+qualification when no terminal qualification evidence exists. Qualification
+truth comes from validated event evidence; approval truth comes from the
+validated durable projection. Neither comes from `output`.
 
 `approval_pending` means a pending human record exists after the latest exact-
 lead qualification. It never means approved or sent.
@@ -91,6 +99,11 @@ lead qualification. It never means approved or sent.
 approval state exists for that exact run/lead after the latest qualification.
 Missing, malformed, stale, cross-run, and unavailable approval evidence cannot
 be reported as completion.
+
+`deadline_exceeded`, `step_limit_exceeded`, and `dependency_failed` are
+non-success application terminals. Each has one durable `run.stopped` event;
+late model or tool settlement cannot change the response or append a second
+terminal.
 
 Every admitted `/runs` response includes `RateLimit-Limit`,
 `RateLimit-Remaining`, and `RateLimit-Reset`, where reset is the remaining
@@ -104,7 +117,7 @@ window duration in seconds. A denied response also includes `Retry-After`.
 | `404` | `{"error":"not_found"}` | Method/path pair is not `GET /health` or `POST /runs` |
 | `413` | `{"error":"body_too_large"}` | Request body exceeds 16,384 bytes while streaming |
 | `429` | `{"error":"rate_limited","retryAfterSeconds":N}` | The process-wide fixed-window quota is exhausted |
-| `503` | `{"error":"agent_run_failed","message":"..."}` | JSON parsing or the Pi-backed run throws |
+| `503` | `{"error":"agent_run_failed","message":"..."}` | JSON parsing, terminal event-storage failure, or another pre-result boundary throws |
 
 The current 503 response does not include a `runId` or structured terminal stop
 reason. Treat it as failure evidence and inspect the controlled event/log

@@ -4,7 +4,7 @@
 **Sessions**: 7 (initial estimate)
 **Estimated Duration**: 5-7 workshop days
 
-**Progress**: 2/7 sessions (29%)
+**Progress**: 3/7 sessions (43%)
 
 ---
 
@@ -20,7 +20,7 @@ Week 3 turns the current lightweight event stream into validated durable run evi
 |---------|------|--------|------------|-----------|
 | 01 | Durable Run Event Contract and Store | Complete | 18 | 2026-08-11 |
 | 02 | Run Projection and Corruption Refusal | Complete | 18 | 2026-08-11 |
-| 03 | Bounded Run Lifecycle | Not Started | ~19 | - |
+| 03 | Bounded Run Lifecycle | Complete | 19 | 2026-08-11 |
 | 04 | Replay and Resume Integration | Not Started | ~22 | - |
 | 05 | Production Eval Contract and Golden Set | Not Started | ~18 | - |
 | 06 | Critical Eval Gate and Scorecard | Not Started | ~20 | - |
@@ -32,12 +32,13 @@ Week 3 turns the current lightweight event stream into validated durable run evi
 
 - `phase02-session01-durable-run-event-contract-and-store` - completed and validated 2026-08-11.
 - `phase02-session02-run-projection-and-corruption-refusal` - completed and validated 2026-08-11.
+- `phase02-session03-bounded-run-lifecycle` - completed and validated 2026-08-11.
 
 ---
 
 ## Upcoming Sessions
 
-- Session 03: Bounded Run Lifecycle
+- Session 04: Replay and Resume Integration
 
 ---
 

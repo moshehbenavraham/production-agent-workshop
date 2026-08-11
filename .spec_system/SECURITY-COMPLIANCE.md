@@ -1,7 +1,7 @@
 # Security & Compliance
 
 > Cumulative security posture and GDPR compliance record. Updated between phases via carryforward.
-> **Line budget**: 1000 max | **Last updated**: Phase 01 (2026-08-04)
+> **Line budget**: 1000 max | **Last updated**: Phase 02 (2026-08-11)
 
 This internal record describes implemented repository controls and release
 gates. Public vulnerability reporting belongs in the
@@ -14,17 +14,17 @@ gates. Public vulnerability reporting belongs in the
 
 ### Overall: AT RISK
 
-Phase 01 is clean for synthetic data in a local or otherwise controlled
-environment. It is not public-production-ready because caller access, whole-run
-bounds and recovery, real-data lifecycle, distributed effect safety, backup,
+Phase 02 Session 03 is clean for synthetic data in a local or otherwise
+controlled environment. It is not public-production-ready because caller
+access, recovery, real-data lifecycle, distributed effect safety, backup,
 restore, and deployment controls remain open release gates.
 
 | Metric | Value |
 |--------|-------|
-| Open Findings | 5 |
+| Open Findings | 4 |
 | Critical/High | 1 |
-| Medium/Low | 4 |
-| Phases Audited | 2 |
+| Medium/Low | 3 |
+| Phases Audited | 3 |
 | Last Clean Phase | P01 |
 
 ---
@@ -57,15 +57,6 @@ They remain open until the stated controls have direct acceptance evidence.
     backup/restore, lawful basis, subprocessor, or data-location control.
   - Remediation: Keep data synthetic until the complete lifecycle and access
     controls are implemented, approved, and exercised.
-  - Status: Open
-  - Opened: P00 (2026-08-04)
-
-- **[P00][SC-004] Whole runs lack deterministic bounds**
-  - Severity: Medium
-  - File: `src/pi-agent.ts`
-  - Description: Qualification and internal fake execution have deadlines, but
-    the complete Pi run has no explicit deadline or maximum step count.
-  - Remediation: Add tested whole-run terminal bounds before release.
   - Status: Open
   - Opened: P00 (2026-08-04)
 
@@ -121,9 +112,12 @@ They remain open until the stated controls have direct acceptance evidence.
 - [P01] Fake execution remains unregistered, unallowlisted, absent from Pi/HTTP,
   and network-free. Human review was not performed or claimed and is mandatory
   before any future capability change.
+- [P02] Whole-run bounds validate before runtime construction, count only model
+  turns and tool starts, abort once, persist one terminal, close open tool
+  attempts, and ignore late provider settlement.
 - [P00] Known-lead runs stop at `approval_pending`; visible outcomes derive from
   validated qualification events and durable approval projection, never prose.
-- [P01] Biome formatting/linting, strict TypeScript, 156 deterministic tests,
+- [P02] Biome formatting/linting, strict TypeScript, 221 deterministic tests,
   five evals, coverage gates, npm audit, Code Quality, Build & Test, and CodeQL pass.
 - [P01] Docker health and process/container rate-gate validation pass locally;
   missing production checks remain explicit in `known-issues.md`.
@@ -186,6 +180,7 @@ reviewed overrides and install-script approvals from `package.json`.
 
 | ID | Finding | Severity | Resolved | Phase | Resolution |
 |----|---------|----------|----------|-------|------------|
+| SC-004 | Whole runs lacked deterministic bounds | Medium | 2026-08-11 | P02 | Closed positive configuration, exact model/tool step accounting, application-owned deadline, abort-once cancellation, terminal-once durable evidence, and late-settlement suppression now bound the complete run. |
 | SC-003 | Approval decisions were not durable | High | 2026-08-04 | P01 | Closed records, exact immutable linkage, private append-only storage, one-way decisions, runtime integration, and restart projection now own approval truth. |
 | P00-R01 | Qualification depended on model judgment and prompt order | Medium | 2026-08-04 | P00 | Closed schemas, deterministic computation, exact-lead validation, and event-derived gates now fail closed. |
 | P00-R02 | Raw inspection and mutable compile-time-only permission evidence | Medium | 2026-08-04 | P00 | Focused qualification replaced inspection; the exact three-tool allowlist is frozen and tested at runtime. |
@@ -196,6 +191,7 @@ reviewed overrides and install-script approvals from `package.json`.
 
 | Phase | Sessions | Security | GDPR | Findings Opened | Findings Closed |
 |-------|----------|----------|------|-----------------|-----------------|
+| P02 | 3 of 7 | PASS for controlled synthetic scope through Session 03 | N/A | 0 | 1 |
 | P01 | 6 | PASS for controlled synthetic scope | N/A | 1 | 1 |
 | P00 | 3 | PASS for controlled synthetic scope | N/A | 0 | 2 baseline control gaps |
 

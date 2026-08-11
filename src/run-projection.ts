@@ -92,6 +92,12 @@ const RunCompletedStopReasonSchema = Type.Union([
   Type.Literal("completed"),
 ]);
 
+const RunStoppedReasonSchema = Type.Union([
+  Type.Literal("deadline_exceeded"),
+  Type.Literal("step_limit_exceeded"),
+  Type.Literal("dependency_failed"),
+]);
+
 export const RunTerminalOutcomeSchema = Type.Union([
   Type.Object(
     {
@@ -106,6 +112,14 @@ export const RunTerminalOutcomeSchema = Type.Union([
       kind: Type.Literal("failed"),
       eventId: EventIdSchema,
       stopReason: Type.Literal("agent_run_failed"),
+    },
+    { additionalProperties: false },
+  ),
+  Type.Object(
+    {
+      kind: Type.Literal("stopped"),
+      eventId: EventIdSchema,
+      stopReason: RunStoppedReasonSchema,
     },
     { additionalProperties: false },
   ),
@@ -426,6 +440,7 @@ function statusFrom(
   authority: ProjectionAuthority,
 ): RunProjectionStatus {
   if (terminal?.kind === "failed") return "failed";
+  if (terminal?.kind === "stopped") return "stopped";
   if (terminal === null) return "running";
   if (fakeSend) {
     if (authority.fakeSend.verification === "verified") {
@@ -573,6 +588,7 @@ function isCoreEventAfterTerminal(event: AgentEvent): boolean {
   return (
     event.data.eventType === "run.started" ||
     event.data.eventType === "run.completed" ||
+    event.data.eventType === "run.stopped" ||
     event.data.eventType === "run.failed" ||
     event.data.eventType === "qualification.attempted" ||
     event.data.eventType === "qualification.completed" ||
@@ -580,6 +596,17 @@ function isCoreEventAfterTerminal(event: AgentEvent): boolean {
     event.data.eventType === "domain.follow_up_drafted" ||
     event.data.eventType === "approval.requested" ||
     event.data.eventType === "pi.lifecycle"
+  );
+}
+
+function stoppedMetadataIsCompatible(event: AgentEvent): boolean {
+  return (
+    event.data.eventType === "run.stopped" &&
+    event.metadata.action === "run_stop" &&
+    event.metadata.result === "stopped" &&
+    event.metadata.stopReason === event.data.stopReason &&
+    event.metadata.errorCode === event.data.stopReason &&
+    event.metadata.approvalState === null
   );
 }
 
@@ -861,6 +888,7 @@ function applyEvent(state: FoldState, event: AgentEvent): RunProjectionFailureCo
     case "fake_send.storage_failed":
       return applyFakeFailureObservation(state, event);
     case "run.completed":
+    case "run.stopped":
     case "run.failed":
       return "duplicate_evidence";
   }
@@ -1057,7 +1085,9 @@ export function projectRunEvents(input: unknown): RunProjectionOutcome {
 
     if (state.terminal && isCoreEventAfterTerminal(current)) {
       const code =
-        current.data.eventType === "run.completed" || current.data.eventType === "run.failed"
+        current.data.eventType === "run.completed" ||
+        current.data.eventType === "run.stopped" ||
+        current.data.eventType === "run.failed"
           ? "duplicate_evidence"
           : "conflicting_evidence";
       return failureOutcome(code, index, current);
@@ -1069,6 +1099,17 @@ export function projectRunEvents(input: unknown): RunProjectionOutcome {
       }
       state.terminal = {
         kind: "completed",
+        eventId: current.eventId,
+        stopReason: current.data.stopReason,
+      };
+      continue;
+    }
+    if (current.data.eventType === "run.stopped") {
+      if (!stoppedMetadataIsCompatible(current)) {
+        return failureOutcome("incompatible_terminal", index, current);
+      }
+      state.terminal = {
+        kind: "stopped",
         eventId: current.eventId,
         stopReason: current.data.stopReason,
       };

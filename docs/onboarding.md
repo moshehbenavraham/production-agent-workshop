@@ -27,7 +27,7 @@ auth state or exported environment variables, never in repository files.
    ```
 
 4. Confirm the expected result: formatting, linting, and strict TypeScript pass,
-   156/156 tests pass, and 5/5 evals pass.
+   221/221 tests pass, and 5/5 evals pass.
 
 ## Optional Pi Authentication
 

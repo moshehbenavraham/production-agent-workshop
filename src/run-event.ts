@@ -10,7 +10,7 @@ import {
   isQualificationResult,
 } from "./qualification.js";
 
-export const RUN_EVENT_SCHEMA_VERSION = 1 as const;
+export const RUN_EVENT_SCHEMA_VERSION = 2 as const;
 
 const RunEventIdSchema = Type.String({
   minLength: 8,
@@ -156,6 +156,7 @@ export const RunEventMetadataSchema = Type.Object(
     modelVersion: NullableVersionSchema,
     promptVersion: NullableVersionSchema,
     durationMs: Type.Union([Type.Integer({ minimum: 0, maximum: 86_400_000 }), Type.Null()]),
+    stepNumber: Type.Union([Type.Integer({ minimum: 1, maximum: 1_000_000 }), Type.Null()]),
     retryCount: Type.Integer({ minimum: 0, maximum: 100 }),
     tokens: Type.Union([TokenUsageSchema, Type.Null()]),
     costUsd: Type.Union([Type.Number({ minimum: 0, maximum: 1_000_000 }), Type.Null()]),
@@ -169,6 +170,12 @@ const RunStopReasonSchema = Type.Union([
   Type.Literal("not_found"),
   Type.Literal("qualification_failed"),
   Type.Literal("completed"),
+]);
+
+const RunStoppedReasonSchema = Type.Union([
+  Type.Literal("deadline_exceeded"),
+  Type.Literal("step_limit_exceeded"),
+  Type.Literal("dependency_failed"),
 ]);
 
 const RunEventDataSchema = Type.Union([
@@ -190,6 +197,13 @@ const RunEventDataSchema = Type.Union([
     {
       eventType: Type.Literal("run.failed"),
       code: Type.Literal("agent_run_failed"),
+    },
+    { additionalProperties: false },
+  ),
+  Type.Object(
+    {
+      eventType: Type.Literal("run.stopped"),
+      stopReason: RunStoppedReasonSchema,
     },
     { additionalProperties: false },
   ),
@@ -269,6 +283,7 @@ const RunEventInputMetadataSchema = Type.Partial(
       modelVersion: NullableVersionSchema,
       promptVersion: NullableVersionSchema,
       durationMs: Type.Union([Type.Integer({ minimum: 0, maximum: 86_400_000 }), Type.Null()]),
+      stepNumber: Type.Union([Type.Integer({ minimum: 1, maximum: 1_000_000 }), Type.Null()]),
       retryCount: Type.Integer({ minimum: 0, maximum: 100 }),
       tokens: Type.Union([TokenUsageSchema, Type.Null()]),
       costUsd: Type.Union([Type.Number({ minimum: 0, maximum: 1_000_000 }), Type.Null()]),
@@ -524,6 +539,7 @@ export function createAgentEvent(input: unknown, generated: unknown): RunEventCr
     modelVersion: null,
     promptVersion: null,
     durationMs: null,
+    stepNumber: null,
     retryCount: 0,
     tokens: null,
     costUsd: null,

@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+import { existsSync, mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
 import { createPendingApproval, transitionApproval } from "../src/approval.js";
 import type { AgentEvent } from "../src/event-store.js";
@@ -7,6 +10,7 @@ import {
   WORKSHOP_APPROVAL_ACTOR_IDS,
   deriveRunStopReason,
   qualificationRunOutput,
+  runLeadAgent,
   runCompletionMetadata,
 } from "../src/pi-agent.js";
 import { qualifyLead } from "../src/qualification.js";
@@ -290,5 +294,33 @@ test("run completion metadata never invents approval or success state", () => {
       stopReason,
       approvalState: null,
     });
+  }
+});
+
+test("invalid whole-run bounds fail before runtime files are created", async () => {
+  const directory = mkdtempSync(join(tmpdir(), "production-agent-bounds-"));
+  const eventPath = join(directory, "events.jsonl");
+  const approvalPath = join(directory, "approvals.jsonl");
+  const previous = {
+    deadline: process.env.RUN_DEADLINE_MS,
+    eventPath: process.env.EVENT_LOG_PATH,
+    approvalPath: process.env.APPROVAL_LOG_PATH,
+  };
+  process.env.RUN_DEADLINE_MS = "0";
+  process.env.EVENT_LOG_PATH = eventPath;
+  process.env.APPROVAL_LOG_PATH = approvalPath;
+
+  try {
+    await assert.rejects(runLeadAgent("lead_ada"), /Run bounds are invalid\./);
+    assert.equal(existsSync(eventPath), false);
+    assert.equal(existsSync(approvalPath), false);
+  } finally {
+    if (previous.deadline === undefined) delete process.env.RUN_DEADLINE_MS;
+    else process.env.RUN_DEADLINE_MS = previous.deadline;
+    if (previous.eventPath === undefined) delete process.env.EVENT_LOG_PATH;
+    else process.env.EVENT_LOG_PATH = previous.eventPath;
+    if (previous.approvalPath === undefined) delete process.env.APPROVAL_LOG_PATH;
+    else process.env.APPROVAL_LOG_PATH = previous.approvalPath;
+    rmSync(directory, { recursive: true, force: true });
   }
 });

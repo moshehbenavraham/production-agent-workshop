@@ -11,6 +11,12 @@ import { ApprovalService } from "./approval-service.js";
 import { FileApprovalStore } from "./approval-store.js";
 import { JsonlEventStore, type AgentEvent } from "./event-store.js";
 import { isMatchingRunEventAppendOutcome, isRunEventReadOutcome } from "./run-event.js";
+import {
+  executeBoundedRun,
+  resolveRunBounds,
+  type BoundedRunStopReason,
+  type CompletedRunStopReason,
+} from "./run-lifecycle.js";
 import type { QualificationOutcome } from "./qualification.js";
 import { buildTools, qualificationOutcomeFromEvents } from "./tools.js";
 
@@ -40,61 +46,6 @@ Rules:
 - Use only the provided tools.
 - If the lead does not exist, stop clearly.
 - Keep the final response short and factual.`;
-
-function boundedCode(value: unknown): string | null {
-  return typeof value === "string" &&
-    value.length >= 1 &&
-    value.length <= 80 &&
-    /^[a-z][a-z0-9_.-]*$/.test(value)
-    ? value
-    : null;
-}
-
-function boundedIdentifier(value: unknown): string | null {
-  return typeof value === "string" &&
-    value.length >= 1 &&
-    value.length <= 120 &&
-    /^[a-zA-Z0-9][a-zA-Z0-9_.:-]*$/.test(value)
-    ? value
-    : null;
-}
-
-function unknownPiEvent() {
-  return {
-    eventType: "pi.lifecycle" as const,
-    sourceType: "unknown",
-    toolName: null,
-    toolCallId: null,
-    isError: null,
-    messageId: null,
-    stopReason: null,
-  };
-}
-
-function normalizedPiEvent(event: unknown) {
-  try {
-    if (typeof event !== "object" || event === null) return unknownPiEvent();
-    const candidate = event as Record<string, unknown>;
-    const toolName =
-      typeof candidate.toolName === "string" &&
-      candidate.toolName.length <= 80 &&
-      /^[a-z][a-z0-9_]+$/.test(candidate.toolName)
-        ? candidate.toolName
-        : null;
-    const stopReason = boundedCode(candidate.stopReason);
-    return {
-      eventType: "pi.lifecycle" as const,
-      sourceType: boundedCode(candidate.type) ?? "unknown",
-      toolName,
-      toolCallId: boundedIdentifier(candidate.toolCallId),
-      isError: typeof candidate.isError === "boolean" ? candidate.isError : null,
-      messageId: boundedIdentifier(candidate.messageId),
-      stopReason,
-    };
-  } catch {
-    return unknownPiEvent();
-  }
-}
 
 function appendRunEvent(store: JsonlEventStore, input: unknown): boolean {
   try {
@@ -135,21 +86,16 @@ export type RunResult = {
   runId: string;
   output: string;
   stopReason: RunStopReason;
-  qualification: QualificationOutcome;
+  qualification: QualificationOutcome | null;
 };
 
-export type RunStopReason =
-  | "approval_pending"
-  | "approval_failed"
-  | "not_found"
-  | "qualification_failed"
-  | "completed";
+export type RunStopReason = CompletedRunStopReason | BoundedRunStopReason;
 
 export function deriveRunStopReason(
   events: readonly AgentEvent[],
   requestedLeadId: string,
   approvalInput: unknown,
-): RunStopReason {
+): CompletedRunStopReason {
   const qualification = qualificationOutcomeFromEvents(events, requestedLeadId);
   if (!qualification) return "qualification_failed";
   if (!qualification.ok) {
@@ -193,7 +139,7 @@ export function qualificationRunOutput(
   return qualification.ok ? assistantOutput : qualification.error.message;
 }
 
-export function runCompletionMetadata(stopReason: RunStopReason) {
+export function runCompletionMetadata(stopReason: CompletedRunStopReason) {
   return {
     action: "run_complete" as const,
     result:
@@ -208,6 +154,7 @@ export function runCompletionMetadata(stopReason: RunStopReason) {
 }
 
 export async function runLeadAgent(leadId: string): Promise<RunResult> {
+  const bounds = resolveRunBounds(process.env);
   const runId = crypto.randomUUID();
   const cwd = process.cwd();
   const eventPath = resolve(process.env.EVENT_LOG_PATH ?? "./data/events.jsonl");
@@ -229,92 +176,66 @@ export async function runLeadAgent(leadId: string): Promise<RunResult> {
     throw new Error("Run event storage is unavailable.");
   }
 
-  const resourceLoader = new DefaultResourceLoader({
-    cwd,
-    agentDir: getAgentDir(),
-    systemPromptOverride: () => SYSTEM_PROMPT,
-  });
-  await resourceLoader.reload();
+  const lifecycle = await executeBoundedRun({
+    runId,
+    prompt: `Qualify lead "${leadId}", draft the best first follow-up, request human approval, and stop.`,
+    bounds,
+    eventStore: store,
+    createSession: async () => {
+      const resourceLoader = new DefaultResourceLoader({
+        cwd,
+        agentDir: getAgentDir(),
+        systemPromptOverride: () => SYSTEM_PROMPT,
+      });
+      await resourceLoader.reload();
 
-  const modelRuntime = await ModelRuntime.create();
-  const tools = buildTools(runId, leadId, store, approvalService);
-  const { session } = await createAgentSession({
-    cwd,
-    modelRuntime,
-    resourceLoader,
-    customTools: [...tools],
-    tools: [...PRODUCTION_TOOL_NAMES],
-    sessionManager: SessionManager.inMemory(cwd),
+      const modelRuntime = await ModelRuntime.create();
+      const tools = buildTools(runId, leadId, store, approvalService);
+      const { session } = await createAgentSession({
+        cwd,
+        modelRuntime,
+        resourceLoader,
+        customTools: [...tools],
+        tools: [...PRODUCTION_TOOL_NAMES],
+        sessionManager: SessionManager.inMemory(cwd),
+      });
+      return session;
+    },
+    complete: async (session) => {
+      const events = readRunEvents(store, runId);
+      if (!events) throw new Error("Run event storage is unavailable.");
+      const qualification = qualificationOutcomeFromEvents(events, leadId);
+      if (!qualification) {
+        throw new Error("Qualification tool produced no valid terminal evidence.");
+      }
+      const approvalProjection = approvalService.listRun(runId);
+      if (!approvalProjection.ok) throw new Error("Approval projection is unavailable.");
+      const stopReason = deriveRunStopReason(events, leadId, approvalProjection.value);
+      const output = qualificationRunOutput(
+        qualification,
+        finalAssistantText(session.agent.state.messages),
+      );
+      return {
+        value: { runId, output, qualification },
+        stopReason,
+      };
+    },
   });
 
-  let lifecycleEventFailure = false;
-  const unsubscribe = session.subscribe((event) => {
-    const data = normalizedPiEvent(event);
-    const appended = appendRunEvent(store, {
-      runId,
-      type: data.eventType,
-      data,
-      metadata: {
-        actor: { kind: data.toolName ? "tool" : "model", id: null },
-        action: "pi_lifecycle",
-        tool: data.toolName ? { name: data.toolName, callId: data.toolCallId } : null,
-        result: data.isError === null ? null : data.isError ? "failed" : "succeeded",
-        errorCode: data.isError ? "pi_event_error" : null,
-        stopReason: data.stopReason,
-      },
-    });
-    if (!appended) lifecycleEventFailure = true;
-  });
-
-  try {
-    await session.prompt(
-      `Qualify lead "${leadId}", draft the best first follow-up, request human approval, and stop.`,
-    );
-    if (lifecycleEventFailure) {
-      throw new Error("Run event storage is unavailable.");
-    }
-    const events = readRunEvents(store, runId);
-    if (!events) {
-      throw new Error("Run event storage is unavailable.");
-    }
-    const qualification = qualificationOutcomeFromEvents(events, leadId);
-    if (!qualification) {
-      throw new Error("Qualification tool produced no valid terminal evidence.");
-    }
-    const approvalProjection = approvalService.listRun(runId);
-    if (!approvalProjection.ok) {
-      throw new Error("Approval projection is unavailable.");
-    }
-    const stopReason = deriveRunStopReason(events, leadId, approvalProjection.value);
-    const output = qualificationRunOutput(
-      qualification,
-      finalAssistantText(session.agent.state.messages),
-    );
-    if (
-      !appendRunEvent(store, {
-        runId,
-        type: "run.completed",
-        data: { eventType: "run.completed", stopReason },
-        metadata: runCompletionMetadata(stopReason),
-      })
-    ) {
-      throw new Error("Run event storage is unavailable.");
-    }
-    return { runId, output, stopReason, qualification };
-  } catch {
-    const appended = appendRunEvent(store, {
-      runId,
-      type: "run.failed",
-      data: { eventType: "run.failed", code: "agent_run_failed" },
-      metadata: {
-        action: "run_fail",
-        result: "failed",
-        errorCode: "agent_run_failed",
-      },
-    });
-    throw new Error(appended ? "Agent run failed." : "Run event storage is unavailable.");
-  } finally {
-    unsubscribe();
-    session.dispose();
+  if (lifecycle.ok) {
+    return Object.freeze({ ...lifecycle.value, stopReason: lifecycle.stopReason });
   }
+  if (lifecycle.storageFailure) throw new Error("Run event storage is unavailable.");
+  const output =
+    lifecycle.stopReason === "deadline_exceeded"
+      ? "Run deadline exceeded."
+      : lifecycle.stopReason === "step_limit_exceeded"
+        ? "Run step limit exceeded."
+        : "Run dependency failed.";
+  return {
+    runId,
+    output,
+    stopReason: lifecycle.stopReason,
+    qualification: null,
+  };
 }

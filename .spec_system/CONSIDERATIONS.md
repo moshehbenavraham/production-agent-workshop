@@ -1,7 +1,7 @@
 # Considerations
 
 > Institutional memory for AI assistants. Updated between phases via carryforward.
-> **Line budget**: 600 max | **Last updated**: Phase 01 (2026-08-04)
+> **Line budget**: 600 max | **Last updated**: Phase 02 (2026-08-11)
 
 ---
 
@@ -40,8 +40,6 @@ Items requiring attention in upcoming work. Review before each session.
 - [P01] **Synthetic-data restriction**: A manual 30-day-or-teardown whole-file
   rule exists, but automated retention, scoped erasure/export, backup/restore,
   subprocessors, lawful basis, and data-location controls do not.
-- [P01] **Whole-run bounds**: Qualification and fake execution have application
-  deadlines, but the complete Pi run has no overall deadline or maximum step count.
 - [P01] **Human write gate**: Fake execution is deliberately unregistered and
   unallowlisted. A repository maintainer must review the exact contract and diff
   before any future write-capable registration or allowlist change.
@@ -132,6 +130,7 @@ Recently closed items (buffer - rotates out after 2 phases).
 
 | Phase | Item | Resolution |
 |-------|------|------------|
+| P02 | Unbounded whole Pi run | Validated deadline and model/tool step bounds now abort once, persist one bounded terminal, and ignore late settlement through injected provider-independent boundaries. |
 | P01 | Event-only pending approval | Closed records, one-way transitions, private durable projection, exact draft linkage, internal decisions, and restart proof now own approval truth. |
 | P00 | Model-owned qualification | Closed schemas, deterministic computation, and application validation now own the outcome. |
 | P00 | Raw inspection and prompt-only sequencing | A frozen focused tool, exact-lead events, and downstream evidence gates now fail closed. |

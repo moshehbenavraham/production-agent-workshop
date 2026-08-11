@@ -16,6 +16,9 @@ flowchart LR
     Caller[Controlled caller] -->|GET /health or POST /runs| Server[src/server.ts]
     Server -->|POST /runs| RateGate[src/rate-limit.ts]
     RateGate -->|admitted validated leadId| Agent[src/pi-agent.ts]
+    Agent --> Lifecycle[src/run-lifecycle.ts]
+    Lifecycle -->|deadline, steps, terminal| Events
+    Lifecycle -->|abort once| Agent
     Agent <-->|model messages| Provider[Configured model provider]
     Agent -->|frozen allowlist| Tools[src/tools.ts]
     Tools --> Qualify[src/qualification.ts]
@@ -55,6 +58,7 @@ flowchart LR
 | HTTP boundary | `src/server.ts` | Node.js HTTP | Health, process-wide rate gate, body limit, `leadId` validation, response mapping |
 | Rate gate | `src/rate-limit.ts` | Deterministic TypeScript | Fail-fast bounded configuration and process-wide fixed-window `/runs` admission |
 | Pi orchestration | `src/pi-agent.ts` | Pi Coding Agent SDK | Session lifecycle, frozen tool allowlist, qualification events, durable approval projection |
+| Bounded run lifecycle | `src/run-lifecycle.ts` | Strict TypeScript + injected clock/session boundaries | Whole-run deadline, model/tool step budget, minimized Pi evidence, abort once, terminal once, and late-settlement suppression |
 | Qualification domain | `src/qualification.ts` | TypeBox + TypeScript | Closed schemas, runtime validation, deterministic result, canonical failures |
 | Custom tools | `src/tools.ts` | Pi tool definitions | Bounded qualification, deterministic draft, exact durable approval request |
 | Approval domain/service | `src/approval.ts`, `src/approval-service.ts` | TypeBox + TypeScript | Closed state, actor policy, durable request/decision operations, minimized events |
@@ -67,7 +71,7 @@ flowchart LR
 | Deterministic gates | `tests/`, `src/evals.ts` | `node:test` + TSX | Contract, failure, permission, event, and vertical-slice verification |
 | Container boundary | `Dockerfile` | Node.js 24 Alpine | Port 3000, `/app/data`, process start, and container health probe |
 | Code Quality CI | `.github/workflows/quality.yml` | GitHub Actions | Locked install, formatting, linting, and strict TypeScript |
-| Build & Test CI | `.github/workflows/test.yml` | GitHub Actions | TypeScript build, 156 tests with coverage thresholds, and five evals |
+| Build & Test CI | `.github/workflows/test.yml` | GitHub Actions | TypeScript build, 221 tests with coverage thresholds, and five evals |
 
 ## Run And Evidence Flow
 
@@ -80,11 +84,15 @@ flowchart LR
 4. `draft_follow_up` records only draft identity/hash; `request_send_approval`
    verifies exact temporary content after the latest qualification and delegates
    durable creation to the application service.
-5. The application reconstructs qualification from events, reads exact approval
-   state from the durable projection, derives one finite stop reason, appends
-   `run.completed`, and returns `RunResult`.
-6. Any uncaught run failure appends `run.failed`; the HTTP boundary maps it to
-   a 503 response. Whole-run replay and resume are not implemented.
+5. The lifecycle charges only model-turn and tool-start events, records
+   correlated minimized tool attempt/outcome evidence, and applies the bounded
+   whole-run deadline and maximum-step configuration.
+6. The application reconstructs qualification from events, reads exact
+   approval state from the durable projection, and appends one
+   `run.completed`; deadline, step-limit, or dependency stops append one
+   `run.stopped`. Late provider settlement cannot replace that decision.
+7. Terminal event-storage failure maps to a 503 response. Whole-run replay and
+   resume are not implemented.
 
 ## Trust And Permission Boundaries
 
@@ -95,7 +103,7 @@ flowchart LR
 | Model/tool input | Treat as untrusted; enforce closed schemas and exact identity |
 | Lookup result | Runtime-validate the complete synthetic lead and identity |
 | Qualification result | Accept only a schema-valid application-owned outcome |
-| Persisted event | Validate type-specific data, identity, freshness, and ordering before qualification projection |
+| Persisted event | Validate schema-v2 type-specific data, identity, freshness, step availability, and ordering before projection |
 | Draft creation | Require latest matching qualification success |
 | Approval request | Exact current draft delegates to durable application state; Pi never decides or sends |
 | Approval decision | Internal application service validates exact identity and synthetic actor policy |
@@ -120,7 +128,7 @@ credential, deployment, approval-decision, or network-writing tool.
 - Draft and approval events exclude full content; approval records retain exact
   synthetic draft content/hash under the documented manual lifecycle rule.
 - There is no database, queue, cache, backup, per-record erasure, distributed
-  lock, or whole-run replay engine.
+  lock, or whole-run replay/resume engine.
 
 ## Deployment Topology
 

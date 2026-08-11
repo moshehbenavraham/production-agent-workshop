@@ -54,6 +54,7 @@ test("closed event factory adds versioned identity and explicit unavailable meta
   assert.equal(event.metadata.modelVersion, null);
   assert.equal(event.metadata.promptVersion, null);
   assert.equal(event.metadata.durationMs, null);
+  assert.equal(event.metadata.stepNumber, null);
   assert.equal(event.metadata.retryCount, 0);
   assert.equal(event.metadata.tokens, null);
   assert.equal(event.metadata.costUsd, null);
@@ -67,7 +68,7 @@ test("event envelope rejects extras, invalid identities, and noncanonical timest
   const event = startedEvent();
 
   assert.equal(isAgentEvent({ ...event, secret: "no" }), false);
-  assert.equal(isAgentEvent({ ...event, schemaVersion: 2 }), false);
+  assert.equal(isAgentEvent({ ...event, schemaVersion: 3 }), false);
   assert.equal(isAgentEvent({ ...event, eventId: "bad" }), false);
   assert.equal(isRunEventId("event_a"), false);
   assert.equal(isRunEventId("event_ab"), true);
@@ -198,6 +199,9 @@ test("every current terminal, approval, and fake-send payload variant is accepte
   if (qualificationFailure.ok) assert.fail("Expected qualification failure fixture");
   const payloads = [
     { eventType: "run.completed", stopReason: "approval_pending" },
+    { eventType: "run.stopped", stopReason: "deadline_exceeded" },
+    { eventType: "run.stopped", stopReason: "step_limit_exceeded" },
+    { eventType: "run.stopped", stopReason: "dependency_failed" },
     { eventType: "run.failed", code: "agent_run_failed" },
     {
       eventType: "qualification.failed",
@@ -297,6 +301,7 @@ test("metadata preserves measured zero and rejects impossible or undocumented va
   const measuredZero = {
     ...event.metadata,
     durationMs: 0,
+    stepNumber: 1,
     retryCount: 0,
     tokens: { input: 0, output: 0, total: 0 },
     costUsd: 0,
@@ -304,6 +309,8 @@ test("metadata preserves measured zero and rejects impossible or undocumented va
 
   assert.equal(isRunEventMetadata(measuredZero), true);
   assert.equal(isRunEventMetadata({ ...measuredZero, durationMs: -1 }), false);
+  assert.equal(isRunEventMetadata({ ...measuredZero, stepNumber: 0 }), false);
+  assert.equal(isRunEventMetadata({ ...measuredZero, stepNumber: 1.5 }), false);
   assert.equal(isRunEventMetadata({ ...measuredZero, retryCount: -1 }), false);
   assert.equal(
     isRunEventMetadata({ ...measuredZero, tokens: { input: 1, output: 1, total: 1 } }),

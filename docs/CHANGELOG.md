@@ -10,6 +10,17 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Added
 
+- Added application-owned whole-run deadline and maximum-step coordination with
+  fail-fast bounded environment configuration, explicit step classification,
+  abort-once cancellation, terminal-once persistence, and late-settlement
+  suppression.
+- Added provider-independent lifecycle tests for normal completion, deadline,
+  late session/prompt settlement, step overflow, correlated normal and
+  synthetic tool outcomes, dependency refusal, invalid configuration, and
+  event-storage failure.
+- Added `run.stopped` deadline, step-limit, and dependency terminal variants,
+  nullable step metadata, application-level Pi tool refusal normalization, and
+  bounded-stop projection with late-core and duplicate-terminal refusal.
 - Added a deterministic read-only run projector with closed lifecycle,
   checkpoint, terminal, minimized context, authority-verification, and
   canonical corruption-refusal contracts.
@@ -71,6 +82,23 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Changed
 
+- Advanced the closed run-event envelope to schema version 2 so every new
+  record carries explicit step availability and bounded terminals cannot be
+  confused with successful completion; earlier event files fail visibly and
+  require an explicit synthetic reset or migration.
+- Routed production Pi setup and prompting through injected lifecycle, timer,
+  session, and event boundaries while preserving the exact three-tool allowlist
+  and dedicated approval/fake-result authority.
+- Excluded token-level, tool-progress, queue, entry, and bash update events from
+  durable lifecycle writes so provider verbosity cannot force synchronous
+  file flush and full-history validation per update.
+- Made the lifecycle coordinator's persisted terminal decision the only
+  returned stop-reason authority, removing a redundant completion payload field
+  that could disagree with durable evidence at a replaceable boundary.
+- Closed Phase 02 Session 03 at version `0.1.25` after 221/221 deterministic
+  tests, 5/5 evals, 96.96% line/85.71% branch/97.47% function coverage, zero
+  dependency vulnerabilities, and complete security and production-boundary
+  validation.
 - Closed Phase 02 Session 02 at version `0.1.24` after 198/198 deterministic
   tests, 5/5 evals, configured coverage gates, zero dependency
   vulnerabilities, and complete security and production-boundary validation.

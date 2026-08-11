@@ -49,7 +49,9 @@ records in file order. Expected evidence can include:
 - `qualification.attempted` and one qualification terminal;
 - `domain.follow_up_drafted` only after qualification success;
 - `approval.requested` with `status: pending` only after matching success;
-- `run.completed` with a finite stop reason, or `run.failed`.
+- `run.completed` with a finite domain stop reason, `run.stopped` with
+  `deadline_exceeded`, `step_limit_exceeded`, or `dependency_failed`, or legacy
+  `run.failed` evidence.
 
 Missing, malformed, cross-lead, duplicated, or out-of-order evidence must be
 treated as a visible failure, never repaired by inference.
@@ -61,6 +63,9 @@ treated as a visible failure, never repaired by inference.
 | `/health` fails | Process or container is unavailable | Inspect process/container logs; restart only after preserving evidence |
 | Qualification returns `lead_not_found` | Exact synthetic lead is absent | Stop; do not draft or request approval |
 | Qualification returns lookup failure or timeout | Bounded read did not complete | Preserve `runId`; investigate dependency or deadline; do not infer success |
+| Run returns `deadline_exceeded` | Whole-run application deadline won the terminal race | Preserve the run events; inspect the last step/open tool; do not trust late provider output |
+| Run returns `step_limit_exceeded` | The configured model/tool start budget was reached | Preserve the run events; inspect step sequence; do not raise the bound without measured review |
+| Run returns `dependency_failed` | Session, prompt, lifecycle evidence, or application post-processing failed | Preserve exact durable evidence; inspect the canonical boundary; do not infer qualification or approval success |
 | HTTP returns `agent_run_failed` | Pi run threw; response may omit `runId` | Inspect controlled server/event evidence; do not report completion |
 | HTTP returns `rate_limited` | The current process window exhausted before body parsing or Pi work | Honor `Retry-After`; investigate traffic/capacity; do not bypass the gate or infer a run started |
 | Approval remains pending | Human decision is required | Do not send; no decision endpoint exists |
