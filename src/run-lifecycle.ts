@@ -179,7 +179,7 @@ function boundedIdentifier(value: unknown): string | null {
   return typeof value === "string" &&
     value.length >= 1 &&
     value.length <= 120 &&
-    /^[a-zA-Z0-9][a-zA-Z0-9_.:-]*$/.test(value)
+    /^[a-zA-Z0-9][a-zA-Z0-9_.:|-]*$/.test(value)
     ? value
     : null;
 }

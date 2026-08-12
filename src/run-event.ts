@@ -58,7 +58,7 @@ const BoundedCodeSchema = Type.String({
 const BoundedIdentifierSchema = Type.String({
   minLength: 1,
   maxLength: 120,
-  pattern: "^[a-zA-Z0-9][a-zA-Z0-9_.:-]*$",
+  pattern: "^[a-zA-Z0-9][a-zA-Z0-9_.:|-]*$",
 });
 
 const VersionSchema = Type.String({

@@ -137,7 +137,7 @@ test("run, qualification, draft, approval, fake-send, and normalized Pi variants
         eventType: "pi.lifecycle",
         sourceType: "tool_execution_start",
         toolName: "qualify_lead",
-        toolCallId: "tool_call_001",
+        toolCallId: "fc_tool_call_001|call_tool_call_001",
         isError: false,
         messageId: null,
         stopReason: null,

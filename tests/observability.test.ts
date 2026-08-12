@@ -93,7 +93,7 @@ function toolObservation() {
     runId: "run_observation_001",
     stepNumber: 2,
     toolName: "request_send_approval",
-    callId: "tool_call_observation_001",
+    callId: "fc_tool_call_observation_001|call_tool_call_observation_001",
     outcome: "denied" as const,
     permissionDecision: "approval_required" as const,
     sideEffect: "none" as const,

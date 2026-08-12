@@ -272,6 +272,13 @@ test("Pi normalization canonicalizes malformed and alternate provider metadata",
   assert.deepEqual(alternate.tokens, { input: 4, output: 6, total: 10 });
   assert.equal(alternate.costUsd, 0);
 
+  const providerToolCall = normalizePiLifecycleEvent({
+    type: "tool_execution_start",
+    toolName: "qualify_lead",
+    toolCallId: "fc_workshop|call_workshop",
+  });
+  assert.equal(providerToolCall.data.toolCallId, "fc_workshop|call_workshop");
+
   const invalid = normalizePiLifecycleEvent({
     type: "NOT_VALID",
     toolName: "Invalid Tool",
