@@ -3,6 +3,7 @@
 Mode: HITL
 Sprint week: 4
 Support tag: `[W4][#07]`
+Status: Complete (2026-08-12)
 
 ## Goal
 
@@ -91,3 +92,24 @@ Use this demo structure:
 3. happy path;
 4. one failure and recovery;
 5. eval gate, cost or latency evidence, and next improvement.
+
+## Completion Evidence
+
+- Final repository verification passed with 374/374 tests, 18/18 critical
+  evals, 5/5 incident drills, and zero dependency vulnerabilities.
+- Coolify ran the exact verified revision behind controlled HTTPS access with a
+  runtime-only provider secret, Docker health, Sentinel monitoring, one replica,
+  and persistent event/approval storage.
+- The synthetic smoke stopped at `approval_pending` with one grounded draft,
+  one durable pending approval, a complete redacted timeline, and no send claim.
+- Exact event and approval files survived container replacement. A private
+  stopped-writer snapshot left the VPS, restored exactly on the local
+  workstation, and started a healthy local service against the restored state.
+- One safe failed deployment was diagnosed before replacement, then the exact
+  saved revision/package was restored through a non-force manual deployment.
+- The same exact fixture passed locally and inside the container with equivalent
+  safety, authority, exact-lead draft evidence, business-event order, stop, and
+  report behavior. Full model-selected draft text was not retained or compared.
+- The [plain-English operator guide](../runbooks/coolify-workshop-operator.md)
+  and [five-minute demo](../demos/week4-controlled-release.md) complete the
+  single-owner workshop handoff without publishing private target evidence.

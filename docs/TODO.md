@@ -23,7 +23,7 @@ Phase 01 is sourced only from Tasks [`02`](todo/02-durable-approvals.md) and
 [`03`](todo/03-idempotent-send.md). Its completed implementation preserves the
 fake-only, synthetic-data, no-real-network boundary.
 
-## Latest Completed Phase
+## Completed Phase 02
 
 - [x] Phase 02 - Recovery and Evaluation Gates (Week 3)
   - [x] Session 01 - Durable Run Event Contract and Store
@@ -62,9 +62,9 @@ session-close verification. The transition backup regressions bring the current
 repository gate to 273 tests while preserving the same 18-case critical suite.
 Tasks `04` and `05` and the Phase 02 implementation are complete.
 
-## Active Planned Phase
+## Latest Completed Phase
 
-- [ ] Phase 03 - Operations and Coolify Release (Week 4)
+- [x] Phase 03 - Operations and Coolify Release (Week 4)
   - [x] Session 01 - Observability Contract and Service Health
     - [x] Implement closed four-layer observation contracts and bounded service collection.
     - [x] Add deterministic availability, correlation, timeout, failure, and redaction tests.
@@ -94,7 +94,7 @@ Tasks `04` and `05` and the Phase 02 implementation are complete.
     - [x] Restore into an absent private directory and start the service against it.
     - [x] Exercise a reversible failed deployment and restore the verified revision.
     - [x] Complete Apex review, validation, and PRD closeout.
-  - [ ] Session 08 - Operator Handoff, Parity, and Release Evidence
+  - [x] Session 08 - Operator Handoff, Parity, and Release Evidence
 
 Phase 03 is sourced only from Tasks
 [`06`](todo/06-observability-and-incidents.md) and
@@ -124,13 +124,31 @@ health, incident, secret-rotation, local-backup, recovery, and rollback duties.
 Session 05 is reviewed, validated, and complete at version `0.1.36`. Session 06
 is reviewed, validated, and complete at version `0.1.37`; the selected image,
 provider-backed smoke, controlled health, monitoring, and exact event/approval
-persistence passed. Task `07` remains open for restore, rollback, parity, and
-handoff work in Sessions 07 and 08.
+persistence passed.
 Session 07 is reviewed, validated, and complete at version `0.1.38`. It proves
 the private workstation backup, exact
 restore, restored-service activation, safe deployment failure, and rollback.
-Automatic Coolify deploys are disabled. Only parity and final operator handoff
-remain in Session 08.
+Session 08 is reviewed and validated with exact local/deployed safety parity,
+the plain-English single-owner guide, five-minute demo, 374 passing tests, 18
+passing evals, and final release review. Task `07` and Phase 03 are complete at
+version `0.1.39`. Automatic Coolify deploys remain disabled.
+
+## Next Planned Phase
+
+- [ ] Phase 04 - Typed Handoff Decision (Week 5)
+  - [ ] Run `phasebuild 4` only when the Phase 04 experiment is intentionally started.
+  - [ ] Complete Task [`08`](todo/08-typed-handoff-experiment.md) and make the
+    evidence-based keep-or-remove decision.
+
+Phase 04 is planned and required, but it is not built in the Phase 03 closeout.
+
+## Phase 03 Closeout Transition
+
+- [ ] Re-run the repository audit and reconcile local tooling evidence.
+- [ ] Validate active CI and add at most one missing pipeline bundle.
+- [ ] Reassess infrastructure readiness and close only directly proved items.
+- [ ] Carry Phase 03 lessons, risks, and controls into cumulative records.
+- [ ] Reconcile current documentation and record the documentation audit.
 
 ## Phase 00 Transition (Complete)
 

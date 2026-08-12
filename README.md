@@ -155,9 +155,10 @@ map.
 
 ## Project Status And Safety
 
-Phases 00 through 02 are complete: all 16 sessions and Tasks `00` through `05`
-are validated. Durable approval, fake idempotency, run recovery, and the
-critical eval gate all have deterministic evidence. In particular:
+Phases 00 through 03 are complete: all 24 sessions and Tasks `00` through `07`
+are validated. Durable approval, fake idempotency, run recovery, the critical
+eval gate, and the controlled Coolify release all have direct evidence. In
+particular:
 
 - approval decisions are internal only; there is no public authenticated
   decision endpoint;
@@ -168,8 +169,8 @@ critical eval gate all have deterministic evidence. In particular:
 - three controlled source breaks proved unknown-lead fabrication, false
   completion, and approval bypass each fail the gate before exact restoration;
 - Phase 03 observability, exact-run reporting, alert policy, incident runbook,
-  and all five incident drills are validated; a closed controlled-release
-  preflight is implemented, but Coolify target evidence remains unproved and
+  all five incident drills, controlled Coolify release, persistence, private
+  restore, recovery, local/deployed parity, and operator handoff are validated;
   Phase 04's typed-handoff comparison is planned and unbuilt;
 - `/runs` has a bounded process-wide capacity gate but no caller
   authentication, authorization, tenant isolation, distributed limiter, or
@@ -182,13 +183,12 @@ The cumulative source of truth is the
 ## Docker And Coolify
 
 The Docker image exposes port 3000, stores event and approval files under
-`/app/data`, and has a container health probe for `/health`. The image, probe,
-process-wide `/runs` rate gate, and offline checksummed snapshot/restore command
-pass local and container validation. No off-server destination or schedule is
-configured; production Coolify health, edge security, persistent restart,
-restore activation, and rollback remain unproved.
-Use the [deployment guide](./docs/deployment.md) for the verified local boundary
-and the remaining external decisions.
+`/app/data`, and has a container health probe for `/health`. The controlled
+Coolify target proves exact-revision health, access gating, provider smoke,
+persistent replacement, private workstation restore, source-pinned recovery,
+and local/deployed safety parity. Public identity, tenancy, real data/effects,
+multi-replica storage, and production-grade backup remain blocked. Use the
+[deployment guide](./docs/deployment.md) for the proved boundary and limits.
 
 ## Required Workshop Path
 
@@ -210,7 +210,7 @@ These require separate authorization after the ordered workshop path:
 
 Releases follow [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 and the repository [versioning policy](./docs/VERSIONING.md). The project is
-currently version 0.1.36; user-visible changes are recorded in the
+currently version 0.1.39; user-visible changes are recorded in the
 [changelog](./docs/CHANGELOG.md).
 
 ## Official Pi References

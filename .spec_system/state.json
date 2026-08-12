@@ -9,7 +9,7 @@
     "3": {
       "name": "Operations and Coolify Release",
       "description": "Make runs observable and operable, then prove a controlled Coolify release with persistence, restore, rollback, and operator handoff.",
-      "status": "in_progress",
+      "status": "complete",
       "session_count": 8
     },
     "0": {
@@ -53,7 +53,8 @@
     "phase03-session04-incident-drills-and-operational-baseline",
     "phase03-session05-controlled-release-security-and-operator-contract",
     "phase03-session06-coolify-deployment-health-and-persistence",
-    "phase03-session07-off-server-restore-and-rollback"
+    "phase03-session07-off-server-restore-and-rollback",
+    "phase03-session08-operator-handoff-parity-and-release-evidence"
   ],
   "next_session_history": [
     {
@@ -154,6 +155,21 @@
     {
       "date": "2026-08-12",
       "session": "phase03-session07-off-server-restore-and-rollback",
+      "status": "completed"
+    },
+    {
+      "date": "2026-08-12",
+      "session": "phase03-session08-operator-handoff-parity-and-release-evidence",
+      "status": "planned"
+    },
+    {
+      "date": "2026-08-12",
+      "session": "phase03-session08-operator-handoff-parity-and-release-evidence",
+      "status": "validated"
+    },
+    {
+      "date": "2026-08-12",
+      "session": "phase03-session08-operator-handoff-parity-and-release-evidence",
       "status": "completed"
     }
   ]

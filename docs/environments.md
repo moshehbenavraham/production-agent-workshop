@@ -6,7 +6,7 @@
 |-------------|-----|---------|--------|
 | Local development | `http://127.0.0.1:3000` by default | Development, deterministic verification, controlled synthetic runs | Supported |
 | Local Docker | Host-selected loopback port to container port 3000 | Image and health-probe validation | Supported and locally verified |
-| Coolify controlled target | Private operator URL | Synthetic-only release validation | Deployed; provider smoke, HTTPS gate, health, monitoring, and event/approval replacement persistence verified |
+| Coolify controlled target | Private operator URL | Synthetic-only release validation | Deployed; local/deployed parity, provider smoke, HTTPS gate, health, monitoring, replacement persistence, restore, and rollback verified |
 | Coolify public production | Not assigned | Intended hosted deployment | Blocked by public identity, tenant, shared-rate, lifecycle, and governance gates |
 | Staging | Not assigned | No configured environment | N/A |
 
@@ -112,6 +112,11 @@ copied into repository evidence.
 - `/runs` must remain private or otherwise controlled. Its process-wide rate
   gate protects bounded capacity but is not authentication, authorization,
   tenant isolation, distributed rate state, or an edge WAF.
+- The exact `lead_ada` parity fixture passed locally and inside the controlled
+  container with the same validated qualification, one draft, one pending
+  approval, six ordered business events, `approval_pending`, no-send output,
+  and observed-only report semantics. This proves the selected synthetic path,
+  not public readiness or a provider-wide service-level objective.
 
 ## Verification
 

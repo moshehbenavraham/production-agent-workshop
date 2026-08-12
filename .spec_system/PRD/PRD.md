@@ -8,7 +8,7 @@ The product prioritizes clarity, observability, and safe recovery over autonomy.
 
 ## Current Baseline and Scope Status
 
-The baseline verified by [`docs/todo/README_todo.md`](../../docs/todo/README_todo.md) now includes completed Phases 00 through 02 while remaining deliberately smaller than the full production-hardening scope:
+The baseline verified by [`docs/todo/README_todo.md`](../../docs/todo/README_todo.md) now includes completed Phases 00 through 03 while remaining deliberately smaller than the full production-hardening scope:
 
 - `GET /health` and a rate-limited, body-limited, validated `POST /runs` are implemented.
 - One in-memory Pi session uses a frozen allowlist containing exactly `qualify_lead`, `draft_follow_up`, and `request_send_approval`.
@@ -24,19 +24,24 @@ The baseline verified by [`docs/todo/README_todo.md`](../../docs/todo/README_tod
   false completion, and approval bypass turn the gate red before exact safe
   restoration returns it green.
 - A Pi-independent internal application composes exact approved-state authorization, durable fake-result idempotency, and a deterministic in-process fake adapter. It has no Pi/HTTP entrypoint and performs no network write.
-- Biome formatting and linting, strict TypeScript, 273 deterministic tests, and all 18 durable production-eval cases pass through `npm run verify`.
-- The Node 24 container exposes port 3000, provides `/health`, declares `/app/data` for persistent event storage, and has a locally validated Docker health probe.
-- Least-privilege GitHub Actions Code Quality, Build & Test, and Security workflows plus GitHub-managed CodeQL pass on current Phase 02 revisions.
+- Biome formatting and linting, strict TypeScript, 374 deterministic tests, and all 18 durable production-eval cases pass through `npm run verify`.
+- The Node 24 container exposes port 3000, provides `/health`, declares `/app/data` for persistent event storage, and has a locally and Coolify-validated Docker health probe.
+- Least-privilege GitHub Actions Code Quality, Build & Test, and Security workflows plus GitHub-managed CodeQL pass on current Phase 03 revisions.
 - A stopped-writer offline CLI validates direct JSONL records, writes private
   SHA-256-manifested snapshots, and restores exact files only into an absent
-  destination. Off-server scheduling and production activation remain Task `07`.
+  destination. A stopped-writer snapshot was copied to the private workshop
+  owner's computer, restored exactly, and activated through a local service.
+- The controlled Coolify target proves exact-revision health, provider-backed
+  pending-approval behavior, one-replica persistence across replacement,
+  monitoring, safe failed deployment, source-pinned recovery, and equivalent
+  local/deployed safety behavior. Automatic deploy is disabled.
 - `/runs` has process-wide capacity plus application-owned whole-run deadline
   and model/tool step gates, but no authentication, authorization, tenant
   isolation, shared rate state, or deployed WAF and must remain private or
   controlled. The fake-write capability remains internal, unregistered, and
   unallowlisted.
 
-The todo index and tasks `00` through `08` are the authoritative ordered delivery plan. All nine tasks are required. Tasks `00` through `05` are complete; tasks `06` through `08` remain planned in their later phases. Tasks `00` through `07` occupy Weeks 1 through 4, and task `08` occupies Week 5 after its measurement entry gate passes. Completing the task `08` experiment and its keep-or-remove decision is mandatory even when the evidence says to remove the added handoff. Every behavior in a task's `Work` section remains planned until its acceptance evidence exists; this PRD must not imply otherwise.
+The todo index and tasks `00` through `08` are the authoritative ordered delivery plan. All nine tasks are required. Tasks `00` through `07` and Phases 00 through 03 are complete. Task `08` and Phase 04 remain planned after the now-passing measurement entry gate. Completing the task `08` experiment and its keep-or-remove decision is mandatory even when the evidence says to remove the added handoff. Every behavior in a task's `Work` section remains planned until its acceptance evidence exists; this PRD must not imply otherwise.
 
 ## Goals
 
@@ -221,8 +226,8 @@ One phase corresponds to exactly one workshop week. Each phase is implemented th
 | 00 | 1 | Foundation | `00`, `01` | 3 | Complete |
 | 01 | 2 | Durable Approval and Safe Write | `02`, `03` | 6 | Complete |
 | 02 | 3 | Recovery and Evaluation Gates | `04`, `05` | 7 | Complete |
-| 03 | 4 | Operations and Coolify Release | `06`, `07` | 8 | Not Started |
-| 04 | 5 | Typed Handoff Decision | `08` | TBD after Phase 03 and the entry gate | Planned and Required |
+| 03 | 4 | Operations and Coolify Release | `06`, `07` | 8 | Complete |
+| 04 | 5 | Typed Handoff Decision | `08` | TBD after Phase 03 transition | Planned and Required; entry gate passed |
 
 ### Required Task Map
 
@@ -363,8 +368,8 @@ After Phase 03 completion, transition work, and the measurement entry gate, `pha
   implemented and internal replay/resume is validated at all three Task `04`
   checkpoints.
 - **Offline JSONL snapshot/restore** - Stopped-writer, private, checksummed
-  repository tooling with exact absent-destination restore; off-server storage
-  and production activation remain unconfigured.
+  repository tooling with exact absent-destination restore; the workshop owner
+  proved private off-server storage and local restored-service activation.
 - **Biome 2.5.6, Node.js test runner, TSX, and deterministic eval runner** - Formatting and provider-independent verification gates.
 - **GitHub Actions and CodeQL** - Current formatting/lint/type,
   build/test/eval/coverage, secret, dependency-review, and audit CI plus managed
@@ -381,8 +386,8 @@ After Phase 03 completion, transition work, and the measurement entry gate, `pha
 - [x] Task `03`: The fake adapter rejects every unapproved or mismatched action, returns the original result on duplicate approved requests, passes all eight required paths, and remains non-networked throughout the required five-week path.
 - [x] Task `04`: Three documented interruption points resume from durable events with zero duplicate approvals or effects; deadline, step-limit, replay, and corrupt-record paths fail visibly without manual state edits.
 - [x] Task `05`: A 10-20 case golden set covers every client-brief boundary, critical assertions score behavior and evidence rather than prose alone, deliberate breaks are reverted, and every critical gate passes.
-- [ ] Task `06`: One safe query reconstructs a failed run across all implemented layers; every terminal path and failure is actionable; five incident drills recover through the documented runbook without credential or personal-data leakage.
-- [ ] Task `07`: The verified image passes pre-public security gates, HTTPS health, redacted smoke testing, persistent restart, backup restore, reversible-failure rollback, local/deployed parity, operator handoff, and the five-minute demo.
+- [x] Task `06`: One safe query reconstructs a failed run across all implemented layers; every terminal path and failure is actionable; five incident drills recover through the documented runbook without credential or personal-data leakage.
+- [x] Task `07`: The verified image passes pre-public security gates, HTTPS health, redacted smoke testing, persistent restart, backup restore, reversible-failure rollback, local/deployed parity, operator handoff, and the five-minute demo.
 - [ ] Task `08`: Phase 04 begins only after its entry gate passes and documents the measured bottleneck, hypothesis, typed handoff, least-privilege permissions, deterministic failure matrix, and unchanged single-agent comparison.
 - [ ] Task `08`: The required comparative scorecard reports success, safety, latency, cost, explainability, and operational complexity, and the final keep-or-remove decision follows the evidence.
 - [ ] Every task from `00` through `08` has its required weekly Build Log evidence, one exercised failure, a green `npm run verify`, a `$verify-production-agent` result, an updated changelog, and a final permissions, privacy, side-effect, and documentation diff review.
@@ -419,18 +424,17 @@ The completed five-week path must leave one reviewable portfolio containing:
 - File-backed append-only storage is sufficient for the current single-process workshop: repository architecture guidance explicitly defers a database, Redis, or queue until durable concurrency requires it, and the storage interfaces remain replaceable.
 - The repository is a single package rather than a monorepo: deterministic analysis found no workspace indicators or packages, and the root contains one `package.json`, so package-scoped planning is unnecessary.
 - Phases map one-to-one to workshop weeks: Phase 00 owns Week 1 tasks `00`-`01`, Phase 01 owns Week 2 tasks `02`-`03`, Phase 02 owns Week 3 tasks `04`-`05`, Phase 03 owns Week 4 tasks `06`-`07`, and Phase 04 owns required Week 5 task `08`; the user supplied this phase boundary directly, so no unrelated integration phase may be inserted.
-- Project state registers completed Phases 00 through 02 with all seven Phase 02
-  sessions validated and Phase 03 with eight not-started session stubs. Phase
-  04 remains PRD-planned and gains session state only after the Phase 03 entry
-  conditions for later work are satisfied.
+- Project state registers completed Phases 00 through 03 with all eight Phase 03
+  sessions validated. Phase 04 remains PRD-planned and gains session state only
+  when its separate `phasebuild` workflow is intentionally started.
 - Production CRM, company research, real send, and Postgres work remain unscheduled deferred requirements: they appear in future-looking repository material but not in the ordered todo path, so aligning the PRD does not authorize or schedule them.
 
 ### Conflict Resolutions
 
 - The root README calls the repository a runnable reference while the task
-  index distinguishes completed and planned hardening: treat Phases 00-02 and
-  tasks `00`-`05` as verified, and keep tasks `06`-`08` incomplete until their
-  full acceptance evidence exists.
+  index distinguishes completed and planned hardening: treat Phases 00-03 and
+  tasks `00`-`07` as verified, and keep task `08` incomplete until its full
+  comparative acceptance evidence exists.
 - Older assignment material labels task `08` as optional, while the project owner requires it: treat the experiment and decision as mandatory Week 5 work, preserve its evidence entry gate, and allow only the added orchestration component itself to be removed when the comparison does not justify it.
 - The former root README student-extension list mixed required workshop work with deferred integrations: use the todo index as the delivery authority, keep CRM, company research, a real send provider, Postgres, and model grading unscheduled, and place required task `08` in Phase 04 after the four foundational weeks.
 - Task `03` is named as a send boundary while the core path prohibits real sending: implement only the deterministic fake adapter and keep any real network provider and network-writing Pi tool deferred.

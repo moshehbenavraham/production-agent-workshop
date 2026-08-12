@@ -16,12 +16,14 @@ The repository currently provides:
   Pi/HTTP execution entrypoint or network effect
 - a provider-independent recovery application for qualification, draft, and
   approval checkpoints that stops before indeterminate effects
-- 273 deterministic tests and a durable 18-case critical production-eval gate
+- 374 deterministic tests and a durable 18-case critical production-eval gate
 - a Node 24 container, `/health`, a Docker health probe, and a persistent `/app/data` volume contract
 - passing Code Quality, Build & Test, Security, and GitHub-managed CodeQL
   checks; Integration, Operations, deploy, and post-deploy bundles remain incomplete
 - a stopped-writer, checksummed offline JSONL snapshot/restore command validated
-  locally and in Docker, without an off-server schedule or production activation
+  locally and in Docker, plus a private workstation backup and exact local restore activation
+- a controlled Coolify release with provider smoke, replacement persistence,
+  monitoring, source-pinned recovery, and exact local/deployed safety parity
 - a process-wide `/runs` capacity gate, but no authentication, tenant
   isolation, distributed rate state, or deployed WAF
 

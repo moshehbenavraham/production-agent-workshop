@@ -433,16 +433,59 @@ privilege token. This limit is explicit rather than inferred away.
 
 ### Operator Guide
 
-_Link the one-page operator handoff and record another operator's evidence that
-the documented deploy, pause, restart, query, recovery, and stop paths work._
+The [plain-English Coolify workshop guide](./runbooks/coolify-workshop-operator.md)
+covers normal health, local gates, manual deploy, pause, restart, exact-run
+reporting, recovery selection, stopped-writer backup, absent-directory restore,
+source-pinned rollback, secret rotation, and mandatory human takeover.
+
+The workshop owner is the authorized operator and is separate from the
+repository implementation author. They filled the private `.env`, confirmed
+that they perform the workshop actions, chose the private local workstation for
+backup, and rejected the phrase "operator ownership" as unclear. The guide now
+uses direct wording such as "you are responsible" and names each action.
+Repository commands were checked against their implemented CLI contracts;
+Coolify deploy, stop/start, restart/replacement, secret, health, and recovery
+actions were directly exercised in Sessions 06-08. A second human did not
+repeat every button click. That staffing redundancy is not claimed or required
+for this single-owner synthetic workshop.
 
 ### Five-Minute Demo
 
-_Record the problem and user, bounded architecture, happy path, one failure and
-recovery, eval gate, cost or latency evidence, and next improvement._
+The [five-minute controlled-release demo](./demos/week4-controlled-release.md)
+covers the problem and user, bounded Mermaid architecture, exact safe happy
+path, local/deployed parity, deterministic failed deployment and recovery,
+restore timing, critical eval gate, measured provider baseline, current limits,
+and the Phase 04 experiment as the next improvement.
+
+### Local And Deployed Parity
+
+Both sides used the exact committed `lead_ada` fixture and runtime-only OpenAI
+configuration. The local service used fresh private temporary stores; the
+deployed check ran inside the controlled container and left `/runs` private.
+They matched on HTTP 200, strong/0.85 qualification, three reasons, two missing
+fields, one draft, one pending approval, the six ordered business events,
+`approval_pending`, canonical no-send output, and an observed-only report in
+`waiting_for_approval` state. Any mismatch would have failed deployment.
+Draft parity means one application-validated exact-lead draft was bound to the
+pending approval on each side. Full model-selected text and its hash were not
+retained or compared; byte-identical prose is neither proved nor required for
+the safety contract.
+
+Local request time was 24,831 ms with 6,038 input tokens, 486 output tokens,
+and USD 0.04477. Deployed request time was 10,768 ms and its safe report marked
+token and cost data available; numeric deployed values were not extracted.
+Coolify finished the exact-revision deployment in 63,364 ms. The temporary
+check was removed, the app remained `running:healthy`, the configured revision
+still matched, automatic deployment remained disabled, and no private run ID or
+target value entered this log.
 
 ### Final Diff Review and Remaining Risk
 
-_Record the exposure, permissions, secrets, personal-data, persistence,
-recovery, side-effect, screenshot, and documentation review plus open release
-risks._
+The final review retains controlled exposure, the exact three-tool allowlist,
+operator-only platform actions, synthetic-only data, private secrets and target
+values, one JSONL-owning replica, stopped-writer recovery, and the no-send
+boundary. No screenshot was needed. The open limits remain public identity and
+tenant controls, real-data governance, public human decisions, real effects,
+multi-replica persistence, automated/geographic backup, destructive live-volume
+activation, external on-call delivery, stable access from every workstation
+network, and current-platform digest reinspection after rollback.

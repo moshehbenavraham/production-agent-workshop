@@ -8,8 +8,11 @@ An authorized controlled Coolify target now runs the reviewed revision over
 HTTPS behind HTTP Basic Authentication. Its Dockerfile health probe and
 Sentinel monitor are healthy. A runtime-only provider secret completed one
 synthetic pending-approval smoke run, and the exact event and approval evidence
-survived a full replacement on the named `/app/data` volume. Private target
-details remain only in the ignored local `.env` and Coolify.
+survived a full replacement on the named `/app/data` volume. The same exact
+synthetic smoke also passed locally and inside the deployed container with
+equivalent qualification, draft, pending approval, business-event order,
+stop reason, no-send output, and report semantics. Private target details remain
+only in the ignored local `.env` and Coolify.
 
 This is a workshop release, not a public production service. It still lacks
 public caller identity, tenant isolation, shared principal-aware rate state,
@@ -180,4 +183,6 @@ remain out of scope. Keep data synthetic.
 
 The current production-validation exception is recorded in
 [Known Issues](../.spec_system/audit/known-issues.md). Security gates are in
-[Security and Compliance](../.spec_system/SECURITY-COMPLIANCE.md).
+[Security and Compliance](../.spec_system/SECURITY-COMPLIANCE.md). The concise
+[workshop operator guide](./runbooks/coolify-workshop-operator.md) is the normal
+deploy, pause, restart, query, recovery, rollback, and secret procedure.

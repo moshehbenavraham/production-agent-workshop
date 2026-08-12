@@ -201,6 +201,7 @@ The current direct evidence does not prove:
 - multi-replica safety, real-data governance, a public human-decision path, or a
   real external effect.
 
-Those claims require later production infrastructure work or Session 08
-handoff evidence. Until then, the production infrastructure exceptions and
-cumulative security findings remain open.
+Session 08 directly proved local/deployed parity and completed the plain-English
+single-owner workshop handoff and five-minute demo. The remaining claims require
+later production infrastructure work. Until then, the production infrastructure
+exceptions and cumulative security findings remain open.
