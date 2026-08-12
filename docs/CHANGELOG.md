@@ -179,6 +179,11 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Changed
 
+- Reconciled the Week 4 Build Log directly with Tasks `06` and `07`: removed
+  stale release-template language, corrected the service-snapshot versus
+  exact-run report topology, added acceptance-to-evidence maps and the redacted
+  live timeline, and distinguished deployed version `0.1.36` from repository
+  closeout version `0.1.39` and from unsupported byte-identical rebuild claims.
 - Reconciled the current README, architecture, onboarding, workshop index,
   Phase 03 archive, TODO, incident guide, and cumulative governance records
   with the completed controlled Coolify release, 374-test gate, private local

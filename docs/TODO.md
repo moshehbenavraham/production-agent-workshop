@@ -187,3 +187,6 @@ only after all five Phase 01 closeout workflows passed.
   approval/fake-send source and test evidence.
 - [x] Reconcile the Week 3 Build Log with Tasks `04` and `05`, current recovery
   and production-eval contracts, and the Phase 02 273-test repository gate.
+- [x] Reconcile the Week 4 Build Log with Tasks `06` and `07`, correct stale
+  release language and evidence topology, and distinguish the deployed runtime
+  from the final repository closeout.

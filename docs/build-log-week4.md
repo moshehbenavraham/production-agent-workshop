@@ -5,9 +5,11 @@
 [Week 3](build-log-week3.md) |
 [Week 4](build-log-week4.md)
 
-Task `06` now contains direct observable evidence. Task `07` sections remain
-templates until the controlled release sessions execute; no placeholder below
-is an implemented deployment claim.
+Tasks `06` and `07` are complete for the controlled synthetic workshop boundary.
+Phase 03 Sessions 01-04 produced the Task `06` observability and incident
+evidence; Sessions 05-08 produced the Task `07` Coolify release evidence. This
+log omits private target values, credentials, live run identifiers, and full
+drafts, and it does not claim public-production or real-data readiness.
 
 ## Task 06 - Observe Failures and Practice Recovery
 
@@ -16,9 +18,9 @@ Task contract:
 
 ### Goal and Boundary
 
-Session 01 adds a closed, read-only observability contract for four layers and
-a controlled service snapshot collector. The collector is library-only: it is
-not registered as a Pi tool and is not reachable through HTTP. `GET /health`
+Session 01 implemented a closed, read-only observability contract for four
+layers and a controlled service snapshot collector. The library-only collector
+is not registered as a Pi tool and is not reachable through HTTP. `GET /health`
 remains exactly `{"status":"ok"}`. Approval records and fake-result records
 remain the only approval and effect authority.
 
@@ -28,20 +30,37 @@ validation and closeout record is attached to Session 04.
 
 ```mermaid
 flowchart LR
-  Process[Process metrics] --> Service[Service observation]
-  Storage[Storage and queue readers] --> Service
-  Dependencies[Bounded dependency checks] --> Service
-  Events[Validated run events] --> Run[Run observation]
-  Events --> Model[Model observation]
-  Events --> Tool[Tool observation]
-  Service --> Report[Controlled operator report]
-  Run --> Report
-  Model --> Report
-  Tool --> Report
+  Process[Process metrics] --> Collector[Bounded service collector]
+  Storage[Storage and queue readers] --> Collector
+  Dependencies[Bounded dependency checks] --> Collector
+  Collector --> Service[Service snapshot]
+  Events[Validated run events] --> Projection[Semantic run projection]
+  Projection --> Report[Exact-run report]
+  Report --> Timeline[Run, model, tool, and lifecycle timeline]
+  Service --> View[Controlled operator evidence]
+  Timeline --> View
   Approval[Approval records] --> Authority[Durable authority]
   Results[Fake result records] --> Authority
-  Report -. explains but cannot authorize .-> Authority
+  View -. explains but cannot authorize .-> Authority
 ```
+
+The exact-run command reads durable run events only. It does not ingest or
+invent a historical service snapshot, because service observations carry no
+`runId`. Operators inspect the bounded service snapshot separately and use the
+report for every run-scoped layer present in the validated event history.
+
+### Acceptance-to-Evidence Map
+
+| Task `06` acceptance check | Direct evidence in this log | Recorded result |
+|----------------------------|-----------------------------|-----------------|
+| Reconstruct one failed run | Complete Incident Timeline and Run Query Output | Pass for all durable run-scoped evidence; service health remains a separate uncorrelated snapshot |
+| Terminal stop reasons and actionable failures | Run Query Output and Recovery Proof | Pass with closed stop reasons and finite error categories |
+| Per-run cost and latency without invented values | Run Query Output and Operational Baseline | Pass; measured values and explicit unavailability remain distinct |
+| Actionable, retry-aware alerts | Alert Table | Pass with finite thresholds, cooldowns, evidence, and operator actions |
+| Restart and duplicate recovery without duplicate effects | Recovery Proof | Pass; restart creates zero effects and duplicate application preserves one total fake effect |
+| Runbook matches implemented commands and capabilities | Incident Runbook | Pass; unsupported pause, compensation, and transport capabilities are stated |
+| No credentials or unnecessary personal data | Redacted Observability View and final review | Pass for synthetic minimized evidence |
+| Repository verification | Verification Output | Pass at Task `06` closeout: 354 tests, 18 evals, and 5 drills |
 
 ### Complete Incident Timeline
 
@@ -261,10 +280,11 @@ actors, receipts, idempotency keys, raw errors, filesystem paths, and provider
 payloads. Temporary paths remain inside the existing harness and are removed in
 `finally`; tests compare the matching temp-directory inventory before/after.
 
-Remaining operational blind spots are explicit: no scheduler or alert delivery,
-no in-application pause, approval-decision, or recovery transport, no production
-on-call/SLA, no real provider token/cost measurement, and no deployment proof.
-Task `07` Sessions 05 through 08 own the controlled release boundary.
+At Task `06` closeout, deployment proof was intentionally deferred to Task
+`07`; the sections below now record that controlled release. Task `06` itself
+still adds no scheduler or alert delivery, in-application pause,
+approval-decision or recovery transport, production on-call/SLA, or live
+provider token/cost measurement.
 
 ## Task 07 - Release Through Coolify
 
@@ -272,18 +292,39 @@ Task contract: [07 - Release Through Coolify](todo/07-coolify-release.md)
 
 ### Goal and Boundary
 
-Session 05 defines a repository-owned preflight before target mutation. The
+Session 05 implemented a repository-owned preflight before target mutation. The
 default exposure permits external HTTPS health but keeps `/runs` private or
 edge-restricted, one replica owns `/app/data`, and only synthetic data is
 allowed. The preflight accepts no URL, address, credential, operator name,
 private identifier, arbitrary evidence string, or deployment instruction.
 
-Policy validation is implemented. The authorized controlled target now passes
-all 15 preflight checks. The workshop owner accepted every operator role,
-provider and rotation ownership, workstation backup ownership, incident
-ownership, and rollback ownership. The preflight remains redacted and
-`targetMutationAllowed` remains false; readiness never grants mutation by itself.
-A ready result only admits the separately authorized Session 06 workflow.
+Policy validation is implemented. During the release, the authorized controlled
+target passed all 15 preflight checks. The workshop owner accepted every
+operator role, provider and rotation ownership, workstation backup ownership,
+incident ownership, and rollback ownership. The preflight remains redacted and
+`targetMutationAllowed` remains false; readiness never grants mutation by
+itself. A ready result only admits the separately authorized Session 06
+workflow.
+
+The final repository closeout is version `0.1.39`. The deployed runtime evidence
+is for exact source revision `52df37a96a76afc1d82656ef04e0922aa42e9b16`
+with package version `0.1.36`; later commits completed recovery records,
+handoff, Integration CI, and Phase 03 documentation and are not presented as a
+new deployed image.
+
+### Acceptance-to-Evidence Map
+
+| Task `07` acceptance check | Direct evidence in this log | Recorded result |
+|----------------------------|-----------------------------|-----------------|
+| Local verification and critical eval gates | Verification and Image Identity | Pass: 374 tests, 18 evals, 5 drills, and zero dependency vulnerabilities |
+| Image build from a fresh commit | Verification and Image Identity | Pass for the clean-checkout source-build contract and recorded source/digest binding; no byte-identical rebuild claim |
+| Live HTTPS health | Live Health and Run Timeline | Pass during the controlled release: authenticated 200 and anonymous 401 |
+| Observable approval-pending run with no send claim | Live Health and Run Timeline | Pass with six redacted business events, one durable pending approval, and canonical no-send output |
+| Exposure-appropriate security boundaries | Security-Gate Checklist | Pass for controlled access; public production remains blocked |
+| Restart persistence and backup restore | Restart and Restore Proof | Pass with byte-identical live files and exact absent-directory local restore |
+| Reversible failure diagnosis and rollback | Rollback Timeline | Pass for a pre-replacement deployment failure and source-pinned recovery; post-recovery digest reinspection is unavailable |
+| Operator handoff | Operator Guide and Five-Minute Demo | Pass for the single-owner workshop; a second human did not replay every platform action |
+| Redacted release evidence | All Task `07` sections and final review | Pass; no credential, private target value, run ID, full draft, or raw log is included |
 
 ### Infrastructure Decision Record
 
@@ -317,8 +358,9 @@ flowchart LR
   Pi[Bounded Pi] -. no deployment, credential, decision, or send tool .-> Stop[Human stop]
 ```
 
-The map is a required target contract, not a deployment claim. No URL, region,
-registry, project, volume, backup, or operator identifier is recorded.
+The map is the redacted topology exercised during Sessions 06-08. It records a
+real controlled deployment without exposing its URL, region, registry, project,
+volume, backup, or operator identifiers.
 
 ### Security-Gate Checklist
 
@@ -338,48 +380,69 @@ The local process rate limiter never satisfies a public caller-control gate.
 
 ### Verification and Image Identity
 
-Session base: `9cbd418f0aaa01af935ec5b3b3cbbefaaf1737c5` at version `0.1.35`.
+At Task `07` closeout:
 
 - Focused preflight tests: 20/20 pass.
 - Strict TypeScript: pass.
 - Controlled-ready and hypothetical public-ready contract requests: pass only
   with their exact finite gate states.
-- Checked-in redacted example: valid request, status `blocked`, 13 exact blocked checks.
+- Checked-in incomplete example: valid request, status `blocked`, 13 exact
+  blocked checks.
 - Command: one JSON object on stdin, 64 KiB maximum, no arguments; ready exits
   0, blocked exits 1, invalid exits 2.
 - Full repository verification: 374/374 tests and 18/18 production evals pass.
-- Coverage: 97.88% lines, 86.31% branches, and 98.43% functions; release
-  preflight is 99.11/90.71/100.
+- Incident drills: 5/5 pass.
+- Coverage: 97.88% lines, 86.29% branches, and 98.43% functions; the Session 05
+  release-preflight module measured 99.11/90.71/100.
 - Dependency audit: zero vulnerabilities.
+- Integration CI performs a fresh repository checkout, locked install,
+  production Dockerfile build, container health check, and request-boundary
+  check. This proves rebuildability from source; no byte-for-byte image rebuild
+  comparison was performed.
 
-A release image for revision `52df37a96a76afc1d82656ef04e0922aa42e9b16`
-is running and its direct immutable image identifier is recorded only in the
-redacted current-target fixture and private operator environment. That exact
+During Session 06, Coolify ran revision
+`52df37a96a76afc1d82656ef04e0922aa42e9b16` at package version `0.1.36`.
+The recorded immutable image digest is
+`sha256:f97d51eb0f7dfdc832f74b3700af1003a7fd6bd33fbfdd0a39d1aed111e599d1`.
+It also appears in the checked-in redacted current-target fixture and session
+validation records; private target identifiers remain omitted. That exact
 revision passed `npm run verify`, 5/5 incident drills, and `npm audit` with zero
 vulnerabilities. It includes the regression for provider tool-call identifiers
-that contain the observed opaque separator. The original Session 05 fixture
-remains explicitly `pending` because it is a policy-shape example.
+that contain the observed opaque separator. The original Session 05 incomplete
+fixture remains `pending` because it is a policy-shape example, not target
+evidence.
 
 ### Live Health and Run Timeline
 
-The controlled HTTPS boundary denies anonymous `/health` and `/runs` requests
-with 401, while the configured operator credential receives the exact healthy
-200 response from `/health`. The live container and Dockerfile health check are
-healthy, Sentinel is healthy, the Coolify API accepted read, write, deploy,
-stop, and start operations, and OpenAI accepted the injected runtime-only
-secret without its value being read or logged. A workstation probe was reset
-during TLS before packets reached the VPS while the public hostname continued
-to return the expected controlled response from the VPS; keep that path as a
-known access issue.
+During Session 06, the controlled HTTPS boundary denied anonymous `/health` and
+`/runs` requests with 401, while the configured operator credential received
+the exact healthy 200 response from `/health`. The live container and
+Dockerfile health check were healthy, Sentinel was healthy, the Coolify API
+accepted read, write, deploy, stop, and start operations, and OpenAI accepted
+the injected runtime-only secret without its value being read or logged. A
+workstation probe was reset during TLS before packets reached the VPS while the
+public hostname continued to return the expected controlled response from the
+VPS; that path remains a recorded access limitation, not evidence against the
+target-side health check.
 
 The controlled synthetic smoke used a committed known lead, produced grounded
 qualification, created exactly one durable pending approval, returned
 `approval_pending`, and returned the canonical no-send output. The run ID is
 kept in the private operator environment rather than this log.
 
+Redacted live business-event timeline:
+
+```text
+run.started -> qualification.attempted -> qualification.completed -> domain.follow_up_drafted -> approval.requested -> run.completed
+```
+
+The terminal event records `approval_pending`. There is no approval decision,
+send attempt, or effect event in the live smoke timeline.
+
 ### Restart and Restore Proof
 
-The named read-write `/app/data` volume survived a full container replacement.
+During Session 06, the named read-write `/app/data` volume survived a full
+container replacement.
 Before and after replacement, the exact smoke run event file and approval file
 had identical SHA-256 values; the replacement projected the same completed
 `approval_pending` run and exactly one pending approval without manual edits.
@@ -420,10 +483,10 @@ Coolify restored the exact verified revision with a non-force cached deployment
 in 67,550 ms. The internal check again proved the saved run and approval plus a
 new grounded pending-approval provider run. A separate container-side probe
 proved package version `0.1.36`, binding the running image to revision
-`52df37a96a76afc1d82656ef04e0922aa42e9b16`; Coolify reports
-`running:healthy`. Storage, secrets, one-replica ownership, and controlled access
-did not change. The temporary hook was removed and automatic deployment remains
-off.
+`52df37a96a76afc1d82656ef04e0922aa42e9b16`; at recovery closeout, Coolify
+reported `running:healthy`. Storage, secrets, one-replica ownership, and
+controlled access did not change. The temporary hook was removed and automatic
+deployment was off at closeout.
 
 Coolify 4.0.0-beta.463 does not expose the newer read-only rollback-image API.
 The previously inspected immutable digest and its commit tag remain reserved,
