@@ -96,9 +96,25 @@ approval or effect observation from being presented as durable authority.
 
 ### Alert Table
 
-_Record thresholds, severity, evidence, and operator action for task failures,
-stuck runs, dangerous permission attempts, cost spikes, storage pressure, and
-unavailable dependencies._
+Session 03 adds a pure bounded evaluator over minimized observations. It has no
+scheduler, notification transport, webhook, pager, HTTP route, Pi tool, or
+durable mutation. `suppressed` retains the trigger evidence during cooldown;
+required missing values are `unavailable`, never clear.
+
+| Rule | Default trigger | Severity | Evidence | Cooldown | Safe operator action |
+|------|-----------------|----------|----------|----------|----------------------|
+| Repeated task failure | 3 failed/stopped runs | Warning | Run outcome count | 5 minutes | Inspect exact run reports |
+| Stuck run | Running/pending at least 5 minutes | Critical | Maximum run duration | 5 minutes | Stop new requests and inspect run |
+| Dangerous permission attempt | 1 forbidden/denied decision | Critical | Permission-decision count | 15 minutes | Preserve evidence and escalate |
+| Cost spike | Available model cost sum at least USD 5 | Warning | Model cost | 15 minutes | Stop new requests and inspect usage |
+| Unavailable dependency | 2 unavailable dependency samples | Critical | Dependency state | 5 minutes | Inspect dependency |
+| Storage pressure | Utilization at least 85% | Critical | Used/capacity ratio | 15 minutes | Stop new requests and inspect storage |
+| Queue pressure | Depth at least 100 | Warning | Queue depth | 5 minutes | Inspect queue |
+
+The application has no queue, so its queue observation and alert result are
+explicitly `not_applicable`. Successful retries below the failure threshold do
+not alert. A dangerous permission denial remains visible as `triggered` or
+`suppressed`.
 
 ### Redacted Observability View
 
@@ -122,8 +138,20 @@ Missing values never reuse zero: they are either
 
 ### Incident Runbook
 
-_Link `docs/runbooks/agent-incident-response.md` and record the exact pause,
-inspect, retry, resume, compensate, escalate, and stop commands exercised._
+The canonical [Agent Incident Response](runbooks/agent-incident-response.md)
+guide grounds every action in the current implementation:
+
+- pause is external access/process/container control because no pause endpoint exists;
+- inspect uses the exact read-only `report:run` command;
+- retry is caller-controlled only for canonical transient storage/event storage
+  refusal or an unstarted qualification with no known effect;
+- resume exists only through the internal recovery library at a trusted exact checkpoint;
+- compensation is unsupported and always operator-owned;
+- corrupt authority, open attempts, and reservation-only effects preserve and escalate;
+- terminal or already-completed effects stop without reopening or re-executing.
+
+The guide is implemented and tested as documentation in Session 03. Session 04
+will exercise its paths through the five required synthetic incident drills.
 
 ### Recovery Proof
 
@@ -152,6 +180,16 @@ Session 02 focused evidence:
   invalid-input subprocess cases: fail visibly with no partial stdout.
 - `npm run verify`: 316/316 tests and 18/18 production eval cases pass.
 - `npm run test:coverage`: 97.65% lines, 85.74% branches, and 98.17% functions.
+- `npm audit`: zero known vulnerabilities.
+
+Session 03 focused evidence:
+
+- `npx tsc --noEmit`: pass.
+- `npx tsx --test tests/alerts.test.ts`: 22/22 pass.
+- Exact thresholds, below-threshold retries, distinct-run counting, cooldown
+  edges, unavailable values, absent queue, and protected-output cases: pass.
+- `npm run verify`: 338/338 tests and 18/18 production eval cases pass.
+- `npm run test:coverage`: 97.73% lines, 85.80% branches, and 98.29% functions.
 - `npm audit`: zero known vulnerabilities.
 
 The final Task `06` verification result will be recorded after Sessions 02

@@ -22,10 +22,12 @@ composed into the HTTP/Pi runtime, has no public or tool entrypoint, and
 performs no network write.
 
 A second internal application reconstructs exact run, approval, and fake-
-result state and resumes only the three proven safe checkpoints. The repository
-also runs a deterministic 18-case critical eval gate and provides an offline,
-stopped-writer JSONL snapshot/restore command. Neither boundary adds a public
-route or a real external effect.
+result state and resumes only the three proven safe checkpoints. Read-only run
+reports and a pure seven-rule alert evaluator add operator evidence without
+authority or notification delivery. The repository also runs a deterministic
+18-case critical eval gate and provides an offline, stopped-writer JSONL
+snapshot/restore command. None of these boundaries adds a public route or a
+real external effect.
 
 ```mermaid
 flowchart LR
@@ -67,7 +69,7 @@ Requirements:
 - Git
 
 Install the locked dependencies, then run the one command that checks
-formatting, linting, strict types, all 273 deterministic tests, and all 18
+formatting, linting, strict types, all 338 deterministic tests, and all 18
 critical eval cases:
 
 ```bash
@@ -130,6 +132,7 @@ real customer data.
 - [Environments](./docs/environments.md)
 - [Deployment](./docs/deployment.md)
 - [Incident response](./docs/runbooks/incident-response.md)
+- [Agent incident response](./docs/runbooks/agent-incident-response.md)
 - [Contributing](./CONTRIBUTING.md)
 - Build Logs: [Week 1](./docs/build-log-week1.md) |
   [Week 2](./docs/build-log-week2.md) |
@@ -163,8 +166,9 @@ critical eval gate all have deterministic evidence. In particular:
   checkpoints, and the durable 18-case critical gate pass;
 - three controlled source breaks proved unknown-lead fabrication, false
   completion, and approval bypass each fail the gate before exact restoration;
-- Phase 03 incident operations and Coolify release work, and Phase 04's typed-
-  handoff comparison, remain planned and unbuilt;
+- Phase 03 observability, exact-run reporting, alert policy, and incident
+  runbook are implemented; incident drills and Coolify release work remain,
+  while Phase 04's typed-handoff comparison remains planned and unbuilt;
 - `/runs` has a bounded process-wide capacity gate but no caller
   authentication, authorization, tenant isolation, distributed limiter, or
   deployed WAF, so it must remain private or otherwise controlled;
@@ -204,7 +208,7 @@ These require separate authorization after the ordered workshop path:
 
 Releases follow [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 and the repository [versioning policy](./docs/VERSIONING.md). The project is
-currently version 0.1.30; user-visible changes are recorded in the
+currently version 0.1.34; user-visible changes are recorded in the
 [changelog](./docs/CHANGELOG.md).
 
 ## Official Pi References

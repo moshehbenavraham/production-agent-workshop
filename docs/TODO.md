@@ -73,7 +73,11 @@ Tasks `04` and `05` and the Phase 02 implementation are complete.
     - [x] Implement a closed exact-`runId` report with projection-before-rendering validation.
     - [x] Add bounded read-only JSON/text CLI output and a preserved synthetic fixture.
     - [x] Complete Apex review, validation, and PRD closeout.
-  - [ ] Session 03 - Alerts and Incident Runbook
+  - [x] Session 03 - Alerts and Incident Runbook
+    - [x] Implement seven closed deterministic alert variants and a finite default policy.
+    - [x] Keep required missing metrics visible and queue pressure explicitly not applicable.
+    - [x] Add the canonical grounded agent incident guide and alert/runbook regressions.
+    - [x] Complete Apex review, validation, and PRD closeout.
   - [ ] Session 04 - Incident Drills and Operational Baseline
   - [ ] Session 05 - Controlled Release Security and Operator Contract
   - [ ] Session 06 - Coolify Deployment Health and Persistence
@@ -89,8 +93,11 @@ Session 01 is complete with closed service, run, model, and tool observation
 contracts plus a controlled service snapshot collector. Session 02 is complete
 with a bounded read-only exact-`runId` report, JSON/text parity, complete-history
 validation, and default protected-field omission.
-Task `06` remains incomplete until Sessions 03 and 04 prove alerts, runbooks,
-and incident drills.
+Session 03 is complete with a local deterministic seven-rule alert
+policy, explicit suppression and unavailable/not-applicable outcomes, and the
+canonical agent incident guide without a notification or recovery transport.
+Task `06` remains incomplete until Session 04 proves the five incident drills
+through the implemented observation, report, alert, runbook, and recovery boundaries.
 
 ## Phase 00 Transition (Complete)
 

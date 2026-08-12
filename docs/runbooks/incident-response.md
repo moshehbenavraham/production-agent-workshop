@@ -8,6 +8,10 @@ offline JSONL snapshot/restore command. It does not claim a production on-call
 rotation, response-time SLA, automated pause, public or distributed recovery,
 off-server backup schedule, platform restore, or rollback capability.
 
+For alert interpretation and the exact pause, inspect, retry, resume,
+compensate, escalate, and stop boundaries, use the canonical
+[Agent Incident Response](agent-incident-response.md) guide.
+
 ## First Response
 
 1. Stop new `/runs` requests by restricting access or stopping the process or
@@ -47,20 +51,19 @@ environment failures.
 
 ### Trace One Run
 
-Events are newline-delimited JSON at `EVENT_LOG_PATH`, defaulting to
-`./data/events.jsonl`. Filter a preserved copy for the exact `runId` and read
-records in file order. Expected evidence can include:
+Use the bounded read-only report against a preserved copy or stopped-writer
+source; do not filter raw JSONL and infer authority:
 
-- `run.started`;
-- `qualification.attempted` and one qualification terminal;
-- `domain.follow_up_drafted` only after qualification success;
-- `approval.requested` with `status: pending` only after matching success;
-- `run.completed` with a finite domain stop reason, `run.stopped` with
-  `deadline_exceeded`, `step_limit_exceeded`, or `dependency_failed`, or legacy
-  `run.failed` evidence.
+```bash
+npm run report:run -- \
+  --run-id <exact-run-id> \
+  --event-log <operator-controlled-event-log> \
+  --format text
+```
 
-Missing, malformed, cross-lead, duplicated, or out-of-order evidence must be
-treated as a visible failure, never repaired by inference.
+The report validates the complete record sequence before rendering. Missing,
+malformed, cross-run, duplicated, out-of-order, or otherwise illegal evidence
+must be treated as a visible failure, never repaired by inference.
 
 ## Failure Guide
 

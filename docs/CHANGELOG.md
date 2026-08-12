@@ -10,6 +10,13 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Added
 
+- Added a pure bounded alert evaluator with seven closed rule variants, finite
+  default thresholds/actions, explicit suppression, unavailable and queue-not-
+  applicable outcomes, distinct-run failure counting, semantic output guards,
+  and 22 deterministic tests without notification or mutation capabilities.
+- Added a canonical agent incident runbook covering external pause, read-only
+  inspection, bounded retry, internal exact-checkpoint resume, unsupported
+  compensation, evidence-preserving escalation, and no-retry stop rules.
 - Added a closed read-only exact-`runId` report with semantic projection before
   rendering, stable chronological JSON/text forms, explicit unavailable model
   metrics, observed-only approval/effect labels, 1,000-event and 64 MiB bounds,
