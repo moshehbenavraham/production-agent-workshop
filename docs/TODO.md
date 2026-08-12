@@ -144,8 +144,8 @@ Phase 04 is planned and required, but it is not built in the Phase 03 closeout.
 
 ## Phase 03 Closeout Transition
 
-- [ ] Re-run the repository audit and reconcile local tooling evidence.
-- [ ] Validate active CI and add at most one missing pipeline bundle.
+- [x] Re-run the repository audit and reconcile local tooling evidence.
+- [x] Validate active CI and add the one missing Integration pipeline bundle.
 - [ ] Reassess infrastructure readiness and close only directly proved items.
 - [ ] Carry Phase 03 lessons, risks, and controls into cumulative records.
 - [ ] Reconcile current documentation and record the documentation audit.

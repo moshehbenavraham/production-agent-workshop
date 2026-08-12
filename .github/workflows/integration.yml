@@ -1,0 +1,95 @@
+name: Integration
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: integration-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  integration:
+    name: Container, incidents, and release contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24.15.0
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Run incident drills
+        run: npm run drill:incidents
+
+      - name: Validate the controlled release contract
+        run: npm run preflight:release < docs/fixtures/release-preflight-current-target.json
+
+      - name: Build the production image
+        run: docker build --tag production-agent-workshop:integration .
+
+      - name: Verify container health and request bounds
+        run: |
+          set -euo pipefail
+          docker run --detach \
+            --name production-agent-workshop-integration \
+            --publish 127.0.0.1:3010:3000 \
+            --env RUN_RATE_LIMIT_MAX=2 \
+            --env RUN_RATE_LIMIT_WINDOW_MS=60000 \
+            production-agent-workshop:integration
+
+          for attempt in $(seq 1 60); do
+            if health_body=$(curl --fail --silent http://127.0.0.1:3010/health); then
+              test "$health_body" = '{"status":"ok"}'
+              break
+            fi
+            if [ "$attempt" -eq 60 ]; then
+              exit 1
+            fi
+            sleep 1
+          done
+
+          test "$(docker inspect production-agent-workshop-integration --format '{{.State.Status}}')" = running
+          for attempt in $(seq 1 45); do
+            health_status=$(docker inspect production-agent-workshop-integration --format '{{.State.Health.Status}}')
+            if [ "$health_status" = healthy ]; then
+              break
+            fi
+            if [ "$health_status" = unhealthy ] || [ "$attempt" -eq 45 ]; then
+              exit 1
+            fi
+            sleep 1
+          done
+
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' \
+            --request POST --header 'content-type: application/json' \
+            --data '{"leadId":"invalid"}' http://127.0.0.1:3010/runs)" = 400
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' \
+            --request POST --header 'content-type: application/json' \
+            --data '{"leadId":"invalid"}' http://127.0.0.1:3010/runs)" = 400
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' \
+            --request POST --header 'content-type: application/json' \
+            --data '{"leadId":"invalid"}' http://127.0.0.1:3010/runs)" = 429
+
+      - name: Show container diagnostics on failure
+        if: failure()
+        run: docker logs production-agent-workshop-integration 2>&1 || true
+
+      - name: Remove integration artifacts
+        if: always()
+        run: |
+          docker rm --force --volumes production-agent-workshop-integration 2>/dev/null || true
+          docker image rm production-agent-workshop:integration 2>/dev/null || true

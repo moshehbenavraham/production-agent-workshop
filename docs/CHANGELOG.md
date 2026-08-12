@@ -10,6 +10,9 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Added
 
+- Added a least-privilege Integration workflow for provider-independent
+  incident drills, controlled release preflight, production image build,
+  container health, and request-rate boundary validation.
 - Added the plain-English single-owner Coolify workshop guide, the five-minute
   controlled-release demo, and exact local/deployed parity evidence for the
   grounded pending-approval, no-send path.
@@ -176,6 +179,8 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Changed
 
+- Re-audited every configured local tool after Phase 03 and correctly left the
+  database category inactive because the repository has no database signal.
 - Completed Task `07` and Phase 03 at version `0.1.39` after the exact synthetic
   smoke matched locally and in Coolify, all 374 tests and 18 evals passed,
   automatic deploy remained off, and the temporary internal check was removed.

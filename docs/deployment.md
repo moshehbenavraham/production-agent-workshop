@@ -70,11 +70,14 @@ with coverage thresholds, and executes the durable 18-case critical eval gate.
 Both run on pushes to `main` and pull requests. GitHub-managed CodeQL and
 Dependabot are enabled.
 
-Integration, Operations, release tagging, deploy, and post-deploy smoke
-workflow bundles are not configured. A least-privilege Security workflow runs
-full-history secret detection, pull-request dependency review, and locked-tree
-audit alongside managed CodeQL. Run this full gate locally before treating a
-revision as verified:
+The least-privilege Integration workflow builds the production image, verifies
+Docker health and the process rate boundary, runs all five incident drills, and
+checks the redacted controlled-release contract without a provider or platform
+secret. Operations, release tagging, CI deploy, and post-deploy smoke bundles
+are not configured. A least-privilege Security workflow runs full-history
+secret detection, pull-request dependency review, and locked-tree audit
+alongside managed CodeQL. Run this full gate locally before treating a revision
+as verified:
 
 ```bash
 npm run verify

@@ -373,7 +373,7 @@ After Phase 03 completion, transition work, and the measurement entry gate, `pha
 - **Biome 2.5.6, Node.js test runner, TSX, and deterministic eval runner** - Formatting and provider-independent verification gates.
 - **GitHub Actions and CodeQL** - Current formatting/lint/type,
   build/test/eval/coverage, secret, dependency-review, and audit CI plus managed
-  static analysis; Integration, Operations, deploy, and post-deploy bundles remain incomplete.
+  static analysis plus provider-independent Integration container/incident/release-contract checks; Operations, deploy, and post-deploy bundles remain incomplete.
 - **Docker and Coolify** - Reproducible container build, secrets, health checks, persistent storage, deployment, and rollback.
 
 ## Success Criteria
@@ -439,7 +439,7 @@ The completed five-week path must leave one reviewable portfolio containing:
 - The former root README student-extension list mixed required workshop work with deferred integrations: use the todo index as the delivery authority, keep CRM, company research, a real send provider, Postgres, and model grading unscheduled, and place required task `08` in Phase 04 after the four foundational weeks.
 - Task `03` is named as a send boundary while the core path prohibits real sending: implement only the deterministic fake adapter and keep any real network provider and network-writing Pi tool deferred.
 - The root README distinguishes passing Code Quality, Build & Test, Security,
-  and CodeQL checks from unconfigured Integration, Operations, deploy, and
+  Integration, and CodeQL checks from unconfigured Operations, deploy, and
   post-deploy bundles; CI success does not imply production deployment readiness.
 
 ## Open Decisions

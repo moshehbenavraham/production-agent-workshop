@@ -173,7 +173,7 @@ For a non-trivial change:
 | Code Quality | configured | `.github/workflows/quality.yml` |
 | Build & Test | configured | `.github/workflows/test.yml` |
 | Security | configured | `.github/workflows/security.yml` plus GitHub-managed CodeQL and secret scanning |
-| Integration | not configured | - |
+| Integration | configured | `.github/workflows/integration.yml`: incident drills, controlled preflight, production image, health, and rate-boundary smoke |
 | Operations | not configured | - |
 
 GitHub-managed CodeQL default setup, secret scanning with push protection, and
@@ -187,11 +187,11 @@ Managed features do not, by themselves, mark Operations configured.
 |-----------|----------|---------|
 | Health endpoint | Node.js HTTP server | `GET /health` returns `200` and `{"status":"ok"}` |
 | Health probe | Docker / Coolify | Dockerfile `HEALTHCHECK`: 30s interval, 5s timeout, 10s start period, 3 retries |
-| Hosting target | Coolify | Docker image, port 3000, and `/app/data`; production target not deployed yet |
+| Hosting target | Coolify | Controlled synthetic target deployed from the recorded revision; port 3000, `/app/data`, health, monitoring, replacement persistence, restore, and rollback proved |
 | Persistence | Append-only JSONL | `EVENT_LOG_PATH=/app/data/events.jsonl` on the declared `/app/data` volume |
-| Security | Node.js application gate | Process-wide `/runs` fixed-window limit; default 10 requests per 60 seconds; local HTTP/container validation only |
-| Backup | Offline Node.js CLI | `npm run backup:data` and `npm run restore:data`; stopped-writer confirmation, private files, SHA-256 manifest, exact re-read, and absent-destination restore validated locally and in Docker |
-| Deploy | not configured | Coolify Git integration or deploy trigger remains later-phase work |
+| Security | Controlled edge plus Node.js application gate | HTTP Basic Auth gate for the workshop target; process-wide `/runs` fixed-window capacity limit; public identity/tenant controls still blocked |
+| Backup | Offline Node.js CLI plus private workstation | Stopped-writer snapshot copied off server, exact absent-directory local restore and activation proved; manual workshop cadence |
+| Deploy | Coolify manual API workflow | Automatic deploy disabled; exact source-pinned manual deploy/recovery exercised; no CI deployment secret or permission |
 
 ## When In Doubt
 
