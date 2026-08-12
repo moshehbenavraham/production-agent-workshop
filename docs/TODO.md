@@ -89,7 +89,11 @@ Tasks `04` and `05` and the Phase 02 implementation are complete.
     - [x] Prove bounded command, hostile input, exact ownership, and no-target-mutation behavior.
     - [x] Complete Apex review, validation, and PRD closeout.
   - [x] Session 06 - Coolify Deployment Health and Persistence
-  - [ ] Session 07 - Off-Server Restore and Rollback
+  - [x] Session 07 - Off-Server Restore and Rollback
+    - [x] Copy and validate a stopped-writer snapshot outside the server boundary.
+    - [x] Restore into an absent private directory and start the service against it.
+    - [x] Exercise a reversible failed deployment and restore the verified revision.
+    - [x] Complete Apex review, validation, and PRD closeout.
   - [ ] Session 08 - Operator Handoff, Parity, and Release Evidence
 
 Phase 03 is sourced only from Tasks
@@ -122,6 +126,11 @@ is reviewed, validated, and complete at version `0.1.37`; the selected image,
 provider-backed smoke, controlled health, monitoring, and exact event/approval
 persistence passed. Task `07` remains open for restore, rollback, parity, and
 handoff work in Sessions 07 and 08.
+Session 07 is reviewed, validated, and complete at version `0.1.38`. It proves
+the private workstation backup, exact
+restore, restored-service activation, safe deployment failure, and rollback.
+Automatic Coolify deploys are disabled. Only parity and final operator handoff
+remain in Session 08.
 
 ## Phase 00 Transition (Complete)
 

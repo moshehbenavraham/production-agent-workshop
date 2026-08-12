@@ -157,19 +157,26 @@ directory, and refuses an existing destination. It deliberately does not swap
 the restored directory into service.
 
 A volume declaration and an in-container copy are not off-server backup
-evidence. No destination, schedule, retention automation, production restore
-drill, activation procedure, or per-record real-data erasure path is
-configured. Keep data synthetic until those controls are implemented and
-validated.
+evidence. For this workshop, the owner configured a private local-workstation
+destination outside the server boundary, copied a stopped-writer snapshot,
+restored it exactly into an absent directory, and started a local service
+against the restored paths. Manual before/after-demo cadence and 30-day-or-
+teardown retention are documented. Automated remote storage, geographic
+redundancy, destructive production activation, and per-record real-data erasure
+remain out of scope. Keep data synthetic.
 
 ## Release And Rollback
 
 - The version source is `package.json`; see the [versioning policy](./VERSIONING.md).
-- No automated deployment or rollback workflow exists.
+- Automatic Coolify deployment is disabled; the workshop owner deploys only an
+  explicitly verified revision through the authorized API.
 - A production release must preserve the verified image identifier and health,
   persistence, restore, and rollback evidence.
-- Do not claim rollback readiness until a previous verified image is restored
-  on the actual platform and its health and data state pass.
+- A controlled failed deployment and source-pinned non-force recovery were exercised.
+  The restored container passed its exact package probe, health, prior-state
+  check, and provider smoke. Coolify 4.0.0-beta.463 cannot re-read the current
+  immutable image digest through its API; keep the previously inspected digest
+  reserved and do not claim a second digest observation.
 
 The current production-validation exception is recorded in
 [Known Issues](../.spec_system/audit/known-issues.md). Security gates are in

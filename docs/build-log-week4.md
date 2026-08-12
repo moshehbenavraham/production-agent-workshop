@@ -385,10 +385,51 @@ had identical SHA-256 values; the replacement projected the same completed
 `approval_pending` run and exactly one pending approval without manual edits.
 This proves event and approval behavior, not only mount continuity.
 
+The workshop owner selected a private `0700` directory on the local workstation
+as the off-server destination. The stopped-writer snapshot was copied out of
+the server boundary, validated locally, and its temporary server copy was
+removed. Manual backups run before and after demonstrations and are kept for 30
+days or until workshop teardown. Paid remote storage, automation, and geographic
+redundancy are deliberately not required for this synthetic workshop.
+
+A fresh absent-directory restore validated 2 files, 64 JSONL records, 44,018
+bytes, the complete manifest, every checksum, `0700` directory mode, and `0600`
+file modes in 227 ms. A local service then started against the restored paths,
+returned health 200 after 1,259 ms, rebuilt the saved run as
+`waiting_for_approval`, and rebuilt exactly one pending approval. Restore plus
+start-to-health measured 1,486 ms; the snapshot recovery point was 1,962 seconds
+old when restore began. Post-activation checksums remained unchanged. The source
+snapshot and restored copy remain preserved; no destructive live-volume swap
+was needed or claimed.
+
 ### Rollback Timeline
 
-_Record one intentional reversible failure, diagnosis, rollback command,
-restored image identity, health result, and elapsed recovery time._
+Automatic branch-head deployment was found enabled after the Session 06 push,
+so the workshop owner disabled it before the drill. The exact verified revision
+was re-established with a temporary container-side check that proved the saved
+run, saved pending approval, provider-backed smoke, and canonical no-send output.
+That baseline completed in 51,531 ms.
+
+The historical pre-fix revision no longer reproduced its provider identifier
+failure and passed after 103,413 ms. The deterministic fallback then requested
+a well-formed nonexistent revision. Coolify failed that deployment in 3,422 ms
+before replacing the healthy container or touching the volume. The diagnosis
+was `deployment_failed`; no raw build log was retained.
+
+Coolify restored the exact verified revision with a non-force cached deployment
+in 67,550 ms. The internal check again proved the saved run and approval plus a
+new grounded pending-approval provider run. A separate container-side probe
+proved package version `0.1.36`, binding the running image to revision
+`52df37a96a76afc1d82656ef04e0922aa42e9b16`; Coolify reports
+`running:healthy`. Storage, secrets, one-replica ownership, and controlled access
+did not change. The temporary hook was removed and automatic deployment remains
+off.
+
+Coolify 4.0.0-beta.463 does not expose the newer read-only rollback-image API.
+The previously inspected immutable digest and its commit tag remain reserved,
+and the recovery requested the same configured commit without forcing a rebuild,
+but a second digest inspection is unavailable through the current least-
+privilege token. This limit is explicit rather than inferred away.
 
 ### Operator Guide
 

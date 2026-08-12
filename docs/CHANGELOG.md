@@ -10,6 +10,11 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Added
 
+- Added direct workshop recovery evidence: private off-server workstation
+  snapshot, exact absent-directory restore, restored-service activation, one
+  safe failed deployment, and verified Coolify rollback with measured times.
+- Added explicit Coolify release control by disabling automatic branch-head
+  deployments and documenting the current platform API's digest-inspection limit.
 - Added the placeholder-only Coolify operator environment contract and recorded
   controlled target verification for HTTPS Basic Auth, Dockerfile health,
   Sentinel monitoring, bounded runtime settings, and named-volume survival

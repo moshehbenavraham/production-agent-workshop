@@ -99,10 +99,13 @@ copied into repository evidence.
 - Deletion is a whole-environment synthetic reset after all writers stop;
   verify each selected file is absent. Append-only records are never edited or
   deleted individually because that invalidates ordering, authority, and
-  recovery evidence. The locally validated snapshot/restore mechanism is not a
-  configured off-server destination, schedule, production restore drill, or
-  per-record erasure process; data location and subprocessors are not approved
-  for real data.
+  recovery evidence. The workshop owner uses a private local-workstation
+  directory outside the server boundary for stopped-writer backups, with manual
+  before/after-demo cadence and 30-day-or-teardown retention. Exact absent-
+  directory restore and local service activation passed. This is sufficient for
+  the synthetic workshop, not production-grade automation, geographic
+  redundancy, destructive activation, or per-record erasure; real data remains
+  prohibited.
 - Context compaction applies only to replaceable in-memory projections. It
   never deletes durable event, approval, or result records needed for audit or
   recovery.

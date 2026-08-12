@@ -52,26 +52,12 @@
     "phase03-session03-alerts-and-incident-runbook",
     "phase03-session04-incident-drills-and-operational-baseline",
     "phase03-session05-controlled-release-security-and-operator-contract",
-    "phase03-session06-coolify-deployment-health-and-persistence"
+    "phase03-session06-coolify-deployment-health-and-persistence",
+    "phase03-session07-off-server-restore-and-rollback"
   ],
   "next_session_history": [
     {
       "date": "2026-08-12",
-      "session": "phase02-session07-boundary-regression-exercises-and-evidence",
-      "status": "validated"
-    },
-    {
-      "date": "2026-08-12",
-      "session": "phase02-session07-boundary-regression-exercises-and-evidence",
-      "status": "completed"
-    },
-    {
-      "date": "2026-08-12",
-      "session": "phase03-session01-observability-contract-and-service-health",
-      "status": "planned"
-    },
-    {
-      "date": "2026-08-12",
       "session": "phase03-session01-observability-contract-and-service-health",
       "status": "validated"
     },
@@ -153,6 +139,21 @@
     {
       "date": "2026-08-12",
       "session": "phase03-session06-coolify-deployment-health-and-persistence",
+      "status": "completed"
+    },
+    {
+      "date": "2026-08-12",
+      "session": "phase03-session07-off-server-restore-and-rollback",
+      "status": "planned"
+    },
+    {
+      "date": "2026-08-12",
+      "session": "phase03-session07-off-server-restore-and-rollback",
+      "status": "validated"
+    },
+    {
+      "date": "2026-08-12",
+      "session": "phase03-session07-off-server-restore-and-rollback",
       "status": "completed"
     }
   ]

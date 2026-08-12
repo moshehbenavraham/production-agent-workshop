@@ -192,7 +192,8 @@ attestation; the preflight has no field for a credential or secret name.
 
 The current direct evidence does not prove:
 
-- a restored backup activated as a running service or a completed rollback;
+- a destructive in-place production restore or post-rollback immutable-digest
+  reinspection through Coolify 4.0.0-beta.463's API;
 - deployed alert delivery or an external on-call service beyond the workshop
   owner's direct responsibility;
 - public authentication, authorization, tenant isolation, shared quota, or a
@@ -200,6 +201,6 @@ The current direct evidence does not prove:
 - multi-replica safety, real-data governance, a public human-decision path, or a
   real external effect.
 
-Those claims require direct redacted evidence in Sessions 07 and 08. Until
-then, the production infrastructure exceptions and cumulative security
-findings remain open.
+Those claims require later production infrastructure work or Session 08
+handoff evidence. Until then, the production infrastructure exceptions and
+cumulative security findings remain open.
