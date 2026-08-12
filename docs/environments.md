@@ -6,7 +6,8 @@
 |-------------|-----|---------|--------|
 | Local development | `http://127.0.0.1:3000` by default | Development, deterministic verification, controlled synthetic runs | Supported |
 | Local Docker | Host-selected loopback port to container port 3000 | Image and health-probe validation | Supported and locally verified |
-| Coolify production target | Not assigned | Intended hosted deployment | Not deployed or validated |
+| Coolify controlled target | Private operator URL | Synthetic-only release validation | Deployed; provider smoke, HTTPS gate, health, monitoring, and event/approval replacement persistence verified |
+| Coolify public production | Not assigned | Intended hosted deployment | Blocked by public identity, tenant, shared-rate, lifecycle, and governance gates |
 | Staging | Not assigned | No configured environment | N/A |
 
 Do not invent or publish a production URL, region, tenant model, or operator
@@ -33,12 +34,27 @@ credential, operator name, screenshot path, or arbitrary console output.
 | `OPENAI_API_KEY` | Provider-dependent | None | Optional supported provider auth | Secret; inject outside repository |
 | `ANTHROPIC_API_KEY` | Provider-dependent | None | Optional supported provider auth | Secret; inject outside repository |
 
-Pi can also use supported user-level auth state. The repository does not
-automatically load `.env`; `.env.example` documents names only. Export values
-to the process or inject them with the deployment platform.
+Pi can also use supported user-level auth state. The application does not
+automatically load `.env`. `.env.example` provides non-secret defaults and
+placeholders; export runtime values to the process or inject them with the
+deployment platform.
 
 Never put a credential in `.env.example`, source, fixtures, tests, events,
 images, documentation, or screenshots.
+
+## Coolify Operator Environment
+
+The placeholder-only `.env.example` also documents the local operator contract
+for the Coolify control plane, source revision, private resource identifiers,
+controlled endpoint, HTTP Basic Authentication, log paths, persistent mount,
+deployment reference, and health-check mode. Real values belong only in the
+ignored `.env`, which must remain private, or in Coolify's secret store.
+
+These `COOLIFY_*`, `GITHUB_*`, `APP_NAME`, and `APP_DOMAIN` values are operator
+convenience inputs, not application runtime behavior and not substitutes for
+the redacted controlled-release decision record. The verified workshop target
+injects one provider key as a runtime-only Coolify secret; the value is never
+copied into repository evidence.
 
 ## Data Rules By Environment
 

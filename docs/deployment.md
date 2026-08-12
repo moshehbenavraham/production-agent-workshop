@@ -4,10 +4,17 @@
 
 The Node.js 24 Docker image, health probe, process-wide `/runs` rate gate, and
 offline JSONL snapshot/restore commands pass local and container validation.
-No production Coolify URL, WAF, caller-access boundary, persistent restart,
-off-server backup schedule, platform restore, rollback, or operator-access
-path has been validated. The repository is not ready for public exposure or
-real customer data.
+An authorized controlled Coolify target now runs the reviewed revision over
+HTTPS behind HTTP Basic Authentication. Its Dockerfile health probe and
+Sentinel monitor are healthy. A runtime-only provider secret completed one
+synthetic pending-approval smoke run, and the exact event and approval evidence
+survived a full replacement on the named `/app/data` volume. Private target
+details remain only in the ignored local `.env` and Coolify.
+
+This is a workshop release, not a public production service. It still lacks
+public caller identity, tenant isolation, shared principal-aware rate state,
+real-data lifecycle controls, automated remote backup, and a stable access path
+from every operator network. Keep it synthetic-only and controlled.
 
 The repository now provides a closed controlled-release preflight and decision
 record. Policy validation does not prove target readiness; see the
@@ -102,9 +109,11 @@ When deployment is separately authorized, the repository evidence requires:
     stopped-writer ownership and a schedule, then validate a snapshot and
     restore into an absent staging destination before activation.
 
-Region, sizing, DNS, HTTPS ownership, access policy, secret rotation, backup
-destination, retention, recovery ownership, and monitoring require operator
-decisions and are not stored in this repository.
+Region, DNS and HTTPS ownership, access policy, secret rotation, backup
+destination, retention, recovery ownership, and monitoring ownership require
+operator decisions and are not stored in this repository. The currently
+observed target capacity, firewall, HTTPS, controlled access, persistence, and
+monitoring facts do not replace that decision record.
 
 Before any target mutation, submit only redacted finite facts to:
 
@@ -112,9 +121,12 @@ Before any target mutation, submit only redacted finite facts to:
 npm run preflight:release < redacted-release-evidence.json
 ```
 
-The checked-in incomplete example exits 1 by design. Session 06 may begin only
-when the selected authorized target returns `ready`; the command itself has no
-deployment capability and never authorizes target mutation.
+The checked-in incomplete example exits 1 by design. The redacted
+[current-target snapshot](./fixtures/release-preflight-current-target.json)
+passes all 15 checks without storing target identifiers or secrets.
+The selected authorized target returns `ready`; nevertheless,
+the command itself has no deployment capability and never authorizes target
+mutation.
 
 ## Security Boundary
 

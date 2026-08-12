@@ -4,9 +4,12 @@
 
 Repository policy: implemented and locally testable.
 
-Coolify target readiness: **BLOCKED** until an authorized operator supplies a
-complete redacted preflight request and every check returns `pass` against the
-selected target. This document does not authorize or prove a deployment.
+Coolify target readiness: **READY** with all 15 checks passing against the
+authorized controlled workshop target. Direct evidence proves controlled
+exposure, target authorization, exact source and image, bounded runtime,
+operator decisions, provider secret ownership, isolation, persistence, health,
+monitoring, workstation backup ownership, incident ownership, and rollback
+reservation. This document does not authorize another target mutation.
 
 The default release posture is controlled:
 
@@ -73,6 +76,14 @@ The checked-in
 [`release-preflight-incomplete.json`](../fixtures/release-preflight-incomplete.json)
 is intentionally blocked. It documents the finite shape without impersonating
 source verification, an image build, operator confirmation, or target evidence.
+
+The checked-in
+[`release-preflight-current-target.json`](../fixtures/release-preflight-current-target.json)
+is the current redacted target snapshot. It records only the reviewed revision,
+immutable image digest, finite booleans and enums, and no target address,
+Coolify identifier, credential, operator name, or arbitrary console output. It
+exits zero only because every operator-owned workshop prerequisite was directly
+confirmed or exercised.
 
 ## Infrastructure Decision Record
 
@@ -179,16 +190,16 @@ attestation; the preflight has no field for a credential or secret name.
 
 ## Unsupported Claims And Remaining Risk
 
-This repository contract does not prove:
+The current direct evidence does not prove:
 
-- a reachable Coolify target or external HTTPS health;
-- secret presence, rotation, or revocation on a real platform;
-- persistent restart, private off-server backup, restore activation, or rollback;
-- deployed alert delivery or an on-call response;
-- public authentication, authorization, tenant isolation, shared quota, or WAF;
+- a restored backup activated as a running service or a completed rollback;
+- deployed alert delivery or an external on-call service beyond the workshop
+  owner's direct responsibility;
+- public authentication, authorization, tenant isolation, shared quota, or a
+  production-grade WAF policy;
 - multi-replica safety, real-data governance, a public human-decision path, or a
   real external effect.
 
-Those claims require direct redacted evidence in Sessions 06 through 08. Until
+Those claims require direct redacted evidence in Sessions 07 and 08. Until
 then, the production infrastructure exceptions and cumulative security
 findings remain open.

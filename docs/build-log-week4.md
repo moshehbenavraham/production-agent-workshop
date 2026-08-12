@@ -278,10 +278,12 @@ edge-restricted, one replica owns `/app/data`, and only synthetic data is
 allowed. The preflight accepts no URL, address, credential, operator name,
 private identifier, arbitrary evidence string, or deployment instruction.
 
-Policy validation is implemented. Coolify target readiness remains **BLOCKED**
-until an authorized target supplies every direct confirmation. The preflight
-always returns `targetMutationAllowed: false`; a ready result only admits the
-separately authorized Session 06 workflow.
+Policy validation is implemented. The authorized controlled target now passes
+all 15 preflight checks. The workshop owner accepted every operator role,
+provider and rotation ownership, workstation backup ownership, incident
+ownership, and rollback ownership. The preflight remains redacted and
+`targetMutationAllowed` remains false; readiness never grants mutation by itself.
+A ready result only admits the separately authorized Session 06 workflow.
 
 ### Infrastructure Decision Record
 
@@ -293,8 +295,9 @@ monitoring, incident ownership, and update/rollback. Each entry has exactly one
 generic role, finite validation method, and Week 4 evidence slot. Missing,
 reordered, remapped, or unconfirmed entries block readiness.
 
-No target decision is marked confirmed in the checked-in example. This is an
-intentional truthful stop, not missing repository policy.
+The original incomplete example marks no target decision confirmed. The
+current-target snapshot confirms all decisions after the workshop owner
+explicitly accepted each generic role and the directly exercised procedures.
 
 ### Deployment and Service Map
 
@@ -349,18 +352,38 @@ Session base: `9cbd418f0aaa01af935ec5b3b3cbbefaaf1737c5` at version `0.1.35`.
   preflight is 99.11/90.71/100.
 - Dependency audit: zero vulnerabilities.
 
-No release image was built and no digest is claimed in Session 05. The fixture
-uses explicit `pending`; Session 06 must record a direct immutable digest.
+A release image for revision `52df37a96a76afc1d82656ef04e0922aa42e9b16`
+is running and its direct immutable image identifier is recorded only in the
+redacted current-target fixture and private operator environment. That exact
+revision passed `npm run verify`, 5/5 incident drills, and `npm audit` with zero
+vulnerabilities. It includes the regression for provider tool-call identifiers
+that contain the observed opaque separator. The original Session 05 fixture
+remains explicitly `pending` because it is a policy-shape example.
 
 ### Live Health and Run Timeline
 
-_Record the redacted HTTPS health result and one controlled known-lead timeline
-ending at `approval_pending` without a send claim._
+The controlled HTTPS boundary denies anonymous `/health` and `/runs` requests
+with 401, while the configured operator credential receives the exact healthy
+200 response from `/health`. The live container and Dockerfile health check are
+healthy, Sentinel is healthy, the Coolify API accepted read, write, deploy,
+stop, and start operations, and OpenAI accepted the injected runtime-only
+secret without its value being read or logged. A workstation probe was reset
+during TLS before packets reached the VPS while the public hostname continued
+to return the expected controlled response from the VPS; keep that path as a
+known access issue.
+
+The controlled synthetic smoke used a committed known lead, produced grounded
+qualification, created exactly one durable pending approval, returned
+`approval_pending`, and returned the canonical no-send output. The run ID is
+kept in the private operator environment rather than this log.
 
 ### Restart and Restore Proof
 
-_Record container restart persistence, backup restore commands, observed state,
-recovery time, and missing steps without exposing private infrastructure._
+The named read-write `/app/data` volume survived a full container replacement.
+Before and after replacement, the exact smoke run event file and approval file
+had identical SHA-256 values; the replacement projected the same completed
+`approval_pending` run and exactly one pending approval without manual edits.
+This proves event and approval behavior, not only mount continuity.
 
 ### Rollback Timeline
 

@@ -51,70 +51,11 @@
     "phase03-session02-run-timeline-query-and-redaction",
     "phase03-session03-alerts-and-incident-runbook",
     "phase03-session04-incident-drills-and-operational-baseline",
-    "phase03-session05-controlled-release-security-and-operator-contract"
+    "phase03-session05-controlled-release-security-and-operator-contract",
+    "phase03-session06-coolify-deployment-health-and-persistence"
   ],
   "next_session_history": [
     {
-      "date": "2026-08-11",
-      "session": "phase02-session03-bounded-run-lifecycle",
-      "status": "validated"
-    },
-    {
-      "date": "2026-08-11",
-      "session": "phase02-session03-bounded-run-lifecycle",
-      "status": "completed"
-    },
-    {
-      "date": "2026-08-11",
-      "session": "phase02-session04-replay-and-resume-integration",
-      "status": "planned"
-    },
-    {
-      "date": "2026-08-11",
-      "session": "phase02-session04-replay-and-resume-integration",
-      "status": "validated"
-    },
-    {
-      "date": "2026-08-11",
-      "session": "phase02-session04-replay-and-resume-integration",
-      "status": "completed"
-    },
-    {
-      "date": "2026-08-11",
-      "session": "phase02-session05-production-eval-contract-and-golden-set",
-      "status": "planned"
-    },
-    {
-      "date": "2026-08-11",
-      "session": "phase02-session05-production-eval-contract-and-golden-set",
-      "status": "validated"
-    },
-    {
-      "date": "2026-08-11",
-      "session": "phase02-session05-production-eval-contract-and-golden-set",
-      "status": "completed"
-    },
-    {
-      "date": "2026-08-11",
-      "session": "phase02-session06-critical-eval-gate-and-scorecard",
-      "status": "planned"
-    },
-    {
-      "date": "2026-08-11",
-      "session": "phase02-session06-critical-eval-gate-and-scorecard",
-      "status": "validated"
-    },
-    {
-      "date": "2026-08-11",
-      "session": "phase02-session06-critical-eval-gate-and-scorecard",
-      "status": "completed"
-    },
-    {
-      "date": "2026-08-11",
-      "session": "phase02-session07-boundary-regression-exercises-and-evidence",
-      "status": "planned"
-    },
-    {
       "date": "2026-08-12",
       "session": "phase02-session07-boundary-regression-exercises-and-evidence",
       "status": "validated"
@@ -197,6 +138,21 @@
     {
       "date": "2026-08-12",
       "session": "phase03-session05-controlled-release-security-and-operator-contract",
+      "status": "completed"
+    },
+    {
+      "date": "2026-08-12",
+      "session": "phase03-session06-coolify-deployment-health-and-persistence",
+      "status": "planned"
+    },
+    {
+      "date": "2026-08-12",
+      "session": "phase03-session06-coolify-deployment-health-and-persistence",
+      "status": "validated"
+    },
+    {
+      "date": "2026-08-12",
+      "session": "phase03-session06-coolify-deployment-health-and-persistence",
       "status": "completed"
     }
   ]

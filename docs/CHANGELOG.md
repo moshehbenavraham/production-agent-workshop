@@ -10,6 +10,13 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Added
 
+- Added the placeholder-only Coolify operator environment contract and recorded
+  controlled target verification for HTTPS Basic Auth, Dockerfile health,
+  Sentinel monitoring, bounded runtime settings, and named-volume survival
+  across a full container replacement without checking in private target data.
+- Added a redacted current-target preflight snapshot with the exact clean
+  revision and immutable image digest: all 15 checks pass after direct
+  controlled-target verification and explicit workshop-owner confirmation.
 - Added a pure closed controlled-release preflight with exact source, image,
   exposure, runtime, decision, secret, persistence, monitoring, backup,
   incident, and rollback checks plus a bounded stdin JSON command and 20 tests.
