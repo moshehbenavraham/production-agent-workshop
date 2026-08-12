@@ -1,10 +1,11 @@
 # Session 06: Coolify Deployment Health and Persistence
 
 **Session ID**: `phase03-session06-coolify-deployment-health-and-persistence`
-**Status**: Not Started
+**Status**: Complete
 **Source Task**: `07`
 **Estimated Tasks**: ~20
 **Estimated Duration**: 2-4 hours
+**Validated**: 2026-08-12
 
 ---
 
@@ -42,8 +43,8 @@ Deploy one verified immutable image through the authorized controlled Coolify ta
 
 ## Prerequisites
 
-- [ ] Session 05 release preflight passes for the selected controlled exposure and authorized target.
-- [ ] The operator can use the target and secret store without disclosing credentials or private infrastructure values to repository artifacts.
+- [x] Session 05 release preflight passes for the selected controlled exposure and authorized target.
+- [x] The operator can use the target and secret store without disclosing credentials or private infrastructure values to repository artifacts.
 
 ---
 
@@ -57,8 +58,8 @@ Deploy one verified immutable image through the authorized controlled Coolify ta
 
 ## Success Criteria
 
-- [ ] The deployed image derives from the exact green revision and the external HTTPS health check returns the expected status without exposing internals.
-- [ ] One controlled synthetic run is reconstructable end to end and stops at `approval_pending` without any send claim or effect.
-- [ ] Event and approval evidence survives a controlled container restart or replacement and remains runtime-valid.
-- [ ] Target monitoring uses the actionable rules and minimized fields established by Task `06`.
-- [ ] The deployment evidence is redacted and the selected access boundary introduces no unverified public route or broadened Pi capability.
+- [x] The deployed image derives from the exact green revision and the external HTTPS health check returns the expected status without exposing internals.
+- [x] One controlled synthetic run is reconstructable end to end and stops at `approval_pending` without any send claim or effect.
+- [x] Event and approval evidence survives a controlled container restart or replacement and remains runtime-valid.
+- [x] Target monitoring uses the actionable rules and minimized fields established by Task `06`.
+- [x] The deployment evidence is redacted and the selected access boundary introduces no unverified public route or broadened Pi capability.

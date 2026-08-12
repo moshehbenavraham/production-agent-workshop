@@ -1,7 +1,7 @@
 # CI/CD Pipeline Report
 
 **Date**: 2026-08-12
-**Result**: PASS locally; GitHub branch run pending
+**Result**: PASS
 **Phase**: P03 - Operations and Coolify Release
 **Repository scope**: Single repository, root package
 **Platform**: GitHub Actions
@@ -53,7 +53,11 @@ and setup-node v7.0.0 revisions already used by the other workflows.
 | Rate boundary | PASS | Two invalid inputs returned 400; third returned 429 |
 | Cleanup | PASS | Named container/volume and transition image removed |
 | Local repository gate | PASS | 374 tests; 18 evals; zero vulnerabilities |
-| GitHub branch run | PENDING | Validate after the transition branch is pushed |
+| GitHub Integration | PASS | Main run `31578544897`; container, incidents, and release contract green |
+| GitHub Build & Test | PASS | Main run `31578544792` |
+| GitHub Code Quality | PASS | Main run `31578544789` |
+| GitHub Security | PASS | Main run `31578544729`; PR-only dependency review correctly skipped |
+| Managed CodeQL | PASS | Main run `31578543367`; Actions and JavaScript/TypeScript green |
 
 ## Remaining Pipeline Scope
 
@@ -64,10 +68,11 @@ explicit manual action. These future categories do not block this transition.
 
 ## Pipeline Result
 
-The Integration bundle is locally valid and safe to publish for GitHub branch
-execution. Final PASS requires the GitHub check suite to finish green.
+The Integration bundle passes locally and on GitHub `main`. Every configured
+workflow and both managed CodeQL analyses finished green; the PR-only dependency
+review correctly skipped for the push event.
 
-Next command: wait for GitHub checks, then `infra`.
+Next command: `infra`.
 
 Reason: `pipeline -> infra` is the required transition order after the
 published workflow passes. Phase 04 `phasebuild` remains outside this step.

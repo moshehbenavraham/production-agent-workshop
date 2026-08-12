@@ -175,8 +175,9 @@ provider. Do not include the secret in the report.
 
 Record only the revision, environment category, exact `runId` when available,
 alert rule/status/severity, report stop reason, finite error category, commands
-run, and their redacted outcomes. Production ownership, alert delivery, and
-response timing remain deployment decisions for later Phase 03 sessions.
+run, and their redacted outcomes. The workshop owner and controlled target are
+documented; external paging/on-call delivery and production response objectives
+remain unconfigured.
 
 ## Synthetic Drill Command
 

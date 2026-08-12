@@ -1,10 +1,11 @@
 # Session 05: Controlled Release Security and Operator Contract
 
 **Session ID**: `phase03-session05-controlled-release-security-and-operator-contract`
-**Status**: Not Started
+**Status**: Complete
 **Source Task**: `07`
 **Estimated Tasks**: ~18
 **Estimated Duration**: 2-4 hours
+**Validated**: 2026-08-12
 
 ---
 
@@ -41,8 +42,8 @@ Define and verify the controlled Coolify release contract, pre-public security g
 
 ## Prerequisites
 
-- [ ] Session 04 closes Task `06` with a green repository gate and an actionable incident boundary.
-- [ ] Current security findings, known infrastructure exceptions, Docker behavior, and Coolify target contract are reconciled before release preflight is defined.
+- [x] Session 04 closes Task `06` with a green repository gate and an actionable incident boundary.
+- [x] Current security findings, known infrastructure exceptions, Docker behavior, and Coolify target contract are reconciled before release preflight is defined.
 
 ---
 
@@ -56,8 +57,8 @@ Define and verify the controlled Coolify release contract, pre-public security g
 
 ## Success Criteria
 
-- [ ] Every operator-owned infrastructure decision has a responsible role, validation method, and redacted evidence location.
-- [ ] `/runs` cannot be treated as public-ready from the local rate limiter, HTTPS health, or dashboard reachability alone.
-- [ ] Image, secret, persistence, health, replica, backup, monitoring, pause, recovery, and rollback requirements are explicit before deployment.
-- [ ] Preflight fails visibly for unsafe exposure, unverified source, missing ownership, or incomplete mandatory configuration.
-- [ ] Repository artifacts contain no credential, private URL, address, customer data, or new Pi/deployment permission.
+- [x] Every operator-owned infrastructure decision has a responsible role, validation method, and redacted evidence location.
+- [x] `/runs` cannot be treated as public-ready from the local rate limiter, HTTPS health, or dashboard reachability alone.
+- [x] Image, secret, persistence, health, replica, backup, monitoring, pause, recovery, and rollback requirements are explicit before deployment.
+- [x] Preflight fails visibly for unsafe exposure, unverified source, missing ownership, or incomplete mandatory configuration.
+- [x] Repository artifacts contain no credential, private URL, address, customer data, or new Pi/deployment permission.

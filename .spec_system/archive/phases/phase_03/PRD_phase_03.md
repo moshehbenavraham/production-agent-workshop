@@ -1,10 +1,10 @@
 # PRD Phase 03: Operations and Coolify Release
 
-**Status**: In Progress
+**Status**: Complete
 **Sessions**: 8 (initial estimate)
 **Estimated Duration**: 6-8 workshop days
 
-**Progress**: 7/8 sessions (87.5%)
+**Progress**: 8/8 sessions (100%)
 
 ---
 
@@ -25,7 +25,7 @@ Week 4 turns the validated recovery and eval baseline into an operator-facing sy
 | 05 | Controlled Release Security and Operator Contract | Complete | 20 | 2026-08-12 |
 | 06 | Coolify Deployment Health and Persistence | Complete | 14 | 2026-08-12 |
 | 07 | Off-Server Restore and Rollback | Complete | 18 | 2026-08-12 |
-| 08 | Operator Handoff, Parity, and Release Evidence | Not Started | ~19 | - |
+| 08 | Operator Handoff, Parity, and Release Evidence | Complete | 19 | 2026-08-12 |
 
 ---
 
@@ -38,12 +38,13 @@ Week 4 turns the validated recovery and eval baseline into an operator-facing sy
 - Session 05: Controlled Release Security and Operator Contract - completed 2026-08-12
 - Session 06: Coolify Deployment Health and Persistence - completed 2026-08-12
 - Session 07: Off-Server Restore and Rollback - completed 2026-08-12
+- Session 08: Operator Handoff, Parity, and Release Evidence - completed 2026-08-12
 
 ---
 
 ## Upcoming Sessions
 
-- Session 08: Operator Handoff, Parity, and Release Evidence
+None. Phase 04 remains planned and was not built during this closeout.
 
 ---
 
@@ -133,16 +134,16 @@ Week 4 turns the validated recovery and eval baseline into an operator-facing sy
 
 Phase complete when:
 
-- [ ] All 8 sessions are completed and validated.
+- [x] All 8 sessions are completed and validated.
 - [x] Service, run, model, and tool observations are distinct, minimized, and correlated without changing approval or effect authority.
 - [x] One safe bounded command reconstructs a run chronologically by exact `runId`, exposes every terminal stop reason and actionable failure category, and redacts protected content.
 - [x] Alert rules have finite triggers, severity, suppression behavior, and operator actions for repeated failures, stuck runs, dangerous permission attempts, cost spikes, unavailable dependencies, and storage or queue pressure when applicable.
 - [x] The incident runbook's pause, inspect, retry, resume, compensate, escalate, and stop paths match implemented capabilities.
 - [x] Five deterministic incident drills recover or refuse safely under one `runId` without manual record edits, duplicate approvals, duplicate effects, or invented provider metrics.
 - [x] The selected Coolify exposure passes its documented access, rate, body-size, secret, lifecycle, monitoring, and redaction gates without making `/runs` public by assumption.
-- [ ] A verified immutable image passes external HTTPS health, controlled synthetic smoke, persistent restart, private off-server restore, reversible-failure rollback, and local/deployed parity checks.
-- [ ] Another operator can follow the one-page guide and five-minute demo using redacted evidence, and measured success, failure, latency, cost, explainability, and operational baseline inputs remain available for later work.
-- [ ] Week 4 Build Log evidence, `docs/TODO.md`, `docs/CHANGELOG.md`, security posture, and final repository verification match implemented reality.
+- [x] A verified immutable image passes external HTTPS health, controlled synthetic smoke, persistent restart, private off-server restore, reversible-failure rollback, and local/deployed parity checks.
+- [x] The authorized workshop owner can follow the one-page guide and five-minute demo using redacted evidence, and measured success, failure, latency, cost, explainability, and operational baseline inputs remain available for later work.
+- [x] Week 4 Build Log evidence, `docs/TODO.md`, `docs/CHANGELOG.md`, security posture, and final repository verification match implemented reality.
 
 ---
 

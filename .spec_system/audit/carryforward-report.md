@@ -1,99 +1,87 @@
-# Phase 02 Carryforward Report
+# Phase 03 Carryforward Report
 
 **Date**: 2026-08-12
 **Result**: PASS
-**Phase**: P02 - Recovery and Evaluation Gates
-**Sessions**: 7
+**Phase**: P03 - Operations and Coolify Release
+**Sessions**: 8
 
 ## Evidence Read
 
-- All seven Phase 02 `IMPLEMENTATION_SUMMARY.md` files.
-- The complete current Phase 02 PRD and all seven session stubs. No Phase 02
-  archive exists yet, so the current PRD directory remains authoritative until
-  a later authorized `phasebuild` performs retention.
-- All seven implementation-note trails, including planning discoveries,
-  expected red states, coverage repairs, independent review findings,
-  remaining risks, and explicit blocker sections. Every session reports zero
-  unresolved blockers.
-- All seven Phase 02 session security and compliance reports.
-- The current transition `known-issues.md` registry, including production
-  Health, Security, and Backup exceptions.
-- The prior living `CONSIDERATIONS.md` and `SECURITY-COMPLIANCE.md` records plus
-  the completed Phase 02 audit, pipeline, and infrastructure controls.
+- All eight Phase 03 `IMPLEMENTATION_SUMMARY.md` files.
+- All eight Phase 03 implementation-note trails, including target checks,
+  provider behavior, review repairs, rejected operations, cleanup, and explicit
+  unavailable evidence.
+- All eight Phase 03 security/compliance reports.
+- The archived Phase 03 PRD and all eight session stubs.
+- The current local-tool, pipeline, infrastructure, and known-issue records.
+- The prior living `CONSIDERATIONS.md` and `SECURITY-COMPLIANCE.md` documents.
+
+Every session reports zero unresolved blockers. The following documentation
+audit reconciled the archived phase tracker and all eight session stubs to the
+validated complete state.
 
 ## Considerations Update
 
 | Metric | Value |
 |--------|-------|
-| Active Concerns | 10 total |
-| Lessons Learned | 30 total |
-| Resolved Items | 6 total |
-| Line Count | 167 / 600 |
+| Active Concerns | 11 / 20 maximum |
+| Lessons Learned | 30 / 30 maximum |
+| Resolved Items | 6 / 15 maximum |
+| Line Count | 162 / 600 |
 
-Active concerns now distinguish repository-side offline snapshot mechanics
-from off-server production backup, include the eval JSONL store in the
-single-process constraint, and retain public identity, distributed ownership,
-real-data lifecycle, Coolify, and maintainer-only write gates.
+The active record now replaces the obsolete "target unproved" concern with the
+proved controlled target and its actual remaining boundaries: manual owner
+operations, changing provider behavior, the current Coolify digest API limit,
+controlled-only exposure, synthetic-only data, one-replica files, frozen Pi
+permissions, and the measured Phase 04 entry baseline.
 
-The synthesis merges overlapping Phase 01 lessons to stay within the strict
-30-item cap and carries forward the highest-signal Phase 02 patterns: one
-bounded terminal owner, filtered provider evidence, project-before-mutation
-recovery, hash-anchored context, predeclared eval truth, durable critical
-artifacts, continue-after-failure scorecards, serial source-break proof, and
-closed stopped-writer snapshots. It also records layered Biome/Husky/CI guards
-and explicit application-source coverage for subprocess-tested operator tools.
+Phase 03 lessons capture observation/authority separation, tagged metric
+availability, hostile collector preflight, exact-run reporting before cleanup,
+actual-boundary incident drills, finite alerts, pure release preflight, direct
+persistence proof, private stopped-writer restore, deterministic deployment
+failure fallback, internal parity, plain language, and immutable source identity.
+Older overlapping lessons were merged so the 30-item cap remains exact.
 
-Two Phase 00 resolved items rotated out under the two-phase rule. The locally
-validated snapshot mechanism entered Resolved, while off-server scheduling and
-production activation remain active release concerns.
+Resolved history now keeps only P02-P03 items. Four Phase 03 entries close
+operator observability, controlled target evidence, off-server recovery, and
+parity/handoff; two high-signal P02 entries retain the eval and resume baseline.
 
 ## Security And Compliance Update
 
 | Metric | Value |
 |--------|-------|
-| Open Findings | 4 |
+| Open Findings | 3 |
 | Critical/High | 1 |
-| Medium/Low | 3 |
-| Findings Opened In P02 Carryforward | 0 |
-| Findings Closed In P02 Carryforward | 0 |
+| Medium/Low | 2 |
+| Findings Opened In P03 Carryforward | 0 |
+| Findings Closed In P03 Carryforward | 1 (`SC-005`) |
 | GDPR Status | N/A - synthetic-only scope |
 | Real Personal Data Elements | 0 |
-| Controlled Data Boundary Rows | 9 |
+| Controlled Data Boundary Rows | 10 |
 | Current Dependency Vulnerabilities | 0 |
-| Line Count | 283 / 1000 |
+| Line Count | 301 / 1000 |
 
-SC-001 remains High because a process-wide capacity gate is not caller
-identity, authorization, tenant isolation, shared quota, or edge protection.
-SC-002 remains open because the new snapshot CLI does not supply automated
-lifecycle, scoped rights, a private off-server destination/schedule, lawful
-basis, subprocessors, or data-location governance. SC-005 now records the
-positive local/container snapshot and restore evidence while retaining the
-missing production restart, off-server backup, activation, rollback, incident,
-and operator-access gates. SC-006 remains unchanged: fake-effect ownership is
-single-process and unreachable from Pi/HTTP pending stronger coordination and
-recorded maintainer review.
+`SC-005` is closed by direct controlled-target health/access, provider smoke,
+persistent replacement, private off-server backup, exact restore activation,
+safe failed deployment, source-pinned recovery, parity, and owner handoff.
+Public and real-data limits are not hidden by that closure: `SC-001` retains
+public caller/tenant/edge blockers, `SC-002` retains complete real-data
+lifecycle duties, and `SC-006` retains cross-process fake-effect ownership.
 
-Implemented controls now include closed schema-v2 run evidence and projection,
-bounded lifecycle and recovery, the durable 18-case critical gate, three actual
-boundary-break refusals, private checksummed offline snapshots, exact staged
-Biome hooks, immutable-pinned Security CI, 273 deterministic tests, 18/18
-evals, and zero dependency vulnerabilities. The controlled data inventory adds
-the synthetic snapshot and explicitly denies production/off-server or real-
-data claims.
+Implemented controls now include the four-layer observation/report/alert/drill
+stack, pure 15-check preflight, runtime-only provider secret, controlled
+Coolify target, exact persistence proof, private local restore, manual recovery,
+no-auto-deploy posture, parity, plain-English handoff, 374 tests, 18 evals,
+Integration CI, managed CodeQL, and zero dependency vulnerabilities.
 
 ## Carryforward Result
 
-Both living documents are ASCII with Unix LF endings, remain well within their
-strict budgets, satisfy the 20/30/15 item caps, and contain phase-tagged
-synthesis rather than copied session reports. No phase artifact was unreadable
-and no unresolved session blocker exists.
-
-The documentation gate must reconcile the first three Phase 02 session stubs,
-which still say `Not Started` despite the authoritative complete phase PRD and
-validated session artifacts.
+Both living records are ASCII and LF-terminated, remain within all line/item
+budgets, and distinguish the passing controlled workshop from blocked public or
+real-data use. No unresolved session blocker or invented external evidence was
+carried forward.
 
 Next command: `documents`
 
-Reason: carryforward is complete; `documents` is the next Phase Transition
-command. After documentation closes, Phase 03 `phasebuild` is the next workflow
-command, but the current user-authorized run must stop before invoking it.
+Reason: `carryforward -> documents` is the final Phase 03 transition handoff.
+After documentation passes, stop before Phase 04 `phasebuild`.

@@ -1,10 +1,11 @@
 # Session 04: Incident Drills and Operational Baseline
 
 **Session ID**: `phase03-session04-incident-drills-and-operational-baseline`
-**Status**: Not Started
+**Status**: Complete
 **Source Task**: `06`
 **Estimated Tasks**: ~20
 **Estimated Duration**: 2-4 hours
+**Validated**: 2026-08-12
 
 ---
 
@@ -42,8 +43,8 @@ Exercise the five required synthetic incident paths through the actual observabi
 
 ## Prerequisites
 
-- [ ] Session 03 provides tested observability, query, alert, and runbook boundaries for every drill.
-- [ ] Each drill is isolated, synthetic, reversible, and has predeclared expected evidence and a bounded cleanup path.
+- [x] Session 03 provides tested observability, query, alert, and runbook boundaries for every drill.
+- [x] Each drill is isolated, synthetic, reversible, and has predeclared expected evidence and a bounded cleanup path.
 
 ---
 
@@ -57,8 +58,8 @@ Exercise the five required synthetic incident paths through the actual observabi
 
 ## Success Criteria
 
-- [ ] Timeout, invalid response, restart, credential-unavailable, and duplicate-request drills all produce their predeclared actionable outcomes.
-- [ ] Supported recovery preserves one `runId` and creates no duplicate approval or effect; ambiguous authority always stops or escalates.
-- [ ] Every drill is reconstructable with the safe query and maps to an alert or documented no-alert decision plus an exact runbook action.
-- [ ] Baseline measurements are real or explicitly unavailable and do not imply a later entry gate has passed without complete Task `07` evidence.
-- [ ] Task `06` evidence and repository verification pass with no protected-data leak or permission expansion.
+- [x] Timeout, invalid response, restart, credential-unavailable, and duplicate-request drills all produce their predeclared actionable outcomes.
+- [x] Supported recovery preserves one `runId` and creates no duplicate approval or effect; ambiguous authority always stops or escalates.
+- [x] Every drill is reconstructable with the safe query and maps to an alert or documented no-alert decision plus an exact runbook action.
+- [x] Baseline measurements are real or explicitly unavailable and do not imply a later entry gate has passed without complete Task `07` evidence.
+- [x] Task `06` evidence and repository verification pass with no protected-data leak or permission expansion.

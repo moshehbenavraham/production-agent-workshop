@@ -179,6 +179,17 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Changed
 
+- Reconciled the current README, architecture, onboarding, workshop index,
+  Phase 03 archive, TODO, incident guide, and cumulative governance records
+  with the completed controlled Coolify release, 374-test gate, private local
+  backup, exact restore, rollback, parity, and intentionally unbuilt Phase 04.
+
+- Carried Phase 03 observability, incident, Coolify, persistence, restore,
+  recovery, parity, handoff, security, and remaining-limit evidence into the
+  cumulative project records and closed only the directly proved SC-005 gap.
+- Closed the workshop Deploy infrastructure gap with direct exact-revision
+  Coolify, health, persistence, restore, recovery, parity, and no-auto-deploy
+  evidence while retaining public-production limits.
 - Re-audited every configured local tool after Phase 03 and correctly left the
   database category inactive because the repository has no database signal.
 - Completed Task `07` and Phase 03 at version `0.1.39` after the exact synthetic

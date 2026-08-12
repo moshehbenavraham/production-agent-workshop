@@ -19,7 +19,9 @@ The repository currently provides:
 - 374 deterministic tests and a durable 18-case critical production-eval gate
 - a Node 24 container, `/health`, a Docker health probe, and a persistent `/app/data` volume contract
 - passing Code Quality, Build & Test, Security, provider-independent Integration,
-  and GitHub-managed CodeQL checks; Operations, deploy, and post-deploy bundles remain incomplete
+  and GitHub-managed CodeQL checks; automated Operations, deploy, and
+  post-deploy CI bundles are intentionally not configured because the workshop
+  deployment remains a manual owner action
 - a stopped-writer, checksummed offline JSONL snapshot/restore command validated
   locally and in Docker, plus a private workstation backup and exact local restore activation
 - a controlled Coolify release with provider smoke, replacement persistence,

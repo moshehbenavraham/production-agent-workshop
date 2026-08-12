@@ -43,8 +43,8 @@ Prove local and deployed parity, validate the one-page operator handoff, complet
 
 ## Prerequisites
 
-- [ ] Session 07 proves off-server restore activation and rollback while preserving the verified image and durable state.
-- [ ] All Task `06` and Task `07` acceptance evidence is available in redacted form for independent operator use.
+- [x] Session 07 proves off-server restore activation and rollback while preserving the verified image and durable state.
+- [x] All Task `06` and Task `07` acceptance evidence is available in redacted form for independent operator use.
 
 ---
 
@@ -58,8 +58,8 @@ Prove local and deployed parity, validate the one-page operator handoff, complet
 
 ## Success Criteria
 
-- [ ] The same synthetic smoke case has equivalent safety, authority, stop, and reporting behavior locally and on the selected target.
-- [ ] Another operator can use the guide to deploy or inspect, pause, restart, query, recover or escalate, roll back, and identify mandatory human takeover.
-- [ ] The demonstration shows one real bounded failure and recovery plus the green critical gate without leaking protected information or claiming a send.
-- [ ] Every completed production claim has direct redacted evidence and every unproved gate remains explicitly open.
-- [ ] Final repository, dependency, critical-eval, production-agent, documentation, privacy, permission, and side-effect reviews pass before Phase 03 is marked complete.
+- [x] The same synthetic smoke case has equivalent safety, authority, stop, and reporting behavior locally and on the selected target.
+- [x] The authorized workshop owner can use the guide to deploy or inspect, pause, restart, query, recover or escalate, roll back, and identify mandatory human takeover.
+- [x] The demonstration shows one real bounded failure and recovery plus the green critical gate without leaking protected information or claiming a send.
+- [x] Every completed production claim has direct redacted evidence and every unproved gate remains explicitly open.
+- [x] Final repository, dependency, critical-eval, production-agent, documentation, privacy, permission, and side-effect reviews pass before Phase 03 is marked complete.

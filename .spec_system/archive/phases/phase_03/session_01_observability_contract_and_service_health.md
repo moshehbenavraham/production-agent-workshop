@@ -1,10 +1,11 @@
 # Session 01: Observability Contract and Service Health
 
 **Session ID**: `phase03-session01-observability-contract-and-service-health`
-**Status**: Not Started
+**Status**: Complete
 **Source Task**: `06`
 **Estimated Tasks**: ~18
 **Estimated Duration**: 2-4 hours
+**Validated**: 2026-08-12
 
 ---
 
@@ -41,8 +42,8 @@ Define and implement minimized four-layer observability contracts and bounded se
 
 ## Prerequisites
 
-- [ ] Phase 02 event, projection, lifecycle, recovery, and production-eval contracts remain green.
-- [ ] Current `/health`, event metadata, and environment boundaries are inventoried before defining new observation fields.
+- [x] Phase 02 event, projection, lifecycle, recovery, and production-eval contracts remain green.
+- [x] Current `/health`, event metadata, and environment boundaries are inventoried before defining new observation fields.
 
 ---
 
@@ -56,8 +57,8 @@ Define and implement minimized four-layer observability contracts and bounded se
 
 ## Success Criteria
 
-- [ ] Service, run, model, and tool layers remain distinguishable and all run-scoped evidence carries the exact validated `runId`.
-- [ ] Uptime, memory, CPU, storage, and configured dependency state are measured or explicitly unavailable without leaking target details.
-- [ ] Token, cost, duration, retry, error, permission, result, and side-effect values never use invented defaults.
-- [ ] Observability cannot grant approval, prove an effect, broaden Pi or HTTP permissions, or expose protected content.
-- [ ] Focused tests pass without provider credentials, a live Coolify target, or real customer data.
+- [x] Service, run, model, and tool layers remain distinguishable and all run-scoped evidence carries the exact validated `runId`.
+- [x] Uptime, memory, CPU, storage, and configured dependency state are measured or explicitly unavailable without leaking target details.
+- [x] Token, cost, duration, retry, error, permission, result, and side-effect values never use invented defaults.
+- [x] Observability cannot grant approval, prove an effect, broaden Pi or HTTP permissions, or expose protected content.
+- [x] Focused tests pass without provider credentials, a live Coolify target, or real customer data.

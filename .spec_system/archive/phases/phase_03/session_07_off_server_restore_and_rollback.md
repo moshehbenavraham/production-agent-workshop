@@ -1,10 +1,11 @@
 # Session 07: Off-Server Restore and Rollback
 
 **Session ID**: `phase03-session07-off-server-restore-and-rollback`
-**Status**: Not Started
+**Status**: Complete
 **Source Task**: `07`
 **Estimated Tasks**: ~18
 **Estimated Duration**: 2-4 hours
+**Validated**: 2026-08-12
 
 ---
 
@@ -42,8 +43,8 @@ Prove private off-server backup, controlled restore activation, and rollback fro
 
 ## Prerequisites
 
-- [ ] Session 06 proves the verified image, controlled deployment, persistent paths, and restart behavior on the authorized target.
-- [ ] Snapshot, restore, activation, and rollback targets are explicitly scoped and every destructive boundary has a recoverable source and owner.
+- [x] Session 06 proves the verified image, controlled deployment, persistent paths, and restart behavior on the authorized target.
+- [x] Snapshot, restore, activation, and rollback targets are explicitly scoped and every destructive boundary has a recoverable source and owner.
 
 ---
 
@@ -57,8 +58,8 @@ Prove private off-server backup, controlled restore activation, and rollback fro
 
 ## Success Criteria
 
-- [ ] Every writer is stopped, the source is preserved, and the off-server snapshot and staging restore pass exact manifest, checksum, permission, record, and projection checks.
-- [ ] Restored state becomes active only after validation and remains queryable without record edits, duplicate approval, or inferred effect success.
-- [ ] The reversible failure is detected through documented evidence and rollback restores the expected image, health, access, and persistent state.
-- [ ] Recovery time and missing steps are measured or explicitly unavailable, and unsupported disaster-recovery claims remain open.
-- [ ] No secret, private target identifier, raw production log, customer data, or destructive restore behavior enters repository evidence.
+- [x] Every writer is stopped, the source is preserved, and the off-server snapshot and staging restore pass exact manifest, checksum, permission, record, and projection checks.
+- [x] Restored state becomes active only after validation and remains queryable without record edits, duplicate approval, or inferred effect success.
+- [x] The reversible failure is detected through documented evidence and rollback restores the expected image, health, access, and persistent state.
+- [x] Recovery time and missing steps are measured or explicitly unavailable, and unsupported disaster-recovery claims remain open.
+- [x] No secret, private target identifier, raw production log, customer data, or destructive restore behavior enters repository evidence.

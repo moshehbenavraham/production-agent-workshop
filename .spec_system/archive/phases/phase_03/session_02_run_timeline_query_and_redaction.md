@@ -1,10 +1,11 @@
 # Session 02: Run Timeline Query and Redaction
 
 **Session ID**: `phase03-session02-run-timeline-query-and-redaction`
-**Status**: Not Started
+**Status**: Complete
 **Source Task**: `06`
 **Estimated Tasks**: ~18
 **Estimated Duration**: 2-4 hours
+**Validated**: 2026-08-12
 
 ---
 
@@ -41,8 +42,8 @@ Implement a safe bounded operator query that reconstructs one exact run chronolo
 
 ## Prerequisites
 
-- [ ] Session 01 defines the four observation layers, availability semantics, and minimized field boundary.
-- [ ] Phase 02 projections continue to reject damaged or ambiguous evidence before it reaches operator output.
+- [x] Session 01 defines the four observation layers, availability semantics, and minimized field boundary.
+- [x] Phase 02 projections continue to reject damaged or ambiguous evidence before it reaches operator output.
 
 ---
 
@@ -56,8 +57,8 @@ Implement a safe bounded operator query that reconstructs one exact run chronolo
 
 ## Success Criteria
 
-- [ ] One command reconstructs the implemented run-scoped layers in stable chronological order without manual JSONL inspection.
-- [ ] Every terminal result exposes the exact durable stop reason and every failure exposes a finite actionable category.
-- [ ] Missing or damaged evidence fails visibly and never produces a partial trusted success timeline.
-- [ ] Output remains bounded and contains no credential, full draft, unnecessary lead data, raw provider payload, or private target identifier.
-- [ ] The query is read-only and cannot approve, execute, retry, resume, or change runtime state.
+- [x] One command reconstructs the implemented run-scoped layers in stable chronological order without manual JSONL inspection.
+- [x] Every terminal result exposes the exact durable stop reason and every failure exposes a finite actionable category.
+- [x] Missing or damaged evidence fails visibly and never produces a partial trusted success timeline.
+- [x] Output remains bounded and contains no credential, full draft, unnecessary lead data, raw provider payload, or private target identifier.
+- [x] The query is read-only and cannot approve, execute, retry, resume, or change runtime state.

@@ -58,8 +58,10 @@ exact critical scoring, private validated artifacts, compact scorecards, and a
 non-zero repository deployment gate. Session 07 is completed and validated
 with three isolated red/fix/green boundary traces, exact safe-source hash
 restoration, permanent regression coverage, and final 270-test plus 18-case
-session-close verification. The transition backup regressions bring the current
-repository gate to 273 tests while preserving the same 18-case critical suite.
+session-close verification. The Phase 02 transition backup regressions brought
+that phase's repository gate to 273 tests while preserving the same 18-case
+critical suite. The current Phase 03 gate is 374 tests and the same 18-case
+critical suite.
 Tasks `04` and `05` and the Phase 02 implementation are complete.
 
 ## Latest Completed Phase
@@ -146,9 +148,9 @@ Phase 04 is planned and required, but it is not built in the Phase 03 closeout.
 
 - [x] Re-run the repository audit and reconcile local tooling evidence.
 - [x] Validate active CI and add the one missing Integration pipeline bundle.
-- [ ] Reassess infrastructure readiness and close only directly proved items.
-- [ ] Carry Phase 03 lessons, risks, and controls into cumulative records.
-- [ ] Reconcile current documentation and record the documentation audit.
+- [x] Reassess infrastructure readiness and validate the manual Coolify Deploy bundle.
+- [x] Carry Phase 03 lessons, risks, and controls into cumulative records.
+- [x] Reconcile current documentation and record the documentation audit.
 
 ## Phase 00 Transition (Complete)
 
@@ -184,4 +186,4 @@ only after all five Phase 01 closeout workflows passed.
 - [x] Reconcile the Week 2 Build Log with Tasks `02` and `03` and current
   approval/fake-send source and test evidence.
 - [x] Reconcile the Week 3 Build Log with Tasks `04` and `05`, current recovery
-  and production-eval contracts, and the 273-test repository gate.
+  and production-eval contracts, and the Phase 02 273-test repository gate.

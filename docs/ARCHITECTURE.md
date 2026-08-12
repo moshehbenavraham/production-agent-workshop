@@ -107,6 +107,7 @@ flowchart LR
 | Code Quality CI | `.github/workflows/quality.yml` | GitHub Actions | Locked install, formatting, linting, and strict TypeScript |
 | Build & Test CI | `.github/workflows/test.yml` | GitHub Actions | TypeScript build, 374 tests with application-source coverage thresholds, and the durable 18-case critical eval gate |
 | Security CI | `.github/workflows/security.yml` plus managed repository security | GitHub Actions | Full-history Gitleaks, pull-request dependency review, locked-tree audit, CodeQL, secret scanning, and push protection |
+| Integration CI | `.github/workflows/integration.yml` | GitHub Actions | Provider-independent incident drills, controlled-release preflight, production image build, container health, and rate-boundary smoke |
 
 ## Run And Evidence Flow
 
@@ -186,29 +187,36 @@ credential, deployment, approval-decision, or network-writing tool.
 - The offline snapshot command copies only direct, complete JSONL files from a
   real directory while all writers are stopped. It writes private files plus a
   closed SHA-256 manifest, verifies before activation, and restores only to an
-  absent private directory. No schedule, off-server destination, production
-  activation, or real-data policy is configured.
+  absent private directory. For this synthetic workshop, the owner proved a
+  private workstation destination, exact restore, and local restored-service
+  activation with a manual before/after-demo cadence. Automated remote backup,
+  destructive production activation, and a real-data policy are not configured.
 - Qualification events exclude lead profile text and caught dependency detail.
 - Draft and approval events exclude full content; approval records retain exact
   synthetic draft content/hash under the documented manual lifecycle rule.
-- There is no database, queue, cache, scheduled/off-server backup, per-record
-  erasure, distributed lock, public recovery endpoint, background retry worker,
-  or automatic compensation. Recovery is a controlled single-process library
-  boundary.
+- There is no database, queue, cache, scheduled or automated remote backup,
+  per-record erasure, distributed lock, public recovery endpoint, background
+  retry worker, or automatic compensation. Recovery is a controlled single-
+  process library boundary, and workshop backup is a manual private workstation
+  operation.
 
 ## Deployment Topology
 
-The locally validated image contains one Node.js process, port 3000, a declared
+The controlled workshop target contains one Node.js process, port 3000, a named
 `/app/data` volume, a Docker `HEALTHCHECK` for `/health`, a process-wide
-fixed-window `/runs` gate, and the offline snapshot/restore CLI. Coolify is the
-intended hosting boundary, but no production URL, WAF, caller identity, shared
-limiter, persistent restart, off-server backup, platform restore, or rollback
-has been validated.
+fixed-window `/runs` gate, and the offline snapshot/restore CLI. The authorized
+Coolify target proved controlled HTTPS access, provider-backed synthetic smoke,
+persistent replacement, private off-server workstation backup, exact local
+restore activation, source-pinned recovery, rollback, monitoring, and local/
+deployed safety parity. Public caller identity, tenant isolation, a shared
+limiter, deployed WAF, automated remote backup, and real-data use remain
+blocked.
 
 The controlled-release preflight has no deployment edge. It evaluates a finite
-redacted stdin document and always returns `targetMutationAllowed: false`.
-Session 06 may proceed only after an authorized target produces a fully ready
-result; repository policy tests and the blocked fixture are not target evidence.
+redacted stdin document and always returns `targetMutationAllowed: false`. The
+current redacted target facts pass all 15 checks; direct Phase 03 exercises,
+not the preflight alone, provide the deployment evidence. Automatic Coolify
+deployment remains disabled.
 
 ## Key Decisions
 

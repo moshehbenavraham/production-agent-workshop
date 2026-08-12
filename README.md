@@ -111,7 +111,7 @@ real customer data.
 
 ```text
 .
-|-- .github/workflows/       # Code Quality, Build & Test, and Security CI
+|-- .github/workflows/       # Quality, test, security, and Integration CI
 |-- .spec_system/            # PRD, workflow state, governance, and evidence
 |-- docs/                    # Architecture, operations, workshop, and task docs
 |-- scripts/                 # Offline JSONL snapshot and restore tooling
@@ -147,8 +147,9 @@ real customer data.
 - **Pi** owns the bounded model loop and invokes only supplied custom tools.
 - **The application** owns validation, permissions, domain truth, event
   evidence, stop reasons, and every future external-effect gate.
-- **Coolify** is the intended deployment boundary for secrets, persistence,
-  health, and rollback; no production deployment has been validated yet.
+- **Coolify** is the validated controlled-workshop deployment boundary for
+  secrets, persistence, health, and rollback. It is not approved for public
+  production traffic or real customer data.
 
 See [Architecture](./docs/ARCHITECTURE.md) for the current component and trust
 map.

@@ -1,10 +1,11 @@
 # Session 03: Alerts and Incident Runbook
 
 **Session ID**: `phase03-session03-alerts-and-incident-runbook`
-**Status**: Not Started
+**Status**: Complete
 **Source Task**: `06`
 **Estimated Tasks**: ~17
 **Estimated Duration**: 2-4 hours
+**Validated**: 2026-08-12
 
 ---
 
@@ -41,8 +42,8 @@ Define deterministic actionable alert policy and write the canonical agent incid
 
 ## Prerequisites
 
-- [ ] Session 02 provides the safe exact-`runId` query used by the runbook's inspect path.
-- [ ] Current recovery actions and limitations are revalidated against source and tests before documentation is changed.
+- [x] Session 02 provides the safe exact-`runId` query used by the runbook's inspect path.
+- [x] Current recovery actions and limitations are revalidated against source and tests before documentation is changed.
 
 ---
 
@@ -56,8 +57,8 @@ Define deterministic actionable alert policy and write the canonical agent incid
 
 ## Success Criteria
 
-- [ ] Every configured alert has a finite trigger, severity, evidence source, suppression rule, and actionable operator response.
-- [ ] Harmless retries below threshold do not alert, while dangerous permission attempts and stuck or repeated failures remain visible.
-- [ ] Missing metrics are explicit and cannot silently pass a rule that requires them.
-- [ ] The runbook never recommends manual durable-record edits, automatic retry of indeterminate effects, or capabilities that do not exist.
-- [ ] Alert evaluation and runbook changes add no notification credential, Pi permission, public endpoint, or external effect.
+- [x] Every configured alert has a finite trigger, severity, evidence source, suppression rule, and actionable operator response.
+- [x] Harmless retries below threshold do not alert, while dangerous permission attempts and stuck or repeated failures remain visible.
+- [x] Missing metrics are explicit and cannot silently pass a rule that requires them.
+- [x] The runbook never recommends manual durable-record edits, automatic retry of indeterminate effects, or capabilities that do not exist.
+- [x] Alert evaluation and runbook changes add no notification credential, Pi permission, public endpoint, or external effect.
