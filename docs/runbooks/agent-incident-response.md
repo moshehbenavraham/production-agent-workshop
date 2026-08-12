@@ -178,5 +178,26 @@ alert rule/status/severity, report stop reason, finite error category, commands
 run, and their redacted outcomes. Production ownership, alert delivery, and
 response timing remain deployment decisions for later Phase 03 sessions.
 
+## Synthetic Drill Command
+
+Run the five fixed provider-independent incident exercises with:
+
+```bash
+npm run drill:incidents
+```
+
+The command accepts no arguments. It executes the predeclared tool-timeout,
+invalid-model, restart, credential-unavailable, and duplicate-request cases in
+isolated temporary directories. Each case must pass its existing production
+eval score, safe exact-run report, default alert decision, and runbook action.
+It emits one minimized JSON suite and removes the temporary evidence before
+returning. A successful synthetic drill does not prove a live provider,
+deployment, production on-call, external alert, or operator transport.
+
+The duplicate drill illustrates the authority boundary: the event-only report
+remains `effect_indeterminate`, while separate minimized effect-authority
+evidence proves one total fake effect and the duplicate result. Never reinterpret
+the observed-only report as completed effect authority.
+
 The broader service, backup, and credential guide remains at
 [Incident Response](incident-response.md).

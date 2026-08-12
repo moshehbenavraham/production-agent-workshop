@@ -10,6 +10,13 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Added
 
+- Added a no-input five-case synthetic incident drill command that reuses the
+  production-eval harness, builds safe exact-run reports before isolated cleanup,
+  evaluates default alert decisions, verifies restart/duplicate effect safety,
+  and emits a closed operational baseline with 16 focused tests.
+- Added a safe report-bearing production-eval harness path that returns only the
+  existing minimized observation and validated observed-only report, then removes
+  its temporary directory in the existing `finally` boundary.
 - Added a pure bounded alert evaluator with seven closed rule variants, finite
   default thresholds/actions, explicit suppression, unavailable and queue-not-
   applicable outcomes, distinct-run failure counting, semantic output guards,
@@ -148,6 +155,9 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Changed
 
+- Closed Phase 03 Session 04 and Task `06` at version `0.1.35` after 354/354
+  repository tests, 18/18 production evals, five passing incident drills, and
+  97.82/86.14/98.37 coverage without expanding production permissions.
 - Corrected the Task `07` baseline to recognize the existing process-wide
   `/runs` capacity gate while keeping authentication, tenant isolation, shared
   principal-aware rate state, and deployed WAF controls explicitly open.

@@ -4,7 +4,7 @@
 **Sessions**: 8 (initial estimate)
 **Estimated Duration**: 6-8 workshop days
 
-**Progress**: 3/8 sessions (37.5%)
+**Progress**: 4/8 sessions (50%)
 
 ---
 
@@ -21,7 +21,7 @@ Week 4 turns the validated recovery and eval baseline into an operator-facing sy
 | 01 | Observability Contract and Service Health | Complete | 18 | 2026-08-12 |
 | 02 | Run Timeline Query and Redaction | Complete | 18 | 2026-08-12 |
 | 03 | Alerts and Incident Runbook | Complete | 18 | 2026-08-12 |
-| 04 | Incident Drills and Operational Baseline | Not Started | ~20 | - |
+| 04 | Incident Drills and Operational Baseline | Complete | 20 | 2026-08-12 |
 | 05 | Controlled Release Security and Operator Contract | Not Started | ~18 | - |
 | 06 | Coolify Deployment Health and Persistence | Not Started | ~20 | - |
 | 07 | Off-Server Restore and Rollback | Not Started | ~18 | - |
@@ -34,12 +34,13 @@ Week 4 turns the validated recovery and eval baseline into an operator-facing sy
 - Session 01: Observability Contract and Service Health - completed 2026-08-12
 - Session 02: Run Timeline Query and Redaction - completed 2026-08-12
 - Session 03: Alerts and Incident Runbook - completed 2026-08-12
+- Session 04: Incident Drills and Operational Baseline - completed 2026-08-12
 
 ---
 
 ## Upcoming Sessions
 
-- Session 04: Incident Drills and Operational Baseline
+- Session 05: Controlled Release Security and Operator Contract
 
 ---
 
@@ -134,7 +135,7 @@ Phase complete when:
 - [x] One safe bounded command reconstructs a run chronologically by exact `runId`, exposes every terminal stop reason and actionable failure category, and redacts protected content.
 - [x] Alert rules have finite triggers, severity, suppression behavior, and operator actions for repeated failures, stuck runs, dangerous permission attempts, cost spikes, unavailable dependencies, and storage or queue pressure when applicable.
 - [x] The incident runbook's pause, inspect, retry, resume, compensate, escalate, and stop paths match implemented capabilities.
-- [ ] Five deterministic incident drills recover or refuse safely under one `runId` without manual record edits, duplicate approvals, duplicate effects, or invented provider metrics.
+- [x] Five deterministic incident drills recover or refuse safely under one `runId` without manual record edits, duplicate approvals, duplicate effects, or invented provider metrics.
 - [ ] The selected Coolify exposure passes its documented access, rate, body-size, secret, lifecycle, monitoring, and redaction gates without making `/runs` public by assumption.
 - [ ] A verified immutable image passes external HTTPS health, controlled synthetic smoke, persistent restart, private off-server restore, reversible-failure rollback, and local/deployed parity checks.
 - [ ] Another operator can follow the one-page guide and five-minute demo using redacted evidence, and measured success, failure, latency, cost, explainability, and operational baseline inputs remain available for later work.

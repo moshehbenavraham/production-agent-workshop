@@ -49,7 +49,8 @@
     "phase02-session07-boundary-regression-exercises-and-evidence",
     "phase03-session01-observability-contract-and-service-health",
     "phase03-session02-run-timeline-query-and-redaction",
-    "phase03-session03-alerts-and-incident-runbook"
+    "phase03-session03-alerts-and-incident-runbook",
+    "phase03-session04-incident-drills-and-operational-baseline"
   ],
   "next_session_history": [
     {
@@ -165,6 +166,21 @@
     {
       "date": "2026-08-12",
       "session": "phase03-session03-alerts-and-incident-runbook",
+      "status": "completed"
+    },
+    {
+      "date": "2026-08-12",
+      "session": "phase03-session04-incident-drills-and-operational-baseline",
+      "status": "planned"
+    },
+    {
+      "date": "2026-08-12",
+      "session": "phase03-session04-incident-drills-and-operational-baseline",
+      "status": "validated"
+    },
+    {
+      "date": "2026-08-12",
+      "session": "phase03-session04-incident-drills-and-operational-baseline",
       "status": "completed"
     }
   ]

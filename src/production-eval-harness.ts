@@ -34,6 +34,7 @@ import {
 } from "./production-eval-runner.js";
 import { qualifyLead, type QualificationOutcome } from "./qualification.js";
 import { RecoveryApplication } from "./recovery-application.js";
+import { buildRunReport, type RunReport } from "./run-report.js";
 import { isMatchingRunEventAppendOutcome, isRunEventReadOutcome } from "./run-event.js";
 import {
   executeBoundedRun,
@@ -905,6 +906,45 @@ export async function executeProductionEvalCase(
     const events = state.runId ? readEvents(new JsonlEventStore(files.eventPath), state.runId) : [];
     const latencyMs = Math.max(0, performance.now() - startedAt);
     return observationFromState(caseDefinition, state, events, latencyMs);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+}
+
+export type ProductionEvalCaseReportEvidence = Readonly<{
+  observation: ProductionEvalObservation;
+  report: RunReport;
+}>;
+
+function deepFreezeReportEvidence<T>(value: T): T {
+  if (typeof value !== "object" || value === null || Object.isFrozen(value)) return value;
+  for (const nested of Object.values(value)) deepFreezeReportEvidence(nested);
+  return Object.freeze(value);
+}
+
+export async function executeProductionEvalCaseWithReport(
+  caseDefinition: ProductionEvalCase,
+): Promise<ProductionEvalCaseReportEvidence> {
+  const directory = mkdtempSync(join(tmpdir(), "production-eval-report-"));
+  const files = paths(directory);
+  const startedAt = performance.now();
+  try {
+    const state = await executeCaseState(caseDefinition, files);
+    if (state.runId === null) throw new Error("Synthetic incident has no run evidence.");
+    const store = new JsonlEventStore(files.eventPath);
+    const events = readEvents(store, state.runId);
+    const observation = observationFromState(
+      caseDefinition,
+      state,
+      events,
+      Math.max(0, performance.now() - startedAt),
+    );
+    const report = buildRunReport(store, { runId: state.runId });
+    if (!report.ok) throw new Error("Synthetic incident report is unavailable.");
+    return deepFreezeReportEvidence({
+      observation: structuredClone(observation),
+      report: report.value,
+    });
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }

@@ -1,8 +1,10 @@
 # 06 - Observe Failures and Practice Recovery
 
-Mode: AFK
+Mode: Complete
 Sprint week: 4
 Support tag: `[W4][#06]`
+
+Status: Completed and validated on 2026-08-12 through Phase 03 Sessions 01-04.
 
 ## Goal
 

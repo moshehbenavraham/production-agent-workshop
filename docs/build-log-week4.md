@@ -5,9 +5,9 @@
 [Week 3](build-log-week3.md) |
 [Week 4](build-log-week4.md)
 
-> Template only. This log is reserved for observable evidence from Tasks 06
-> and 07. Replace each italic instruction after running the named work; never
-> present planned behavior as an implemented control.
+Task `06` now contains direct observable evidence. Task `07` sections remain
+templates until the controlled release sessions execute; no placeholder below
+is an implemented deployment claim.
 
 ## Task 06 - Observe Failures and Practice Recovery
 
@@ -22,8 +22,9 @@ not registered as a Pi tool and is not reachable through HTTP. `GET /health`
 remains exactly `{"status":"ok"}`. Approval records and fake-result records
 remain the only approval and effect authority.
 
-Task `06` remains in progress until the run query, alerts, runbook, and five
-incident drills in Sessions 02 through 04 have direct evidence.
+Sessions 01 through 04 provide the observation, exact-run report, alert,
+runbook, and five synthetic drill evidence required by Task `06`. The final
+validation and closeout record is attached to Session 04.
 
 ```mermaid
 flowchart LR
@@ -44,11 +45,17 @@ flowchart LR
 
 ### Complete Incident Timeline
 
-Session 02 adds the safe chronological query used by later incident drills. The
-preserved failed-run fixture follows `run_report_fixture` through start,
-qualification attempt, timeout failure, and the exact durable
-`qualification_failed` terminal. Session 04 will extend this section with the
-five complete drill timelines and recovery outcomes.
+Session 04 executes the five predeclared production-eval cases through isolated
+temporary stores and constructs each safe report before bounded cleanup. The
+actual report chronologies are:
+
+| Drill / `runId` | Exact event sequence |
+|-----------------|----------------------|
+| Tool timeout / `run_qualification_timeout` | `run.started` -> `qualification.attempted` -> `qualification.failed` -> `run.completed` |
+| Invalid model / `run_invalid_model_output` | `run.started` -> `run.stopped` |
+| Restart / `run_restart_after_approval` | `run.started` -> `qualification.attempted` -> `qualification.completed` -> `domain.follow_up_drafted` -> `approval.requested` -> `run.completed` |
+| Credential unavailable / `run_revoked_provider_credential` | `run.started` -> `run.stopped` |
+| Duplicate / `run_duplicate_fake_request` | Restart sequence -> `approval.approved` -> `fake_send.attempted` -> `fake_send.accepted` -> `fake_send.duplicate` |
 
 ```mermaid
 sequenceDiagram
@@ -56,11 +63,13 @@ sequenceDiagram
   participant Report as Read-only report
   participant Events as Complete JSONL evidence
   participant Projection as Semantic projection
-  Operator->>Report: exact run_report_fixture
-  Report->>Events: bounded complete read
-  Events-->>Projection: 4 runtime-valid events
-  Projection-->>Report: stopped / qualification_failed
-  Report-->>Operator: minimized chronological facts
+  Operator->>Report: exact synthetic drill runId
+  Report->>Events: bounded complete temporary history
+  Events-->>Projection: runtime-valid events
+  Projection-->>Report: exact observed status / terminal
+  Report-->>Operator: minimized chronology
+  Operator->>Alert: minimized run/dependency observations
+  Alert-->>Operator: default trigger or documented clear
 ```
 
 ### Run Query Output
@@ -150,14 +159,54 @@ guide grounds every action in the current implementation:
 - corrupt authority, open attempts, and reservation-only effects preserve and escalate;
 - terminal or already-completed effects stop without reopening or re-executing.
 
-The guide is implemented and tested as documentation in Session 03. Session 04
-will exercise its paths through the five required synthetic incident drills.
+Session 04 exercises these paths with:
+
+```text
+npm run drill:incidents
+```
+
+The no-input command runs only the five fixed synthetic cases, prints one closed
+JSON suite, returns nonzero on any score/report/alert mismatch, and retains no
+temporary authority file or path.
 
 ### Recovery Proof
 
-_Record the timeout, invalid-model-response, restart, revoked-credential, and
-duplicate-request drills, including observed recovery without state editing or
-duplicate effects._
+| Drill | Report status / events | Outcome | Default alert | Recovery/runbook | Effects |
+|-------|------------------------|---------|---------------|------------------|---------|
+| Tool timeout | `stopped` / 4 | `qualification_timeout`, `qualification_failed` | Repeated failure `clear` at 1/3 | `stop` | 0 |
+| Invalid model response | `stopped` / 2 | `invalid_model_output`, `dependency_failed` | Repeated failure `clear` at 1/3 | `stop` | 0 |
+| Mid-run restart | `waiting_for_approval` / 6 | `approval_pending` | Repeated failure `clear` at 0/3 | `resume` at `approval_requested` | 0 |
+| Revoked credential injection | `stopped` / 2 | `dependency_failed` | Dependency unavailable `triggered` at 2/2 | `stop` | 0 |
+| Duplicate request | `effect_indeterminate` / 10 | Stable `duplicate` | Repeated failure `clear` at 0/3 | `stop`; return existing result | 1 total |
+
+The restart creates one pending approval event and the fresh recovery instance
+returns the same `runId` and checkpoint with no effect. The duplicate drill
+records one attempted/accepted fake effect and one duplicate observation; its
+dedicated minimized permission evidence reports exactly one total effect.
+
+The duplicate report deliberately remains `authority=observed_only` and
+`effect_indeterminate`: the report reads events, not the dedicated fake-result
+store, so it cannot promote an observed acceptance into authority. The eval
+permission evidence supplies the separate one-effect proof. No drill manually
+edits an event, approval, result, or eval record.
+
+### Operational Baseline
+
+One recorded `npm run drill:incidents` sample on 2026-08-12 produced:
+
+| Drill | Harness latency | Explainability | Exercised steps | Tokens | Cost |
+|-------|-----------------|----------------|-----------------|--------|------|
+| Tool timeout | 13.804 ms | 4 report events | 4 | Unavailable: provider independent | Unavailable: provider independent |
+| Invalid model response | 5.793 ms | 2 report events | 4 | Unavailable: provider independent | Unavailable: provider independent |
+| Mid-run restart | 27.154 ms | 6 report events | 5 | Unavailable: provider independent | Unavailable: provider independent |
+| Revoked credential injection | 4.417 ms | 2 report events | 5 | Unavailable: provider independent | Unavailable: provider independent |
+| Duplicate request | 37.293 ms | 10 report events | 4 | Unavailable: provider independent | Unavailable: provider independent |
+
+Latency is a measured local harness value and will vary by run. Explainability
+is the validated safe-report event count. Exercised steps count the completed
+case, score, report, alert, and applicable recovery/dependency stages; it is not
+a production operator-time measurement. No provider-independent token or cost
+value is invented.
 
 ### Verification Output
 
@@ -192,13 +241,30 @@ Session 03 focused evidence:
 - `npm run test:coverage`: 97.73% lines, 85.80% branches, and 98.29% functions.
 - `npm audit`: zero known vulnerabilities.
 
-The final Task `06` verification result will be recorded after Sessions 02
-through 04 complete the query, alert, runbook, and drill evidence.
+Session 04 focused evidence:
+
+- `npx tsc --noEmit`: pass.
+- `npx tsx --test tests/incident-drills.test.ts`: 16/16 pass.
+- `npm run drill:incidents`: five exact results, suite `pass`, exit 0.
+- Store/report chronology, golden scoring, alert decisions, restart, duplicate,
+  protected output, cleanup, and invalid-command cases: pass.
+- `npm run verify`: 354/354 tests and 18/18 production eval cases pass.
+- `npm run test:coverage`: 97.82% lines, 86.14% branches, and 98.37% functions.
+- `npm audit`: zero known vulnerabilities.
 
 ### Final Diff Review and Remaining Risk
 
-_Record the logging, credentials, personal-data, alert, recovery, side-effect,
-and documentation diff review plus remaining operational blind spots._
+The Task `06` diff adds no HTTP route, Pi tool, notification, provider call,
+credential read, real effect, deployment, or retained drill file. Drill output
+omits lead/draft/approval/effect identities, event IDs, validated arguments,
+actors, receipts, idempotency keys, raw errors, filesystem paths, and provider
+payloads. Temporary paths remain inside the existing harness and are removed in
+`finally`; tests compare the matching temp-directory inventory before/after.
+
+Remaining operational blind spots are explicit: no scheduler or alert delivery,
+no in-application pause, approval-decision, or recovery transport, no production
+on-call/SLA, no real provider token/cost measurement, and no deployment proof.
+Task `07` Sessions 05 through 08 own the controlled release boundary.
 
 ## Task 07 - Release Through Coolify
 

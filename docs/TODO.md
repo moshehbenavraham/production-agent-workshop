@@ -78,7 +78,11 @@ Tasks `04` and `05` and the Phase 02 implementation are complete.
     - [x] Keep required missing metrics visible and queue pressure explicitly not applicable.
     - [x] Add the canonical grounded agent incident guide and alert/runbook regressions.
     - [x] Complete Apex review, validation, and PRD closeout.
-  - [ ] Session 04 - Incident Drills and Operational Baseline
+  - [x] Session 04 - Incident Drills and Operational Baseline
+    - [x] Execute timeout, invalid-model, restart, credential-unavailable, and duplicate drills.
+    - [x] Validate exact safe reports, default alerts, recovery/effect evidence, and cleanup.
+    - [x] Record the Task `06` operational baseline and remaining blind spots.
+    - [x] Complete Apex review, validation, and PRD closeout.
   - [ ] Session 05 - Controlled Release Security and Operator Contract
   - [ ] Session 06 - Coolify Deployment Health and Persistence
   - [ ] Session 07 - Off-Server Restore and Rollback
@@ -96,8 +100,10 @@ validation, and default protected-field omission.
 Session 03 is complete with a local deterministic seven-rule alert
 policy, explicit suppression and unavailable/not-applicable outcomes, and the
 canonical agent incident guide without a notification or recovery transport.
-Task `06` remains incomplete until Session 04 proves the five incident drills
-through the implemented observation, report, alert, runbook, and recovery boundaries.
+Session 04 is complete with five actual golden-boundary incident drills, exact
+safe reports, unchanged default alert thresholds, restart and duplicate-effect
+proof, bounded cleanup, and an explicit provider-independent operational
+baseline. Task `06` is complete. Controlled-release Task `07` begins in Session 05.
 
 ## Phase 00 Transition (Complete)
 
