@@ -1,6 +1,6 @@
 {
   "name": "production-agent-workshop",
-  "version": "0.1.35",
+  "version": "0.1.36",
   "private": true,
   "type": "module",
   "packageManager": "npm@12.0.2",
@@ -15,6 +15,7 @@
     "restore:data": "tsx scripts/data-snapshot.ts restore",
     "report:run": "tsx scripts/run-report.ts",
     "drill:incidents": "tsx scripts/incident-drills.ts",
+    "preflight:release": "tsx scripts/release-preflight.ts",
     "demo": "tsx src/demo.ts",
     "eval": "tsx src/evals.ts",
     "build": "tsc",

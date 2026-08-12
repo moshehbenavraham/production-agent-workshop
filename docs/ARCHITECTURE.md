@@ -101,10 +101,11 @@ flowchart LR
 | Synthetic lead source | `src/leads.ts` | In-memory TypeScript data | Exact lookup for classroom fixtures only |
 | Event store | `src/event-store.ts` | Append-only JSONL | Correlated durable evidence by `runId` |
 | Offline snapshot/restore | `scripts/data-snapshot.ts` | Node.js filesystem and SHA-256 | Validates stopped-writer JSONL, persists private closed-manifest snapshots, and restores exact files only into an absent directory |
+| Release preflight | `src/release-preflight.ts`, `scripts/release-preflight.ts` | Pure closed TypeScript + bounded stdin JSON | Validates finite redacted source, image, exposure, runtime, ownership, and target facts before a separately authorized deployment workflow |
 | Deterministic gates | `tests/`, `src/evals.ts` | `node:test` + TSX | Contract, failure, permission, event, vertical-slice, and executable 18-case production-eval verification |
 | Container boundary | `Dockerfile` | Node.js 24 Alpine | Port 3000, `/app/data`, process start, and container health probe |
 | Code Quality CI | `.github/workflows/quality.yml` | GitHub Actions | Locked install, formatting, linting, and strict TypeScript |
-| Build & Test CI | `.github/workflows/test.yml` | GitHub Actions | TypeScript build, 273 tests with application-source coverage thresholds, and the durable 18-case critical eval gate |
+| Build & Test CI | `.github/workflows/test.yml` | GitHub Actions | TypeScript build, 374 tests with application-source coverage thresholds, and the durable 18-case critical eval gate |
 | Security CI | `.github/workflows/security.yml` plus managed repository security | GitHub Actions | Full-history Gitleaks, pull-request dependency review, locked-tree audit, CodeQL, secret scanning, and push protection |
 
 ## Run And Evidence Flow
@@ -203,6 +204,11 @@ fixed-window `/runs` gate, and the offline snapshot/restore CLI. Coolify is the
 intended hosting boundary, but no production URL, WAF, caller identity, shared
 limiter, persistent restart, off-server backup, platform restore, or rollback
 has been validated.
+
+The controlled-release preflight has no deployment edge. It evaluates a finite
+redacted stdin document and always returns `targetMutationAllowed: false`.
+Session 06 may proceed only after an authorized target produces a fully ready
+result; repository policy tests and the blocked fixture are not target evidence.
 
 ## Key Decisions
 

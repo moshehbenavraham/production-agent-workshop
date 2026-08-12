@@ -69,7 +69,7 @@ Requirements:
 - Git
 
 Install the locked dependencies, then run the one command that checks
-formatting, linting, strict types, all 354 deterministic tests, and all 18
+formatting, linting, strict types, all 374 deterministic tests, and all 18
 critical eval cases:
 
 ```bash
@@ -131,6 +131,7 @@ real customer data.
 - [HTTP API](./docs/api/http-api.md)
 - [Environments](./docs/environments.md)
 - [Deployment](./docs/deployment.md)
+- [Controlled release contract](./docs/release/controlled-release-contract.md)
 - [Incident response](./docs/runbooks/incident-response.md)
 - [Agent incident response](./docs/runbooks/agent-incident-response.md)
 - [Contributing](./CONTRIBUTING.md)
@@ -167,8 +168,9 @@ critical eval gate all have deterministic evidence. In particular:
 - three controlled source breaks proved unknown-lead fabrication, false
   completion, and approval bypass each fail the gate before exact restoration;
 - Phase 03 observability, exact-run reporting, alert policy, incident runbook,
-  and all five incident drills are validated; controlled Coolify release work
-  remains, while Phase 04's typed-handoff comparison is planned and unbuilt;
+  and all five incident drills are validated; a closed controlled-release
+  preflight is implemented, but Coolify target evidence remains unproved and
+  Phase 04's typed-handoff comparison is planned and unbuilt;
 - `/runs` has a bounded process-wide capacity gate but no caller
   authentication, authorization, tenant isolation, distributed limiter, or
   deployed WAF, so it must remain private or otherwise controlled;
@@ -208,7 +210,7 @@ These require separate authorization after the ordered workshop path:
 
 Releases follow [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 and the repository [versioning policy](./docs/VERSIONING.md). The project is
-currently version 0.1.35; user-visible changes are recorded in the
+currently version 0.1.36; user-visible changes are recorded in the
 [changelog](./docs/CHANGELOG.md).
 
 ## Official Pi References

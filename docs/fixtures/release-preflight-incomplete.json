@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "revision": "9cbd418f0aaa01af935ec5b3b3cbbefaaf1737c5",
+    "workingTreeClean": false,
+    "repositoryVerification": "failed",
+    "evalPassed": 0,
+    "evalTotal": 18,
+    "drillPassed": 0,
+    "drillTotal": 5
+  },
+  "image": {
+    "status": "pending",
+    "digest": null
+  },
+  "exposure": {
+    "mode": "controlled",
+    "healthRoute": "external_https",
+    "runsRoute": "private"
+  },
+  "runtime": {
+    "port": 3000,
+    "replicas": 1,
+    "dataMount": "/app/data",
+    "eventLogPath": "/app/data/events.jsonl",
+    "approvalLogPath": "/app/data/approvals.jsonl",
+    "requestBodyLimitBytes": 16384,
+    "runDeadlineConfigured": false,
+    "runStepLimitConfigured": false,
+    "processRateLimitConfigured": false
+  },
+  "secrets": {
+    "store": "unverified",
+    "valuesIncluded": false,
+    "providerCredentialConfigured": false,
+    "rotationProcedureConfirmed": false,
+    "revocationProcedureConfirmed": false
+  },
+  "decisions": [
+    {
+      "id": "capacity",
+      "ownerRole": "release_operator",
+      "validationMethod": "target_console",
+      "evidenceSlot": "infrastructure.capacity",
+      "confirmed": false
+    },
+    {
+      "id": "region_data_location",
+      "ownerRole": "security_operator",
+      "validationMethod": "lifecycle_review",
+      "evidenceSlot": "infrastructure.location",
+      "confirmed": false
+    },
+    {
+      "id": "non_root_administration",
+      "ownerRole": "security_operator",
+      "validationMethod": "access_review",
+      "evidenceSlot": "infrastructure.administration",
+      "confirmed": false
+    },
+    {
+      "id": "ssh_firewall",
+      "ownerRole": "security_operator",
+      "validationMethod": "access_review",
+      "evidenceSlot": "infrastructure.network",
+      "confirmed": false
+    },
+    {
+      "id": "dns_https",
+      "ownerRole": "platform_operator",
+      "validationMethod": "external_check",
+      "evidenceSlot": "infrastructure.https",
+      "confirmed": false
+    },
+    {
+      "id": "coolify_access",
+      "ownerRole": "security_operator",
+      "validationMethod": "access_review",
+      "evidenceSlot": "infrastructure.coolify_access",
+      "confirmed": false
+    },
+    {
+      "id": "environment_isolation",
+      "ownerRole": "platform_operator",
+      "validationMethod": "target_console",
+      "evidenceSlot": "infrastructure.environment",
+      "confirmed": false
+    },
+    {
+      "id": "secret_rotation_revocation",
+      "ownerRole": "security_operator",
+      "validationMethod": "secret_store_review",
+      "evidenceSlot": "infrastructure.secrets",
+      "confirmed": false
+    },
+    {
+      "id": "data_retention",
+      "ownerRole": "security_operator",
+      "validationMethod": "lifecycle_review",
+      "evidenceSlot": "infrastructure.lifecycle",
+      "confirmed": false
+    },
+    {
+      "id": "off_server_backup",
+      "ownerRole": "recovery_operator",
+      "validationMethod": "restore_plan_review",
+      "evidenceSlot": "infrastructure.backup",
+      "confirmed": false
+    },
+    {
+      "id": "monitoring_alerts",
+      "ownerRole": "service_operator",
+      "validationMethod": "monitoring_review",
+      "evidenceSlot": "infrastructure.monitoring",
+      "confirmed": false
+    },
+    {
+      "id": "pause_recovery",
+      "ownerRole": "service_operator",
+      "validationMethod": "runbook_review",
+      "evidenceSlot": "infrastructure.incident",
+      "confirmed": false
+    },
+    {
+      "id": "update_rollback",
+      "ownerRole": "release_operator",
+      "validationMethod": "rollback_plan_review",
+      "evidenceSlot": "infrastructure.rollback",
+      "confirmed": false
+    }
+  ],
+  "securityGates": [
+    { "id": "authentication", "status": "route_not_exposed" },
+    { "id": "authorization", "status": "route_not_exposed" },
+    { "id": "tenant_isolation", "status": "route_not_exposed" },
+    { "id": "trusted_proxy_identity", "status": "route_not_exposed" },
+    { "id": "shared_principal_rate_limit", "status": "route_not_exposed" },
+    { "id": "body_size_controls", "status": "application_enforced" },
+    { "id": "human_decision_access", "status": "route_not_exposed" },
+    { "id": "data_lifecycle", "status": "synthetic_only" },
+    { "id": "edge_waf", "status": "route_not_exposed" },
+    { "id": "alert_delivery", "status": "runbook_only" }
+  ],
+  "target": {
+    "authorized": false,
+    "isolatedEnvironment": false,
+    "persistentStorageConfigured": false,
+    "externalHealthCheckOwned": false,
+    "monitoringConfigured": false,
+    "backupDestinationOwned": false,
+    "pauseOwnerConfirmed": false,
+    "recoveryOwnerConfirmed": false,
+    "rollbackImageReserved": false
+  }
+}

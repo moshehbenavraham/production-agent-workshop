@@ -272,28 +272,85 @@ Task contract: [07 - Release Through Coolify](todo/07-coolify-release.md)
 
 ### Goal and Boundary
 
-_State the authorized deployment scope, controlled exposure, operator-owned
-decisions, and capabilities that remain unavailable._
+Session 05 defines a repository-owned preflight before target mutation. The
+default exposure permits external HTTPS health but keeps `/runs` private or
+edge-restricted, one replica owns `/app/data`, and only synthetic data is
+allowed. The preflight accepts no URL, address, credential, operator name,
+private identifier, arbitrary evidence string, or deployment instruction.
+
+Policy validation is implemented. Coolify target readiness remains **BLOCKED**
+until an authorized target supplies every direct confirmation. The preflight
+always returns `targetMutationAllowed: false`; a ready result only admits the
+separately authorized Session 06 workflow.
 
 ### Infrastructure Decision Record
 
-_Record the redacted compute, region, access, network, environment, secret,
-backup, update, monitoring, pause, recovery, and rollback decisions._
+The complete decision record is in the
+[Controlled Release Contract](release/controlled-release-contract.md). Its 13
+fixed entries cover capacity, location, administration, SSH/firewall, DNS/HTTPS,
+Coolify access, environment isolation, secrets, lifecycle, off-server backup,
+monitoring, incident ownership, and update/rollback. Each entry has exactly one
+generic role, finite validation method, and Week 4 evidence slot. Missing,
+reordered, remapped, or unconfirmed entries block readiness.
+
+No target decision is marked confirmed in the checked-in example. This is an
+intentional truthful stop, not missing repository policy.
 
 ### Deployment and Service Map
 
-_Add a redacted Mermaid map of repository, image, Coolify, service, health,
-persistent storage, provider, operator, and controlled client boundaries._
+```mermaid
+flowchart LR
+  Repo[Verified clean revision] --> Image[Immutable image digest]
+  Image --> Coolify[Authorized isolated Coolify target]
+  Operator[Release operator] --> Coolify
+  SecretRole[Security operator] --> Secrets[Platform secret store]
+  Secrets --> Service[One Node.js replica]
+  Coolify --> Service
+  Service --> Health[External HTTPS health]
+  Client[Controlled caller] --> Edge[Private or edge-restricted runs]
+  Edge --> Service
+  Service --> Data[(Persistent /app/data)]
+  Data -. writers stopped .-> Backup[Private off-server boundary]
+  Pi[Bounded Pi] -. no deployment, credential, decision, or send tool .-> Stop[Human stop]
+```
+
+The map is a required target contract, not a deployment claim. No URL, region,
+registry, project, volume, backup, or operator identifier is recorded.
 
 ### Security-Gate Checklist
 
-_Record authentication, authorization, tenant isolation, rate/body limits,
-human approval operations, data lifecycle, alerting, and redaction results._
+| Gate group | Controlled result | Public requirement |
+|------------|-------------------|--------------------|
+| Authentication, authorization, tenant | Route not exposed beyond controlled boundary | All directly confirmed |
+| Proxy identity and shared rate | Not trusted; process gate is capacity-only | Both directly confirmed |
+| Body size | Exact 16,384-byte application bound | Application and edge confirmed |
+| Human decisions | No public decision endpoint | Authorized durable boundary confirmed |
+| Data lifecycle | Synthetic-only manual lifecycle | Full lifecycle confirmed |
+| Edge/WAF | Private route or confirmed restriction | Directly confirmed |
+| Alerts | Local rules and runbook only | Deployed delivery confirmed |
+
+Controlled `/runs=public`, public mode with any exemption, unverified HTTPS,
+secret values, path/replica drift, or incomplete ownership returns `blocked`.
+The local process rate limiter never satisfies a public caller-control gate.
 
 ### Verification and Image Identity
 
-_Record the clean revision, exact local verification result, reproducible image
-command, and immutable image identifier without private registry details._
+Session base: `9cbd418f0aaa01af935ec5b3b3cbbefaaf1737c5` at version `0.1.35`.
+
+- Focused preflight tests: 20/20 pass.
+- Strict TypeScript: pass.
+- Controlled-ready and hypothetical public-ready contract requests: pass only
+  with their exact finite gate states.
+- Checked-in redacted example: valid request, status `blocked`, 13 exact blocked checks.
+- Command: one JSON object on stdin, 64 KiB maximum, no arguments; ready exits
+  0, blocked exits 1, invalid exits 2.
+- Full repository verification: 374/374 tests and 18/18 production evals pass.
+- Coverage: 97.88% lines, 86.31% branches, and 98.43% functions; release
+  preflight is 99.11/90.71/100.
+- Dependency audit: zero vulnerabilities.
+
+No release image was built and no digest is claimed in Session 05. The fixture
+uses explicit `pending`; Session 06 must record a direct immutable digest.
 
 ### Live Health and Run Timeline
 

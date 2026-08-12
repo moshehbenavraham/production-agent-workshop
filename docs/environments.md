@@ -12,6 +12,12 @@
 Do not invent or publish a production URL, region, tenant model, or operator
 owner. Those are external deployment decisions.
 
+Release evidence uses the finite fields in the
+[Controlled Release Contract](./release/controlled-release-contract.md). It may
+record booleans, enums, the reviewed Git revision, and an immutable image
+digest; it must not record a hostname, address, registry path, Coolify ID,
+credential, operator name, screenshot path, or arbitrary console output.
+
 ## Runtime Environment Variables
 
 | Variable | Required | Default | Purpose | Handling |
@@ -103,5 +109,7 @@ curl --fail http://127.0.0.1:3000/health
 ```
 
 See [Deployment](./deployment.md) for the container check and
+[Controlled Release Contract](./release/controlled-release-contract.md) for the
+pre-target security and ownership gate. See
 [Security and Compliance](../.spec_system/SECURITY-COMPLIANCE.md) for release
 gates.

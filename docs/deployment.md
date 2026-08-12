@@ -9,6 +9,10 @@ off-server backup schedule, platform restore, rollback, or operator-access
 path has been validated. The repository is not ready for public exposure or
 real customer data.
 
+The repository now provides a closed controlled-release preflight and decision
+record. Policy validation does not prove target readiness; see the
+[Controlled Release Contract](./release/controlled-release-contract.md).
+
 ## Local Service Check
 
 Start the application:
@@ -101,6 +105,16 @@ When deployment is separately authorized, the repository evidence requires:
 Region, sizing, DNS, HTTPS ownership, access policy, secret rotation, backup
 destination, retention, recovery ownership, and monitoring require operator
 decisions and are not stored in this repository.
+
+Before any target mutation, submit only redacted finite facts to:
+
+```bash
+npm run preflight:release < redacted-release-evidence.json
+```
+
+The checked-in incomplete example exits 1 by design. Session 06 may begin only
+when the selected authorized target returns `ready`; the command itself has no
+deployment capability and never authorizes target mutation.
 
 ## Security Boundary
 

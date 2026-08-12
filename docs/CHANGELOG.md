@@ -10,6 +10,12 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Added
 
+- Added a pure closed controlled-release preflight with exact source, image,
+  exposure, runtime, decision, secret, persistence, monitoring, backup,
+  incident, and rollback checks plus a bounded stdin JSON command and 20 tests.
+- Added a redacted controlled-release decision record, Mermaid trust map,
+  pre-public security matrix, finite operator ownership contract, and
+  deliberately blocked fixture without target values or deployment claims.
 - Added a no-input five-case synthetic incident drill command that reuses the
   production-eval harness, builds safe exact-run reports before isolated cleanup,
   evaluates default alert decisions, verifies restart/duplicate effect safety,
@@ -155,6 +161,9 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Changed
 
+- Closed Phase 03 Session 05 at version `0.1.36` after 374/374 tests,
+  18/18 production evals, 97.88/86.31/98.43 coverage, and explicit proof that
+  the repository policy passes while the unverified Coolify target stays blocked.
 - Closed Phase 03 Session 04 and Task `06` at version `0.1.35` after 354/354
   repository tests, 18/18 production evals, five passing incident drills, and
   97.82/86.14/98.37 coverage without expanding production permissions.

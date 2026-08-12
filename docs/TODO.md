@@ -83,7 +83,11 @@ Tasks `04` and `05` and the Phase 02 implementation are complete.
     - [x] Validate exact safe reports, default alerts, recovery/effect evidence, and cleanup.
     - [x] Record the Task `06` operational baseline and remaining blind spots.
     - [x] Complete Apex review, validation, and PRD closeout.
-  - [ ] Session 05 - Controlled Release Security and Operator Contract
+  - [x] Session 05 - Controlled Release Security and Operator Contract
+    - [x] Implement the closed controlled/public exposure and target-readiness preflight.
+    - [x] Add the redacted decision record, Mermaid map, security matrix, and blocked fixture.
+    - [x] Prove bounded command, hostile input, exact ownership, and no-target-mutation behavior.
+    - [x] Complete Apex review, validation, and PRD closeout.
   - [ ] Session 06 - Coolify Deployment Health and Persistence
   - [ ] Session 07 - Off-Server Restore and Rollback
   - [ ] Session 08 - Operator Handoff, Parity, and Release Evidence
@@ -104,6 +108,13 @@ Session 04 is complete with five actual golden-boundary incident drills, exact
 safe reports, unchanged default alert thresholds, restart and duplicate-effect
 proof, bounded cleanup, and an explicit provider-independent operational
 baseline. Task `06` is complete. Controlled-release Task `07` begins in Session 05.
+Session 05 now implements the repository policy and operator contract; the
+checked-in evidence remains blocked because no authorized Coolify target,
+immutable image, secret-store confirmation, persistence, monitoring, backup,
+incident ownership, or rollback reservation has been directly proved.
+Session 05 is reviewed, validated, and complete at version `0.1.36`. Task `07`
+remains open; Session 06 may begin only after a selected authorized target
+directly passes the redacted preflight.
 
 ## Phase 00 Transition (Complete)
 

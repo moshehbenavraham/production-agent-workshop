@@ -4,7 +4,7 @@
 **Sessions**: 8 (initial estimate)
 **Estimated Duration**: 6-8 workshop days
 
-**Progress**: 4/8 sessions (50%)
+**Progress**: 5/8 sessions (62.5%)
 
 ---
 
@@ -22,7 +22,7 @@ Week 4 turns the validated recovery and eval baseline into an operator-facing sy
 | 02 | Run Timeline Query and Redaction | Complete | 18 | 2026-08-12 |
 | 03 | Alerts and Incident Runbook | Complete | 18 | 2026-08-12 |
 | 04 | Incident Drills and Operational Baseline | Complete | 20 | 2026-08-12 |
-| 05 | Controlled Release Security and Operator Contract | Not Started | ~18 | - |
+| 05 | Controlled Release Security and Operator Contract | Complete | 20 | 2026-08-12 |
 | 06 | Coolify Deployment Health and Persistence | Not Started | ~20 | - |
 | 07 | Off-Server Restore and Rollback | Not Started | ~18 | - |
 | 08 | Operator Handoff, Parity, and Release Evidence | Not Started | ~19 | - |
@@ -35,12 +35,13 @@ Week 4 turns the validated recovery and eval baseline into an operator-facing sy
 - Session 02: Run Timeline Query and Redaction - completed 2026-08-12
 - Session 03: Alerts and Incident Runbook - completed 2026-08-12
 - Session 04: Incident Drills and Operational Baseline - completed 2026-08-12
+- Session 05: Controlled Release Security and Operator Contract - completed 2026-08-12
 
 ---
 
 ## Upcoming Sessions
 
-- Session 05: Controlled Release Security and Operator Contract
+- Session 06: Coolify Deployment Health and Persistence
 
 ---
 
