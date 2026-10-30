@@ -226,7 +226,7 @@ evidence, and container or platform controls.
 
 ### Dependency Note
 
-Pi 0.83.0 currently requires root overrides for `brace-expansion`, `minimatch`,
+Pi 0.85.1 currently requires root overrides for `brace-expansion`, `minimatch`,
 and `undici`. npm 12 honors the committed overrides; the current audit reports
 zero vulnerabilities. Keep npm on the declared version, run `npm audit` before
 release, and remove an override only after the upstream dependency tree is

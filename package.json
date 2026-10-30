@@ -43,9 +43,9 @@
     "typescript": "^7.0.2"
   },
   "overrides": {
-    "brace-expansion": "5.0.9",
+    "brace-expansion": "5.0.12",
     "minimatch": "10.2.6",
-    "undici": "8.10.0"
+    "undici": "8.12.3"
   },
   "allowScripts": {
     "@google/genai@1.52.0": true,
