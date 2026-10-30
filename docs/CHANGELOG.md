@@ -179,6 +179,10 @@ and releases follow the repository's [versioning policy](./VERSIONING.md), based
 
 ### Changed
 
+- Raised the `brace-expansion` override to 5.0.12 and the `undici` override to
+  8.12.3 to clear the high-severity audit findings under Pi 0.85.1, and made
+  every CI workflow install the pinned npm 12.0.2 before `npm ci`.
+
 - Reconciled the Week 4 Build Log directly with Tasks `06` and `07`: removed
   stale release-template language, corrected the service-snapshot versus
   exact-run report topology, added acceptance-to-evidence maps and the redacted
